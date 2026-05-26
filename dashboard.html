@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Action Hub</title>
+  <style>
+    :root {
+      --green-dark: #1a3d28;
+      --green-mid: #1b7239;
+      --green-accent: #00ab4f;
+      --blue: #4a6cf7;
+      --blue-light: #eef1fd;
+      --red: #d63031;
+      --red-light: #fdeef0;
+      --green-light: #edfaf2;
+      --purple: #7b1545;
+      --purple-light: #fde8f2;
+      --transfer-blue: #2d5bd4;
+      --transfer-light: #edf1fd;
+      --text: #1a2a3a;
+      --muted: #8898aa;
+      --border: #dde8dd;
+      --bg: #f2f4f2;
+      --card-bg: #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #e8e8e8;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+
+    .screen {
+      position: relative;
+      width: 390px; height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      height: 60px;
+      display: flex; align-items: center;
+      padding: 0 18px;
+      gap: 12px;
+    }
+
+    .header-hamburger {
+      display: flex; flex-direction: column; gap: 4.5px; cursor: pointer;
+    }
+    .header-hamburger span {
+      display: block; width: 22px; height: 2.5px;
+      background: #fff; border-radius: 2px;
+    }
+
+    .header-title {
+      color: #fff; font-size: 21px; font-weight: 700;
+      letter-spacing: -0.03em; flex: 1;
+    }
+
+    .header-bell {
+      position: relative; cursor: pointer;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .header-bell img { width: 60px; height: 40px; filter: brightness(0) invert(1); }
+    .bell-badge {
+      position: absolute; top: 2px; right: 2px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #e53935; color: #fff;
+      font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid var(--green-dark);
+    }
+
+    /* ── SCROLLABLE BODY ── */
+    .body {
+      flex: 1 1 auto;
+      overflow-y: auto; overflow-x: hidden;
+      padding: 14px 14px 10px;
+      scrollbar-width: none;
+    }
+    .body::-webkit-scrollbar { display: none; }
+
+    /* ── QUICK ACTIONS ── */
+    .actions-grid-top {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; margin-bottom: 10px;
+    }
+    .actions-grid-bottom {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 14px;
+    }
+
+    .action-card {
+      border-radius: 16px;
+      padding: 14px 10px 12px;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 9px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .action-card:active { opacity: 0.8; }
+
+    .action-card.timesheets { background: #edf0fa; }
+    .action-card.stock-in   { background: var(--green-light); }
+    .action-card.stock-out  { background: var(--red-light); }
+
+    .action-icon-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .action-icon-circle.blue   { background: #6b7ef8; }
+    .action-icon-circle.green  { background: var(--green-mid); }
+    .action-icon-circle.red    { background: var(--red); }
+
+    .action-label {
+      font-size: 13px; font-weight: 700; text-align: center; line-height: 1.2;
+    }
+    .action-label.blue  { color: #4a6cf7; }
+    .action-label.green { color: var(--green-mid); }
+    .action-label.red   { color: var(--red); }
+
+    /* Wide action cards (bottom row) */
+    .action-card-wide {
+      border-radius: 16px;
+      padding: 16px 14px;
+      display: flex; align-items: center; gap: 13px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .action-card-wide:active { opacity: 0.8; }
+    .action-card-wide.contractor { background: var(--purple-light); }
+    .action-card-wide.transfer   { background: var(--transfer-light); }
+
+    .wide-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+    .wide-icon.purple { background: var(--purple); }
+    .wide-icon.blue   { background: var(--transfer-blue); }
+
+    .wide-label {
+      font-size: 14px; font-weight: 700; line-height: 1.25;
+    }
+    .wide-label.purple { color: var(--purple); }
+    .wide-label.blue   { color: var(--transfer-blue); }
+
+    /* ── RESOURCE SUMMARY ── */
+    .resource-card {
+      background: #fff;
+      border: 1.8px dashed #b8ccb8;
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      margin-bottom: 18px;
+    }
+
+    .resource-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .resource-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 17px; font-weight: 700; color: var(--text);
+    }
+    .resource-toggle { cursor: pointer; color: #888; }
+
+    .resource-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 6px; margin-bottom: 14px;
+    }
+
+    .stat-item {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 8px 4px;
+      background: #f8faf8; border-radius: 12px;
+    }
+    .stat-icon { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+    .stat-label { font-size: 9px; font-weight: 600; color: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+    .stat-value { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-unit  { font-size: 10px; color: var(--muted); font-weight: 500; }
+
+    .resource-divider { height: 1px; background: #edf2ed; margin-bottom: 12px; }
+
+    .resource-manage {
+      display: flex; align-items: center; gap: 7px;
+      color: var(--green-mid); font-size: 13px; font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ── RECENT ACTIVITY ── */
+    .activity-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .activity-title { font-size: 18px; font-weight: 800; color: var(--text); }
+    .filter-btn {
+      display: flex; align-items: center; gap: 5px;
+      background: #e2e8e2; border-radius: 20px;
+      padding: 6px 13px;
+      font-size: 13px; font-weight: 600; color: #4a5a4a;
+      cursor: pointer; border: none;
+    }
+
+    .activity-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .activity-item {
+      background: #fff; border-radius: 14px;
+      padding: 13px 14px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+    }
+
+    .activity-icon {
+      width: 42px; height: 42px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex: 0 0 auto;
+    }
+    .activity-icon.green { background: #ddf5e8; }
+    .activity-icon.blue  { background: #e4eaf8; }
+    .activity-icon.red   { background: #fde4e4; }
+
+    .activity-info { flex: 1; min-width: 0; }
+    .activity-name {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .activity-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .activity-meta {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+      flex: 0 0 auto;
+    }
+    .activity-time { font-size: 12px; color: var(--muted); }
+    .activity-chevron { color: #bbb; }
+
+    .view-all {
+      text-align: center; margin: 16px 0 4px;
+      color: var(--green-mid); font-size: 14px; font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      flex: 0 0 auto;
+      height: 70px;
+      background: #fff;
+      border-top: 1px solid #e8ede8;
+      display: flex; align-items: center;
+      padding: 0 10px;
+    }
+
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      cursor: pointer; padding: 6px 4px;
+    }
+
+    .nav-icon {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+    }
+    .nav-icon.active { background: var(--green-dark); }
+    .nav-icon img { width: 22px; height: 22px; }
+    .nav-icon.active img { filter: brightness(0) invert(1); }
+    .navbar-icons{width: 40px !important;}
+    .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .nav-label.active { color: var(--green-dark); }
+
+    @media (max-width: 767px) {
+      .viewport { padding: 0; }
+      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="viewport">
+  <main class="screen">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="header-title">Action Hub</div>
+      <div class="header-bell" aria-label="Notifications">
+        <img src="design/icon-bell.png" alt="bell" />
+        <div class="bell-badge">3</div>
+      </div>
+    </header>
+
+    <!-- SCROLLABLE BODY -->
+    <div class="body">
+
+      <!-- QUICK ACTIONS ROW 1 -->
+      <div class="actions-grid-top">
+        <!-- Timesheets -->
+        <div class="action-card timesheets">
+          <div class="action-icon-circle blue">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/>
+              <path d="M12 7v5l3 2" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="action-label blue">Timesheets</div>
+        </div>
+
+        <!-- Stock In -->
+        <div class="action-card stock-in">
+          <div class="action-icon-circle green">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="2"/>
+              <path d="M3 10h18" stroke="#fff" stroke-width="1.5"/>
+              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 13v4M10 15h4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="action-label green">Stock In</div>
+        </div>
+
+        <!-- Stock Out -->
+        <div class="action-card stock-out">
+          <div class="action-icon-circle red">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="2"/>
+              <path d="M3 10h18" stroke="#fff" stroke-width="1.5"/>
+              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 16l6-4M15 16V12h-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="action-label red">Stock Out</div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS ROW 2 -->
+      <div class="actions-grid-bottom">
+        <!-- Contractor Job Record -->
+        <div class="action-card-wide contractor">
+          <div class="wide-icon purple">
+            <img src="design/icon-contract-work.png" alt="" width="24" height="24" style="filter:brightness(0) invert(1)" />
+          </div>
+          <div class="wide-label purple">Contractor<br>Job Record</div>
+        </div>
+
+        <!-- Stock Transfer -->
+        <div class="action-card-wide transfer">
+          <div class="wide-icon blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 16l-4-4 4-4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 8l4 4-4 4" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 12h18" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="wide-label blue">Stock Transfer</div>
+        </div>
+      </div>
+
+      <!-- RESOURCE SUMMARY -->
+      <div class="resource-card">
+        <div class="resource-header">
+          <div class="resource-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#1a2a3a" stroke-width="2"/>
+              <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#1a2a3a" stroke-width="2"/>
+              <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#1a2a3a" stroke-width="2"/>
+              <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#1a2a3a" stroke-width="2"/>
+            </svg>
+            Resource Summary
+          </div>
+          <div class="resource-toggle" id="resourceToggle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" id="chevronIcon">
+              <path d="M6 9l6 6 6-6" stroke="#888" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div id="resourceBody">
+          <div class="resource-stats">
+            <!-- Fuel -->
+            <div class="stat-item">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 22V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10" stroke="#1b7239" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M16 10h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2v0" stroke="#1b7239" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M4 22h12" stroke="#1b7239" stroke-width="1.8" stroke-linecap="round"/>
+                  <rect x="7" y="9" width="6" height="4" rx="1" fill="#1b7239"/>
+                </svg>
+              </div>
+              <div class="stat-label">Fuel</div>
+              <div class="stat-value">420</div>
+              <div class="stat-unit">Ltrs</div>
+            </div>
+            <!-- Labor -->
+            <div class="stat-item">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <circle cx="10" cy="7" r="3" stroke="#4a6cf7" stroke-width="1.8"/>
+                  <path d="M4 20c0-4 2.7-6 6-6s6 2 6 6" stroke="#4a6cf7" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M16 11l2 2 3-3" stroke="#4a6cf7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="stat-label">Labor</div>
+              <div class="stat-value">86</div>
+              <div class="stat-unit">Hrs</div>
+            </div>
+            <!-- Units -->
+            <div class="stat-item">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" stroke="#7b1545" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M3 8l9 5 9-5M12 13v8" stroke="#7b1545" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="stat-label">Units</div>
+              <div class="stat-value">1.2k</div>
+              <div class="stat-unit">Items</div>
+            </div>
+            <!-- Score -->
+            <div class="stat-item">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2l2.8 5.6 6.2.9-4.5 4.4 1.1 6.1L12 16l-5.6 3 1.1-6.1L3 8.5l6.2-.9L12 2z" stroke="#d63031" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="stat-label">Score</div>
+              <div class="stat-value">98</div>
+              <div class="stat-unit">%</div>
+            </div>
+          </div>
+
+          <div class="resource-divider"></div>
+
+          <div class="resource-manage">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="3" stroke="#1b7239" stroke-width="2"/>
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Manage / Customise Resource Summary</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECENT ACTIVITY -->
+      <div class="activity-header">
+        <div class="activity-title">Recent Activity</div>
+        <button class="filter-btn">
+          Filter by Type
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M4 6h16M7 12h10M10 18h4" stroke="#4a5a4a" stroke-width="2.2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="activity-list">
+        <!-- Stock In -->
+        <div class="activity-item">
+          <div class="activity-icon green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#1b7239" stroke-width="2"/>
+              <path d="M3 10h18" stroke="#1b7239" stroke-width="1.5"/>
+              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
+              <path d="M12 13v4M10 15h4" stroke="#1b7239" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Stock In: Cement Grade A</div>
+            <div class="activity-sub">Warehouse 4 • Site Alpha</div>
+          </div>
+          <div class="activity-meta">
+            <div class="activity-time">10:45 AM</div>
+            <div class="activity-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 6l6 6-6 6" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timesheet -->
+        <div class="activity-item">
+          <div class="activity-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#4a6cf7" stroke-width="2"/>
+              <path d="M12 7v5l3 2" stroke="#4a6cf7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Timesheet: J. Smith</div>
+            <div class="activity-sub">Excavation Shift • 8.5hrs</div>
+          </div>
+          <div class="activity-meta">
+            <div class="activity-time">09:12 AM</div>
+            <div class="activity-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 6l6 6-6 6" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock Out -->
+        <div class="activity-item">
+          <div class="activity-icon red">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#d63031" stroke-width="2"/>
+              <path d="M3 10h18" stroke="#d63031" stroke-width="1.5"/>
+              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#d63031" stroke-width="2" stroke-linecap="round"/>
+              <path d="M9 16l6-4M15 16V12h-4" stroke="#d63031" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">Stock Out: Timber Beam</div>
+            <div class="activity-sub">Delivery 882 • Job #991</div>
+          </div>
+          <div class="activity-meta">
+            <div class="activity-time">Yesterday</div>
+            <div class="activity-chevron">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M9 6l6 6-6 6" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-all">View All Activity →</div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <!-- Home (active) -->
+      <div class="nav-item">
+        <div class="nav-icon active">
+          <img src="design/nav-home.png" alt="Home" />
+        </div>
+        <div class="nav-label active">Home</div>
+      </div>
+      <!-- Work -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <img src="design/nav-contract-work.png" alt="Work" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Work</div>
+      </div>
+      <!-- Contracts -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <img class="navbar-icons" src="design/nav-contracts.png" alt="Contracts" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Contracts</div>
+      </div>
+      <!-- Map -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="40" height="30" viewBox="0 0 24 24" fill="none">
+            <path d="M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3z" stroke="#8898aa" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 4v13M15 7v13" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="nav-label">Map</div>
+      </div>
+      <!-- Settings -->
+      <div class="nav-item">
+        <div class="nav-icon">
+          <img src="design/nav-settings.png" alt="Settings" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Settings</div>
+      </div>
+    </nav>
+
+  </main>
+</div>
+
+<script>
+  // Scale to fit viewport
+  const baseW = 390, baseH = 844, pad = 32;
+  const updateScale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  updateScale();
+  window.addEventListener('resize', updateScale);
+
+  // Collapsible resource summary
+  const toggle = document.getElementById('resourceToggle');
+  const body   = document.getElementById('resourceBody');
+  const chevron = document.getElementById('chevronIcon');
+  let open = true;
+  toggle.addEventListener('click', () => {
+    open = !open;
+    body.style.display = open ? '' : 'none';
+    chevron.querySelector('path').setAttribute('d', open ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6');
+  });
+
+  // Nav switching
+  document.querySelectorAll('.nav-item').forEach((item, i) => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.nav-icon').forEach(ic => ic.classList.remove('active'));
+      document.querySelectorAll('.nav-label').forEach(lb => lb.classList.remove('active'));
+      item.querySelector('.nav-icon').classList.add('active');
+      item.querySelector('.nav-label').classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>

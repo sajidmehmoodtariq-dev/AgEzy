@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<title>AgEzy</title>
+	<style>
+		:root {
+			--green: #00ab4f;
+			--cream: #fff4cf;
+			--cream-text: #b55a12;
+			--blue: #18a7e3;
+			--blue-dark: #1391cf;
+			--navy: #203d7a;
+			--text: #1f2940;
+			--muted: #6d7ca0;
+			--field-border: #dce5f1;
+			--field-icon: #97a6c0;
+			--admin: #1b7239;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		html,
+		body {
+			margin: 0;
+			width: 100%;
+			min-height: 100%;
+			background: #fff;
+			font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+			overflow: hidden;
+		}
+
+		body {
+			color: var(--text);
+		}
+
+		.viewport {
+			position: fixed;
+			inset: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 16px;
+			overflow: hidden;
+			background: #fff;
+		}
+
+		.screen {
+			position: relative;
+			width: 390px;
+			height: 844px;
+			transform: scale(var(--app-scale, 1));
+			transform-origin: center center;
+			background: var(--green);
+			border-radius: 26px;
+			overflow: hidden;
+			box-shadow: 0 28px 80px rgba(21, 45, 84, 0.16);
+		}
+
+		.splash,
+		.login {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			background: var(--green);
+		}
+
+		.splash {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: opacity 220ms ease, visibility 220ms ease;
+		}
+
+		.splash.is-hidden {
+			opacity: 0;
+			visibility: hidden;
+			pointer-events: none;
+		}
+
+		.splash-logo {
+			width: 126px;
+			height: auto;
+			display: block;
+			user-select: none;
+			-webkit-user-drag: none;
+		}
+
+		.login {
+			display: flex;
+			flex-direction: column;
+			transform: translateY(100%);
+			transition: transform 220ms ease;
+			background: var(--green);
+		}
+
+		.login.is-visible {
+			transform: translateY(0);
+		}
+
+		.offline-bar {
+			height: 37px;
+			background: var(--cream);
+			color: var(--cream-text);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			font-size: 14px;
+			line-height: 1;
+			flex: 0 0 auto;
+		}
+
+		.offline-bar svg {
+			width: 18px;
+			height: 18px;
+			flex: none;
+		}
+
+		.hero {
+			padding-top: 48px;
+			flex: 0 0 auto;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.hero-logo {
+			width: 116px;
+			height: auto;
+			display: block;
+			user-select: none;
+			-webkit-user-drag: none;
+		}
+
+		.brand {
+			margin-top: 0;
+			color: var(--navy);
+			font-weight: 700;
+			font-size: 32px;
+			line-height: 1;
+			letter-spacing: -0.05em;
+		}
+
+		.card {
+			margin-top: 28px;
+			flex: 1 1 auto;
+			background: #fff;
+			border-radius: 30px 30px 0 0;
+			padding: 24px 24px 22px;
+			box-shadow: 0 -2px 0 rgba(0, 0, 0, 0.01);
+		}
+
+		.card-inner {
+			width: 100%;
+			max-width: 420px;
+			margin: 0 auto;
+		}
+
+		.title {
+			margin: 6px 0 6px;
+			text-align: center;
+			color: var(--text);
+			font-size: 27px;
+			line-height: 1.12;
+			font-weight: 700;
+			letter-spacing: -0.04em;
+		}
+
+		.subtitle {
+			margin: 0 0 20px;
+			text-align: center;
+			color: var(--muted);
+			font-size: 16px;
+			line-height: 1.3;
+			letter-spacing: -0.02em;
+		}
+
+		.field-group {
+			margin-bottom: 14px;
+		}
+
+		.field-row {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin: 0 5px 7px;
+			color: var(--text);
+			font-size: 15px;
+			line-height: 1.1;
+		}
+
+		.field-row a {
+			color: var(--admin);
+			text-decoration: none;
+			font-weight: 700;
+			font-size: 14px;
+		}
+
+		.input-shell {
+			height: 50px;
+			border: 1px solid var(--field-border);
+			border-radius: 24px;
+			display: flex;
+			align-items: center;
+			gap: 11px;
+			padding: 0 13px;
+			box-shadow: 0 5px 14px rgba(27, 45, 84, 0.06);
+			background: #fff;
+		}
+
+		.input-shell svg {
+			width: 18px;
+			height: 18px;
+			flex: none;
+			color: var(--field-icon);
+		}
+
+		.input-shell input {
+			width: 100%;
+			border: 0;
+			outline: 0;
+			background: transparent;
+			color: #66748e;
+			font: inherit;
+			font-size: 16px;
+			letter-spacing: -0.02em;
+		}
+
+		.input-shell input::placeholder {
+			color: #9ca9bf;
+			opacity: 1;
+		}
+
+		.right-icon {
+			margin-left: auto;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--field-icon);
+			flex: none;
+		}
+
+		.password-toggle {
+			border: 0;
+			background: transparent;
+			padding: 0;
+			cursor: pointer;
+		}
+
+		.password-toggle svg {
+			display: none;
+		}
+
+		.password-toggle.is-hidden .eye-open {
+			display: block;
+		}
+
+		.password-toggle.is-visible .eye-closed {
+			display: block;
+		}
+
+		.sign-in {
+			margin-top: 22px;
+			width: 100%;
+			height: 50px;
+			border: 0;
+			border-radius: 24px;
+			background: linear-gradient(180deg, var(--blue) 0%, var(--blue-dark) 100%);
+			color: #fff;
+			font-size: 17px;
+			font-weight: 700;
+			letter-spacing: -0.02em;
+			box-shadow: 0 10px 22px rgba(24, 167, 227, 0.3);
+		}
+
+		.divider {
+			margin: 24px 0 20px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: #6b7690;
+			font-size: 15px;
+			line-height: 1;
+		}
+
+		.divider::before,
+		.divider::after {
+			content: "";
+			flex: 1;
+			height: 1px;
+			background: #dfe5ef;
+		}
+
+		.google-btn {
+			width: 100%;
+			height: 50px;
+			border: 1px solid #d8e0ed;
+			border-radius: 26px;
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 12px;
+			color: #3f4d65;
+			font-size: 16px;
+			line-height: 1;
+			box-shadow: 0 5px 14px rgba(27, 45, 84, 0.04);
+		}
+
+		.footer-note {
+			margin: 12px 0 0;
+			text-align: center;
+			color: #6d7890;
+			font-size: 14px;
+			line-height: 1.4;
+		}
+
+		.footer-note a {
+			color: var(--admin);
+			text-decoration: none;
+			font-weight: 700;
+		}
+
+		@media (min-width: 768px) {
+			.screen {
+				max-width: none;
+				min-height: 0;
+			}
+		}
+
+		@media (max-width: 767px) {
+			.viewport {
+				padding: 0;
+			}
+
+			.screen {
+				width: 390px;
+				height: 844px;
+				border-radius: 0;
+				box-shadow: none;
+			}
+
+			.hero {
+				padding-top: 42px;
+			}
+
+			.card {
+				margin-top: 24px;
+				padding: 22px 22px 20px;
+			}
+
+			.title {
+				font-size: 26px;
+			}
+
+			.divider {
+				margin: 22px 0 18px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="viewport">
+		<main class="screen">
+			<section class="splash" id="splashScreen" aria-label="Splash screen">
+				<img class="splash-logo" src="design/logo.png" alt="AgEzy logo" />
+			</section>
+
+			<section class="login" id="loginScreen" aria-label="Login screen">
+				<div class="offline-bar">
+					<svg viewBox="0 0 24 24" aria-hidden="true">
+						<path d="M4 4l16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+						<path d="M7.5 8.5A7.5 7.5 0 0 1 16 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+						<path d="M5.2 10.8A10.2 10.2 0 0 1 14.3 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+					</svg>
+					<span>You are currently offline</span>
+				</div>
+
+				<div class="hero">
+					<img class="hero-logo" src="design/logo.png" alt="AgEzy logo" />
+					<div class="brand">AgEzy</div>
+				</div>
+
+				<div class="card">
+					<div class="card-inner">
+						<div id="loginMessage" aria-live="polite" style="margin: 0 0 12px; min-height: 18px; text-align: center; color: var(--admin); font-size: 13px; font-weight: 700;"></div>
+						<h1 class="title">Welcome Back</h1>
+						<p class="subtitle">Sign in to your account</p>
+
+						<div class="field-group">
+							<div class="field-row"><span>Email</span></div>
+							<div class="input-shell">
+								<svg viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M4 6.5h16A1.5 1.5 0 0 1 21.5 8v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Z" fill="none" stroke="currentColor" stroke-width="1.8" />
+									<path d="m3.8 7.2 8.2 6 8.2-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" />
+								</svg>
+								<input id="emailInput" type="email" value="demo@agezy.com" placeholder="name@farm.com" aria-label="Email" />
+							</div>
+						</div>
+
+						<div class="field-group">
+							<div class="field-row">
+								<span>Password</span>
+								<a href="#">Forgot?</a>
+							</div>
+							<div class="input-shell">
+								<svg viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M7.5 10V7.8a4.5 4.5 0 0 1 9 0V10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									<rect x="4.5" y="10" width="15" height="10.5" rx="2.4" fill="none" stroke="currentColor" stroke-width="1.8" />
+									<path d="M12 13.1v3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+								</svg>
+								<input id="passwordInput" type="password" value="Agezy@123" aria-label="Password" />
+								<button class="right-icon password-toggle is-hidden" id="passwordToggle" type="button" aria-label="Show password" aria-pressed="false">
+									<svg class="eye-open" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+										<path d="M9 6.7A11.2 11.2 0 0 1 12 6c5.6 0 9 6 9 6s-1.1 1.9-3 3.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+										<path d="M6.1 8.9C3.8 10.8 3 12 3 12s3.4 6 9 6c1 0 1.9-.1 2.7-.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+										<path d="M10.6 10.6a2.2 2.2 0 0 0 3.1 3.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+									<svg class="eye-closed" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+										<path d="M4 4l16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+										<path d="M9 11.2A2.2 2.2 0 0 1 12.8 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+									</svg>
+								</button>
+							</div>
+						</div>
+
+						<button class="sign-in" id="signInButton" type="button">Sign In</button>
+
+						<div class="divider">Or continue with</div>
+
+						<button class="google-btn" type="button" aria-label="Continue with Google">
+							<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+								<path d="M21.6 12.3c0-.8-.1-1.4-.2-2H12v3.7h5.4c-.2 1-.9 2.3-2 3.1v2.6h3.2c1.8-1.7 3-4.1 3-7.4Z" fill="#4285F4" />
+								<path d="M12 21.7c2.6 0 4.9-.9 6.6-2.5l-3.2-2.6c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A9.9 9.9 0 0 0 12 21.7Z" fill="#34A853" />
+								<path d="M6.4 13.4a6 6 0 0 1 0-3.8V7H3.1a9.9 9.9 0 0 0 0 9.3l3.3-2.6Z" fill="#FBBC05" />
+								<path d="M12 5.8c1.4 0 2.7.5 3.7 1.5l2.8-2.8A9.5 9.5 0 0 0 12 2.3 9.9 9.9 0 0 0 3.1 7l3.3 2.6c.8-2.3 3-3.8 5.6-3.8Z" fill="#EA4335" />
+							</svg>
+							<span>Continue with Google</span>
+						</button>
+
+						<p class="footer-note">Don't have an account? <a href="#">Contact your Admin</a></p>
+					</div>
+				</div>
+			</section>
+		</main>
+	</div>
+
+	<script>
+		const splashScreen = document.getElementById('splashScreen');
+		const loginScreen = document.getElementById('loginScreen');
+		const signInButton = document.getElementById('signInButton');
+		const loginMessage = document.getElementById('loginMessage');
+		const emailInput = document.getElementById('emailInput');
+		const passwordInput = document.getElementById('passwordInput');
+		const passwordToggle = document.getElementById('passwordToggle');
+		const baseWidth = 390;
+		const baseHeight = 844;
+		const outerPadding = 32;
+
+		const updateScale = () => {
+			const availableWidth = window.innerWidth - outerPadding;
+			const availableHeight = window.innerHeight - outerPadding;
+			const scale = Math.min(availableWidth / baseWidth, availableHeight / baseHeight, 1);
+			document.documentElement.style.setProperty('--app-scale', scale.toFixed(4));
+		};
+
+		updateScale();
+		window.addEventListener('resize', updateScale);
+
+		window.setTimeout(() => {
+			splashScreen.classList.add('is-hidden');
+			loginScreen.classList.add('is-visible');
+		}, 1500);
+
+		signInButton.addEventListener('click', () => {
+			const email = emailInput.value.trim();
+			const password = passwordInput.value.trim();
+
+			if (email === 'demo@agezy.com' && password === 'Agezy@123') {
+				window.location.href = 'dashboard.html';
+				return;
+			}
+
+			loginMessage.textContent = 'Invalid demo credentials';
+			loginMessage.style.color = '#b55a12';
+		});
+
+		passwordToggle.addEventListener('click', () => {
+			const isHidden = passwordInput.type === 'password';
+			passwordInput.type = isHidden ? 'text' : 'password';
+			passwordToggle.classList.toggle('is-hidden', !isHidden);
+			passwordToggle.classList.toggle('is-visible', isHidden);
+			passwordToggle.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+			passwordToggle.setAttribute('aria-pressed', String(isHidden));
+		});
+	</script>
+</body>
+</html>
