@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Harvest Job</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--orange-dark:#c47a00;--red:#d63031;--blue:#2d5bd4;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    .header{flex:0 0 auto;background:var(--orange-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+    .h-back{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:rgba(255,255,255,.15);}
+    .h-title{flex:1;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+
+    .stats-strip{background:var(--orange-dark);padding:0 16px 16px;display:flex;gap:0;}
+    .stat-box{flex:1;background:rgba(255,255,255,.15);border-radius:12px;padding:10px 8px;text-align:center;margin:0 4px;}
+    .stat-box:first-child{margin-left:0;} .stat-box:last-child{margin-right:0;}
+    .stat-val{font-size:20px;font-weight:900;color:#fff;line-height:1;}
+    .stat-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.05em;margin-top:3px;}
+
+    .body{flex:1;overflow-y:auto;padding:14px;scrollbar-width:none;}
+    .body::-webkit-scrollbar{display:none;}
+
+    .sec-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 10px;}
+    .sec-title:first-child{margin-top:0;}
+
+    .truck-card{background:var(--card);border-radius:16px;padding:14px 14px 10px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+    .tc-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+    .truck-ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:0 0 42px;}
+    .truck-ic.avail{background:#e4f8ee;}
+    .truck-ic.busy{background:#fef3e2;}
+    .truck-ic.out{background:#fdedf0;}
+    .tc-info{flex:1;}
+    .tc-name{font-size:15px;font-weight:800;color:var(--text);}
+    .tc-plate{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px;}
+    .tc-status{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;letter-spacing:.04em;}
+    .tc-status.avail{background:#e4f8ee;color:var(--green-mid);}
+    .tc-status.busy{background:#fef3e2;color:var(--orange);}
+    .tc-status.out{background:#fdedf0;color:var(--red);}
+
+    .tc-bottom{display:flex;align-items:center;gap:8px;border-top:1px solid var(--border);padding-top:10px;}
+    .tc-loads{font-size:13px;color:var(--muted);font-weight:600;}
+    .tc-loads strong{color:var(--text);font-weight:800;}
+    .rec-btn{margin-left:auto;padding:8px 16px;border-radius:20px;background:var(--orange);color:#fff;font-size:12px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
+    .rec-btn:active{opacity:.8;}
+    .rec-btn:disabled{background:#ccc;cursor:default;}
+
+    .docket-card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+    .docket-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);}
+    .docket-row:last-child{border-bottom:none;padding-bottom:0;}
+    .docket-row:first-child{padding-top:0;}
+    .d-label{font-size:13px;color:var(--muted);font-weight:600;}
+    .d-val{font-size:13px;font-weight:700;color:var(--text);}
+    .d-input{border:none;background:none;font-size:13px;font-weight:700;color:var(--text);text-align:right;width:120px;outline:none;font-family:inherit;}
+
+    .add-truck-btn{width:100%;padding:13px;border-radius:14px;border:2px dashed var(--border);background:transparent;color:var(--orange);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:background .15s;}
+    .add-truck-btn:active{background:#fff7e6;}
+
+    .complete-btn{width:100%;padding:17px;border-radius:16px;background:var(--orange);color:#fff;font-size:16px;font-weight:800;border:none;cursor:pointer;margin-bottom:8px;transition:opacity .15s;}
+    .complete-btn:active{opacity:.85;}
+
+    .toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:#1a2a3a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;z-index:50;pointer-events:none;opacity:0;transition:opacity .25s;}
+    .toast.show{opacity:1;}
+
+    .bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    .nav-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .nav-ic.active{background:var(--green-dark);}
+    .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
+    .nav-lbl.active{color:var(--green-dark);}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <header class="header">
+    <button class="h-back" onclick="window.location.href='job-detail.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="h-title" id="pageTitle">Harvest Job #204</div>
+  </header>
+
+  <div class="stats-strip">
+    <div class="stat-box"><div class="stat-val" id="statLoads">42</div><div class="stat-lbl">Loads</div></div>
+    <div class="stat-box"><div class="stat-val">1.2k</div><div class="stat-lbl">Tonnes</div></div>
+    <div class="stat-box"><div class="stat-val">85%</div><div class="stat-lbl">Complete</div></div>
+  </div>
+
+  <div class="body">
+
+    <!-- DOCKET SUMMARY -->
+    <div class="sec-title">Docket Summary</div>
+    <div class="docket-card">
+      <div class="docket-row">
+        <span class="d-label">Commodity</span>
+        <input class="d-input" type="text" value="Wheat" />
+      </div>
+      <div class="docket-row">
+        <span class="d-label">Paddock / Block</span>
+        <input class="d-input" type="text" value="Block C – South" />
+      </div>
+      <div class="docket-row">
+        <span class="d-label">Destination Silo</span>
+        <input class="d-input" type="text" value="Grain Shed 04" />
+      </div>
+      <div class="docket-row">
+        <span class="d-label">Header Operator</span>
+        <span class="d-val">Alex P.</span>
+      </div>
+      <div class="docket-row">
+        <span class="d-label">Avg. Weight / Load</span>
+        <span class="d-val">28.6 t</span>
+      </div>
+    </div>
+
+    <!-- ACTIVE TRUCKS -->
+    <div class="sec-title">Active Trucks</div>
+
+    <div class="truck-card">
+      <div class="tc-top">
+        <div class="truck-ic avail">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#1b7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#1b7239" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#1b7239" stroke-width="2"/></svg>
+        </div>
+        <div class="tc-info">
+          <div class="tc-name">Claudia's Truck</div>
+          <div class="tc-plate">Reg: ABC-123 · Driver: Claudia M.</div>
+        </div>
+        <div class="tc-status avail">Available</div>
+      </div>
+      <div class="tc-bottom">
+        <div class="tc-loads"><strong>16</strong> loads today</div>
+        <button class="rec-btn" onclick="recordLoad(this,'Claudia')">Record Load</button>
+      </div>
+    </div>
+
+    <div class="truck-card">
+      <div class="tc-top">
+        <div class="truck-ic busy">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#f5a623" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#f5a623" stroke-width="2"/></svg>
+        </div>
+        <div class="tc-info">
+          <div class="tc-name">Big Red</div>
+          <div class="tc-plate">Reg: XYZ-456 · Driver: James R.</div>
+        </div>
+        <div class="tc-status busy">En Route</div>
+      </div>
+      <div class="tc-bottom">
+        <div class="tc-loads"><strong>14</strong> loads today</div>
+        <button class="rec-btn" disabled>In Transit</button>
+      </div>
+    </div>
+
+    <div class="truck-card">
+      <div class="tc-top">
+        <div class="truck-ic avail">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#1b7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#1b7239" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#1b7239" stroke-width="2"/></svg>
+        </div>
+        <div class="tc-info">
+          <div class="tc-name">John's Deere</div>
+          <div class="tc-plate">Reg: DEF-789 · Driver: John G.</div>
+        </div>
+        <div class="tc-status avail">Available</div>
+      </div>
+      <div class="tc-bottom">
+        <div class="tc-loads"><strong>12</strong> loads today</div>
+        <button class="rec-btn" onclick="recordLoad(this,'John')">Record Load</button>
+      </div>
+    </div>
+
+    <button class="add-truck-btn" onclick="addTruck()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#f5a623" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/></svg>
+      Add Temporary Truck
+    </button>
+
+    <button class="complete-btn" onclick="completeJob()">Complete Harvest Job →</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="nav-lbl">Home</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="#fff" stroke-width="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M12 12v4M10 14h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl active">Jobs</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='timesheets-list.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Timesheets</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#8898aa" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Settings</div>
+    </div>
+  </nav>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  const jobId=sessionStorage.getItem('jobId')||'JOB-2025-084';
+  document.getElementById('pageTitle').textContent='Harvest Job · '+jobId;
+
+  let loadCount=42;
+  function recordLoad(btn,driver){
+    loadCount++;
+    document.getElementById('statLoads').textContent=loadCount;
+    showToast('Load recorded for '+driver+' · Load #'+loadCount);
+    btn.textContent='✓ Recorded';
+    btn.style.background='#1b7239';
+    setTimeout(()=>{btn.textContent='Record Load';btn.style.background='';},2000);
+  }
+
+  function addTruck(){
+    showToast('Add Temporary Truck (demo)');
+  }
+
+  function completeJob(){
+    sessionStorage.setItem('jobComplete','harvest');
+    window.location.href='job-complete.html';
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+  }
+</script>
+</body></html>

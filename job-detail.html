@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Job Detail</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+    .h-back{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:rgba(255,255,255,.12);}
+    .h-title{flex:1;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+    .h-more{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:20px;font-weight:700;letter-spacing:.5px;}
+
+    .body{flex:1;overflow-y:auto;padding:0 0 100px;scrollbar-width:none;}
+    .body::-webkit-scrollbar{display:none;}
+
+    /* MAP THUMBNAIL */
+    .map-thumb{width:100%;height:180px;background:linear-gradient(135deg,#2d5a27 0%,#3d7a36 30%,#5a9e4c 60%,#4a8a3c 100%);position:relative;overflow:hidden;}
+    .map-grid{position:absolute;inset:0;opacity:.2;}
+    .map-label{position:absolute;bottom:12px;left:14px;background:rgba(0,0,0,.5);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.04em;}
+    .map-pin{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);}
+    .map-expand{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.25);border-radius:8px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+    /* JOB HEADER CARD */
+    .job-card{background:var(--card);margin:14px 14px 0;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .jc-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+    .job-id{font-size:12px;font-weight:700;color:var(--muted);}
+    .status-pill{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.05em;}
+    .status-pill.scheduled{background:#e4ecfd;color:var(--blue);}
+    .status-pill.in-progress{background:#fef3e2;color:var(--orange);}
+    .status-pill.completed{background:#e4f8ee;color:var(--green-mid);}
+    .job-title{font-size:20px;font-weight:900;color:var(--text);margin-bottom:4px;}
+    .job-sub{font-size:13px;color:var(--muted);font-weight:500;}
+
+    .divider{height:1px;background:var(--border);margin:14px 0;}
+
+    .info-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .info-ic{width:34px;height:34px;border-radius:10px;background:#f4f6f4;display:flex;align-items:center;justify-content:center;flex:0 0 34px;}
+    .info-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+    .info-val{font-size:14px;font-weight:700;color:var(--text);margin-top:1px;}
+
+    .ops-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;}
+    .op-chip{display:flex;align-items:center;gap:6px;background:#f4f6f4;border-radius:20px;padding:5px 10px 5px 5px;}
+    .op-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;}
+    .op-nm{font-size:12px;font-weight:600;color:var(--text);}
+
+    /* ACTION BUTTONS */
+    .action-row{display:flex;gap:8px;margin:14px 14px 0;}
+    .act-btn{flex:1;padding:11px 6px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);font-size:12px;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s;}
+    .act-btn:active{background:#f4f6f4;}
+
+    /* PRE-START BUTTON */
+    .prestart-wrap{padding:16px 14px 0;}
+    .prestart-btn{width:100%;padding:16px;border-radius:16px;background:var(--orange);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:opacity .15s;}
+    .prestart-btn:active{opacity:.85;}
+    .warn-note{display:flex;align-items:center;gap:8px;margin-top:10px;background:#fffbf0;border:1px solid #ffe080;border-radius:12px;padding:10px 12px;}
+    .warn-note-txt{font-size:12px;color:#8a6000;font-weight:600;}
+
+    /* BOTTOM SHEET OVERLAY */
+    .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;}
+    .backdrop.show{display:flex;}
+    .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:92%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+    .backdrop.show .sheet{transform:translateY(0);}
+
+    .sheet-handle{width:40px;height:4px;border-radius:2px;background:#dde;margin:12px auto 0;}
+    .sheet-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+    .sheet-title{font-size:16px;font-weight:800;color:var(--text);}
+    .sheet-close{width:30px;height:30px;border-radius:50%;background:#f4f6f4;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+    .sheet-body{flex:1;overflow-y:auto;padding:16px;scrollbar-width:none;}
+    .sheet-body::-webkit-scrollbar{display:none;}
+
+    .ck-section{margin-bottom:18px;}
+    .ck-title{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+    .ck-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#f8faf8;border-radius:12px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+    .ck-item.checked{background:#f0faf4;border-color:var(--green);}
+    .ck-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex:0 0 22px;transition:all .15s;}
+    .ck-item.checked .ck-box{background:var(--green-mid);border-color:var(--green-mid);}
+    .ck-txt{font-size:13px;font-weight:600;color:var(--text);}
+
+    .sig-area{border:2px dashed var(--border);border-radius:12px;height:80px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:16px;transition:all .2s;}
+    .sig-area.signed{border-style:solid;border-color:var(--green-mid);background:#f0faf4;}
+    .sig-hint{font-size:13px;color:var(--muted);font-weight:600;}
+    .sig-img{display:none;font-family:"Dancing Script",cursive;font-size:22px;color:var(--green-dark);font-style:italic;}
+
+    .start-btn{width:100%;padding:16px;border-radius:16px;background:#cccccc;color:#fff;font-size:15px;font-weight:800;border:none;cursor:not-allowed;transition:all .2s;margin-bottom:8px;}
+    .start-btn.ready{background:var(--green-mid);cursor:pointer;}
+    .start-btn.ready:active{opacity:.85;}
+
+    .sheet-footer{padding:12px 16px;border-top:1px solid var(--border);}
+
+    /* TOAST */
+    .toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:#1a2a3a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;z-index:50;pointer-events:none;opacity:0;transition:opacity .25s;}
+    .toast.show{opacity:1;}
+
+    /* BOTTOM NAV */
+    .bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    .nav-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .nav-ic.active{background:var(--green-dark);}
+    .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
+    .nav-lbl.active{color:var(--green-dark);}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <header class="header">
+    <button class="h-back" onclick="window.location.href='jobs-hub.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="h-title" id="pageTitle">Job Detail</div>
+    <button class="h-more" onclick="showToast('More options')">···</button>
+  </header>
+
+  <div class="body">
+
+    <!-- MAP -->
+    <div class="map-thumb">
+      <svg class="map-grid" width="100%" height="100%" viewBox="0 0 390 180" preserveAspectRatio="none">
+        <defs><pattern id="grid" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="#fff" stroke-width=".5"/></pattern></defs>
+        <rect width="390" height="180" fill="url(#grid)"/>
+        <ellipse cx="195" cy="90" rx="120" ry="60" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.2)" stroke-width="1.5" stroke-dasharray="6 4"/>
+        <line x1="60" y1="180" x2="140" y2="0" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+        <line x1="250" y1="180" x2="330" y2="0" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+      </svg>
+      <div class="map-pin">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="10" r="4" fill="#fff"/><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="rgba(255,255,255,.6)"/><circle cx="12" cy="9" r="2.5" fill="#1a3d28"/></svg>
+      </div>
+      <div class="map-label" id="mapLabel">Green Acres Farm</div>
+      <div class="map-expand">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <!-- JOB CARD -->
+    <div class="job-card">
+      <div class="jc-top-row">
+        <div class="job-id" id="jobId">JOB-2025-089</div>
+        <div class="status-pill in-progress" id="statusPill">In Progress</div>
+      </div>
+      <div class="job-title" id="jobTitle">Hay Cutting</div>
+      <div class="job-sub">Oct 24, 2023 · 07:30 AM</div>
+
+      <div class="divider"></div>
+
+      <div class="info-row">
+        <div class="info-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/><path d="M5 10v9h5v-5h4v5h5v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-lbl">Customer</div>
+          <div class="info-val">Green Valley Farms</div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="10" r="3" stroke="#8898aa" stroke-width="2"/><path d="M12 2C7.58 2 4 5.58 4 10c0 5.5 8 12 8 12s8-6.5 8-12c0-4.42-3.58-8-8-8z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-lbl">Location</div>
+          <div class="info-val" id="jobLoc">Green Acres Farm – Block C</div>
+        </div>
+      </div>
+
+      <div class="info-row" style="margin-bottom:4px">
+        <div class="info-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="11" width="20" height="9" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M6 11V7a6 6 0 0 1 12 0v4" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-lbl">Resources</div>
+          <div class="info-val">Big Red Harvester · John's Deere 8R</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="info-lbl" style="margin-bottom:8px">Assigned Operators</div>
+      <div class="ops-row">
+        <div class="op-chip"><div class="op-av" style="background:#1b7239">JG</div><div class="op-nm">John G.</div></div>
+        <div class="op-chip"><div class="op-av" style="background:#2d5bd4">SM</div><div class="op-nm">Sarah M.</div></div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="action-row">
+      <button class="act-btn" onclick="showToast('Edit job')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#1a2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#1a2a3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Edit
+      </button>
+      <button class="act-btn" onclick="showToast('Share job details')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="18" cy="5" r="3" stroke="#1a2a3a" stroke-width="2"/><circle cx="6" cy="12" r="3" stroke="#1a2a3a" stroke-width="2"/><circle cx="18" cy="19" r="3" stroke="#1a2a3a" stroke-width="2"/><path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.82 3.98" stroke="#1a2a3a" stroke-width="2" stroke-linecap="round"/></svg>
+        Share
+      </button>
+      <button class="act-btn" onclick="showToast('Add note')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#1a2a3a" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M12 18v-6M9 15h6" stroke="#1a2a3a" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Note
+      </button>
+    </div>
+
+    <!-- PRE-START CHECK BUTTON -->
+    <div class="prestart-wrap">
+      <button class="prestart-btn" id="checklistBtn" onclick="openChecklist()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Begin Pre-Start Safety Check
+      </button>
+      <div class="warn-note">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01" stroke="#8a6000" stroke-width="2" stroke-linecap="round"/><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="#8a6000" stroke-width="2" stroke-linejoin="round"/></svg>
+        <div class="warn-note-txt">Pre-start check is mandatory before starting any job</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SAFETY CHECKLIST SHEET -->
+  <div class="backdrop" id="checklistBackdrop" onclick="handleBackdropClick(event)">
+    <div class="sheet" id="checklistSheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Pre-Start Safety Check</div>
+        <button class="sheet-close" onclick="closeChecklist()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="sheet-body" id="checklistBody">
+
+        <div class="ck-section">
+          <div class="ck-title">Personal Protective Equipment</div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Hard hat / safety helmet worn</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">High-visibility safety vest</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Safety boots – steel capped</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Protective gloves fitted</div></div>
+        </div>
+
+        <div class="ck-section">
+          <div class="ck-title">Machine / Equipment Check</div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Pre-start inspection completed</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Fluid levels checked – oil, coolant, hydraulic</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Lights, brakes &amp; horns functional</div></div>
+        </div>
+
+        <div class="ck-section">
+          <div class="ck-title">Site &amp; Weather Conditions</div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Weather conditions acceptable</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Hazards identified &amp; noted</div></div>
+          <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><div class="ck-txt">Emergency contacts confirmed on-site</div></div>
+        </div>
+
+        <div class="ck-section">
+          <div class="ck-title">Operator Signature</div>
+          <div class="sig-area" id="sigArea" onclick="signIt()">
+            <div class="sig-hint" id="sigHint">Tap here to sign</div>
+            <div class="sig-img" id="sigImg">J. Operator</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="sheet-footer">
+        <button class="start-btn" id="startJobBtn" onclick="startJob()">Start Job →</button>
+        <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px">All items must be checked before proceeding</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="nav-lbl">Home</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="#fff" stroke-width="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M12 12v4M10 14h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl active">Jobs</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='timesheets-list.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Timesheets</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#8898aa" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Settings</div>
+    </div>
+  </nav>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  // Populate from sessionStorage
+  const jobType   = sessionStorage.getItem('jobType')   || 'hay';
+  const jobId     = sessionStorage.getItem('jobId')     || 'JOB-2025-089';
+  const jobTitle  = sessionStorage.getItem('jobTitle')  || 'Hay Cutting';
+  const jobStatus = sessionStorage.getItem('jobStatus') || 'in-progress';
+
+  document.getElementById('jobId').textContent  = jobId;
+  document.getElementById('jobTitle').textContent = jobTitle;
+  document.getElementById('pageTitle').textContent = jobId;
+  const pill = document.getElementById('statusPill');
+  const labels = {scheduled:'Scheduled','in-progress':'In Progress',completed:'Completed'};
+  pill.textContent = labels[jobStatus] || 'In Progress';
+  pill.className = 'status-pill ' + jobStatus;
+
+  // Checklist logic
+  let signed = false;
+  const TOTAL_ITEMS = 10;
+
+  function toggleCk(item){
+    item.classList.toggle('checked');
+    const box = item.querySelector('.ck-box');
+    if(item.classList.contains('checked')){
+      box.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    } else {
+      box.innerHTML='';
+    }
+    checkReady();
+  }
+
+  function signIt(){
+    if(signed) return;
+    signed=true;
+    const area=document.getElementById('sigArea');
+    area.classList.add('signed');
+    document.getElementById('sigHint').style.display='none';
+    document.getElementById('sigImg').style.display='block';
+    checkReady();
+  }
+
+  function checkReady(){
+    const checked = document.querySelectorAll('.ck-item.checked').length;
+    const btn = document.getElementById('startJobBtn');
+    if(checked >= TOTAL_ITEMS && signed){
+      btn.classList.add('ready');
+    } else {
+      btn.classList.remove('ready');
+    }
+  }
+
+  function startJob(){
+    const btn = document.getElementById('startJobBtn');
+    if(!btn.classList.contains('ready')) return;
+    const dest = {spray:'spray-job.html', hay:'hay-job.html', harvest:'harvest-job.html'};
+    window.location.href = dest[jobType] || 'hay-job.html';
+  }
+
+  function openChecklist(){
+    document.getElementById('checklistBackdrop').classList.add('show');
+  }
+  function closeChecklist(){
+    document.getElementById('checklistBackdrop').classList.remove('show');
+  }
+  function handleBackdropClick(e){
+    if(e.target===document.getElementById('checklistBackdrop')) closeChecklist();
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+  }
+</script>
+</body></html>

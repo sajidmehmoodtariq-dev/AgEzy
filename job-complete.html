@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Job Complete</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--blue:#2d5bd4;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--green-dark);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    /* Animated background */
+    .bg-circles{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+    .bg-c{position:absolute;border-radius:50%;background:rgba(255,255,255,.04);}
+    .bg-c1{width:400px;height:400px;top:-100px;right:-120px;animation:pulse 4s ease-in-out infinite;}
+    .bg-c2{width:280px;height:280px;bottom:-60px;left:-80px;animation:pulse 4s ease-in-out infinite .8s;}
+    .bg-c3{width:180px;height:180px;top:200px;left:-50px;animation:pulse 4s ease-in-out infinite 1.6s;}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:.5}50%{transform:scale(1.08);opacity:.9}}
+
+    .content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 28px;position:relative;z-index:1;}
+
+    /* CHECK ANIMATION */
+    .check-wrap{width:100px;height:100px;margin-bottom:28px;}
+    .check-circle{width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1) both;}
+    .check-inner{width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1) .15s both;}
+    .check-svg{animation:drawCheck .4s ease .4s both;}
+    @keyframes scaleIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    @keyframes drawCheck{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+
+    .complete-title{font-size:32px;font-weight:900;color:#fff;text-align:center;margin-bottom:8px;letter-spacing:-.03em;animation:fadeUp .5s ease .5s both;}
+    .complete-sub{font-size:15px;color:rgba(255,255,255,.7);text-align:center;margin-bottom:28px;font-weight:500;animation:fadeUp .5s ease .6s both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+    /* JOB SUMMARY PILL */
+    .summary-card{background:rgba(255,255,255,.12);border-radius:18px;padding:16px 20px;width:100%;margin-bottom:20px;animation:fadeUp .5s ease .65s both;}
+    .sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .sc-row:last-child{margin-bottom:0;}
+    .sc-label{font-size:12px;color:rgba(255,255,255,.55);font-weight:600;}
+    .sc-val{font-size:13px;font-weight:700;color:#fff;}
+
+    /* PDF CARD */
+    .pdf-card{background:rgba(255,255,255,.12);border-radius:16px;padding:14px 16px;width:100%;display:flex;align-items:center;gap:14px;margin-bottom:28px;cursor:pointer;transition:background .15s;animation:fadeUp .5s ease .7s both;}
+    .pdf-card:active{background:rgba(255,255,255,.2);}
+    .pdf-ic{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex:0 0 44px;}
+    .pdf-info{flex:1;}
+    .pdf-title{font-size:14px;font-weight:800;color:#fff;}
+    .pdf-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px;}
+    .pdf-prog{height:4px;border-radius:2px;background:rgba(255,255,255,.2);margin-top:8px;overflow:hidden;}
+    .pdf-bar{height:100%;width:0;border-radius:2px;background:#fff;transition:width 1.5s ease .8s;}
+    .pdf-download{color:rgba(255,255,255,.8);flex:0 0 auto;}
+
+    /* BUTTONS */
+    .btn-primary{width:100%;padding:16px;border-radius:16px;background:#fff;color:var(--green-dark);font-size:15px;font-weight:800;border:none;cursor:pointer;margin-bottom:10px;transition:opacity .15s;animation:fadeUp .5s ease .75s both;}
+    .btn-primary:active{opacity:.85;}
+    .btn-secondary{width:100%;padding:15px;border-radius:16px;background:rgba(255,255,255,.12);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:background .15s;animation:fadeUp .5s ease .8s both;}
+    .btn-secondary:active{background:rgba(255,255,255,.2);}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <div class="bg-circles">
+    <div class="bg-c bg-c1"></div>
+    <div class="bg-c bg-c2"></div>
+    <div class="bg-c bg-c3"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="check-wrap">
+      <div class="check-circle">
+        <div class="check-inner">
+          <svg class="check-svg" width="44" height="44" viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="complete-title">Job Complete!</div>
+    <div class="complete-sub" id="completeSubtitle">Spray job recorded successfully</div>
+
+    <div class="summary-card">
+      <div class="sc-row">
+        <span class="sc-label">Job ID</span>
+        <span class="sc-val" id="scJobId">JOB-2025-088</span>
+      </div>
+      <div class="sc-row">
+        <span class="sc-label">Job Type</span>
+        <span class="sc-val" id="scJobType">Crop Spraying</span>
+      </div>
+      <div class="sc-row">
+        <span class="sc-label">Completed</span>
+        <span class="sc-val" id="scTime">Today · 11:42 AM</span>
+      </div>
+      <div class="sc-row">
+        <span class="sc-label">Operator</span>
+        <span class="sc-val">John G.</span>
+      </div>
+      <div class="sc-row">
+        <span class="sc-label">Status</span>
+        <span class="sc-val" style="color:#a0f0b0">✓ Synced</span>
+      </div>
+    </div>
+
+    <!-- PDF REPORT -->
+    <div class="pdf-card" id="pdfCard" onclick="downloadPDF()">
+      <div class="pdf-ic">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <div class="pdf-info">
+        <div class="pdf-title">PDF Report Generated</div>
+        <div class="pdf-sub" id="pdfSub">Generating report…</div>
+        <div class="pdf-prog"><div class="pdf-bar" id="pdfBar"></div></div>
+      </div>
+      <div class="pdf-download">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7,10 12,15 17,10" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="window.location.href='create-job.html'">Record Another Job</button>
+    <button class="btn-secondary" onclick="window.location.href='jobs-hub.html'">Back to Jobs Hub</button>
+
+  </div>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  const jobType   = sessionStorage.getItem('jobType')   || 'spray';
+  const jobId     = sessionStorage.getItem('jobId')     || 'JOB-2025-088';
+  const jobTitle  = sessionStorage.getItem('jobTitle')  || 'Crop Spraying';
+
+  const typeLabels={spray:'Crop Spraying',hay:'Hay Cutting',harvest:'Grain Harvest'};
+  const typeSubs={spray:'Spray job recorded successfully',hay:'Hay job recorded successfully',harvest:'Harvest job recorded successfully'};
+
+  document.getElementById('scJobId').textContent=jobId;
+  document.getElementById('scJobType').textContent=typeLabels[jobType]||jobTitle;
+  document.getElementById('completeSubtitle').textContent=typeSubs[jobType]||'Job recorded successfully';
+
+  const now=new Date();
+  const timeStr=now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('scTime').textContent='Today · '+timeStr;
+
+  // Animate PDF bar
+  setTimeout(()=>{
+    document.getElementById('pdfBar').style.width='100%';
+  },800);
+  setTimeout(()=>{
+    document.getElementById('pdfSub').textContent='Ready to download · 1.2 MB';
+  },2400);
+
+  function downloadPDF(){
+    document.getElementById('pdfSub').textContent='Downloading…';
+    setTimeout(()=>{document.getElementById('pdfSub').textContent='Downloaded ✓';},1200);
+  }
+</script>
+</body></html>
