@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Timesheets</title>
+  <style>
+    :root {
+      --green-dark: #1a3d28;
+      --green-mid:  #1b7239;
+      --green:      #00ab4f;
+      --orange:     #f5a623;
+      --red:        #d63031;
+      --blue:       #2d5bd4;
+      --text:       #1a2a3a;
+      --muted:      #8898aa;
+      --border:     #eaeef2;
+      --bg:         #f4f6f4;
+      --card:       #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #e0e0e0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+
+    .screen {
+      width: 390px; height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      height: 56px;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 10px;
+    }
+    .h-back {
+      width: 32px; height: 32px; flex: 0 0 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff;
+    }
+    .h-title {
+      flex: 1; font-size: 18px; font-weight: 800;
+      color: #fff; letter-spacing: -0.03em;
+    }
+    .h-icon {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: rgba(255,255,255,0.75);
+    }
+
+    /* search bar */
+    .search-bar {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      padding: 0 14px 12px;
+    }
+    .search-input-wrap {
+      background: rgba(255,255,255,0.12);
+      border-radius: 22px;
+      height: 38px;
+      display: flex; align-items: center;
+      padding: 0 12px; gap: 8px;
+    }
+    .search-input-wrap svg { flex: 0 0 auto; opacity: 0.6; }
+    .search-input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #fff; font-size: 14px; font-family: inherit;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,0.45); }
+    .search-clear {
+      color: rgba(255,255,255,0.5); cursor: pointer; font-size: 18px;
+      display: none;
+    }
+    .search-clear.visible { display: block; }
+
+    /* ── SUMMARY STRIP ── */
+    .summary-strip {
+      flex: 0 0 auto;
+      background: var(--card);
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .sum-cell {
+      flex: 1; padding: 10px 0 9px;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      position: relative;
+    }
+    .sum-cell + .sum-cell::before {
+      content: ''; position: absolute; left: 0; top: 8px; bottom: 8px;
+      width: 1px; background: var(--border);
+    }
+    .sum-num { font-size: 17px; font-weight: 900; color: var(--text); letter-spacing: -0.03em; }
+    .sum-num.green  { color: var(--green-mid); }
+    .sum-num.orange { color: var(--orange); }
+    .sum-num.blue   { color: var(--blue); }
+    .sum-key { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+    /* ── FILTER TABS ── */
+    .filter-tabs {
+      flex: 0 0 auto;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex; overflow-x: auto; gap: 0;
+      scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
+    .ftab {
+      flex: 0 0 auto;
+      padding: 10px 16px 8px;
+      font-size: 13px; font-weight: 700; color: var(--muted);
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 2.5px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .ftab.active { color: var(--green-mid); border-color: var(--green-mid); }
+
+    /* ── USER FILTER CHIPS (shown for By User tab) ── */
+    .user-chips {
+      flex: 0 0 auto;
+      background: var(--bg);
+      padding: 8px 14px;
+      display: none; gap: 8px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .user-chips.visible { display: flex; }
+    .user-chips::-webkit-scrollbar { display: none; }
+    .uchip {
+      flex: 0 0 auto;
+      padding: 5px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 700;
+      border: 1.5px solid var(--border);
+      background: var(--card); color: var(--muted);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .uchip.active {
+      background: var(--green-mid); color: #fff; border-color: var(--green-mid);
+    }
+
+    /* ── SORT ROW ── */
+    .sort-row {
+      flex: 0 0 auto;
+      background: var(--bg);
+      padding: 8px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sort-count { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .sort-btn {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 700; color: var(--text);
+      cursor: pointer; background: var(--card);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 5px 12px;
+    }
+
+    /* sort dropdown */
+    .sort-dropdown {
+      position: absolute; right: 14px; top: 0;
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+      z-index: 100; min-width: 160px;
+      overflow: hidden; display: none;
+    }
+    .sort-dropdown.open { display: block; }
+    .sort-opt {
+      padding: 12px 16px; font-size: 14px; font-weight: 600;
+      color: var(--text); cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .sort-opt:last-child { border-bottom: none; }
+    .sort-opt:active { background: var(--bg); }
+    .sort-opt .check { color: var(--green-mid); display: none; }
+    .sort-opt.selected .check { display: block; }
+
+    /* ── SCROLLABLE LIST ── */
+    .list-wrap {
+      flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
+      padding: 10px 14px 8px;
+      scrollbar-width: none; position: relative;
+    }
+    .list-wrap::-webkit-scrollbar { display: none; }
+
+    /* group header */
+    .group-label {
+      font-size: 10px; font-weight: 800; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin: 12px 0 6px;
+    }
+    .group-label:first-child { margin-top: 0; }
+
+    /* empty state */
+    .empty-state {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 20px; text-align: center; gap: 8px;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-icon { width: 56px; height: 56px; background: #eef2ee; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 4px; }
+    .empty-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .empty-sub   { font-size: 13px; color: var(--muted); }
+
+    /* ── TIMESHEET CARD ── */
+    .ts-card {
+      background: var(--card); border-radius: 14px;
+      margin-bottom: 10px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      cursor: pointer; transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .ts-card:active { transform: scale(0.985); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+    .ts-card-top {
+      padding: 13px 14px 10px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+
+    .ts-left-bar {
+      width: 3px; border-radius: 2px; flex: 0 0 3px;
+      align-self: stretch; min-height: 42px;
+    }
+    .ts-left-bar.active  { background: var(--green); }
+    .ts-left-bar.approved { background: var(--green-mid); }
+    .ts-left-bar.pending { background: var(--orange); }
+
+    .ts-info { flex: 1; min-width: 0; }
+    .ts-job-id { font-size: 13px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+    .ts-job-name { font-size: 12px; color: var(--muted); font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .ts-right { text-align: right; flex: 0 0 auto; }
+    .ts-hours { font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: -0.03em; line-height: 1; }
+    .ts-hrs-lbl { font-size: 10px; color: var(--muted); }
+
+    .ts-card-bottom {
+      padding: 0 14px 12px 27px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .ts-meta-chip {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 11px; color: var(--muted); font-weight: 600;
+    }
+    .ts-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); }
+
+    .ts-status {
+      margin-left: auto;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 10px; border-radius: 12px;
+    }
+    .ts-status.active   { background: #e4f8ee; color: var(--green); }
+    .ts-status.approved { background: #e8f8ee; color: var(--green-mid); }
+    .ts-status.pending  { background: #fff5e6; color: var(--orange); }
+
+    .ts-chevron {
+      margin-left: 4px; color: #ccc;
+    }
+
+    /* worker avatars strip */
+    .worker-strip {
+      padding: 0 14px 12px 27px;
+      display: flex; align-items: center; gap: -4px;
+    }
+    .w-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--bg); border: 2px solid var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 800; color: var(--green-mid);
+      margin-right: -6px; flex: 0 0 22px;
+    }
+    .w-avatar:first-child { margin-right: -6px; }
+    .w-more {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--border); border: 2px solid var(--card);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 800; color: var(--muted);
+      margin-right: -6px;
+    }
+    .worker-names {
+      margin-left: 18px; font-size: 11px; color: var(--muted); font-weight: 500;
+    }
+
+    /* ── FAB ── */
+    .fab {
+      position: absolute; bottom: 80px; right: 18px;
+      width: 50px; height: 50px; border-radius: 25px;
+      background: var(--green-mid);
+      box-shadow: 0 6px 18px rgba(27,114,57,0.35);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #fff; font-size: 26px; font-weight: 300;
+      border: none; z-index: 10;
+      transition: transform 0.15s;
+    }
+    .fab:active { transform: scale(0.92); }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav {
+      flex: 0 0 auto; height: 70px;
+      background: #fff; border-top: 1px solid #e8ede8;
+      display: flex; align-items: center; padding: 0 10px;
+    }
+    .nav-item {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      cursor: pointer; padding: 6px 4px;
+    }
+    .nav-icon {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+    }
+    .nav-icon.active { background: var(--green-dark); }
+    .nav-icon img { width: 22px; height: 22px; }
+    .nav-icon.active img { filter: brightness(0) invert(1); }
+    .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .nav-label.active { color: var(--green-dark); }
+
+    /* overlay for dropdown */
+    .overlay {
+      position: absolute; inset: 0; z-index: 50;
+      display: none;
+    }
+    .overlay.open { display: block; }
+
+    @media (max-width: 767px) {
+      .viewport { padding: 0; }
+      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="viewport">
+  <main class="screen">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="h-back" onclick="window.location.href='dashboard.html'">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M11 6l-6 6 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="h-title">Timesheets</div>
+      <div class="h-icon" id="searchToggleBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M16.5 16.5L21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="h-icon" id="sortIconBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </header>
+
+    <!-- SEARCH BAR (hidden by default) -->
+    <div class="search-bar" id="searchBar" style="display:none">
+      <div class="search-input-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="2"/>
+          <path d="M16.5 16.5L21 21" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search by job, location…" />
+        <div class="search-clear" id="searchClear">×</div>
+      </div>
+    </div>
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <div class="sum-cell"><div class="sum-num" id="sumTotal">6</div><div class="sum-key">Jobs</div></div>
+      <div class="sum-cell"><div class="sum-num green" id="sumActive">1</div><div class="sum-key">Active</div></div>
+      <div class="sum-cell"><div class="sum-num blue" id="sumHours">174.0</div><div class="sum-key">Total Hrs</div></div>
+      <div class="sum-cell"><div class="sum-num orange" id="sumPending">2</div><div class="sum-key">Pending</div></div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs" id="filterTabs">
+      <div class="ftab active" data-filter="all">All</div>
+      <div class="ftab" data-filter="today">Today</div>
+      <div class="ftab" data-filter="week">This Week</div>
+      <div class="ftab" data-filter="user">By User</div>
+      <div class="ftab" data-filter="job">By Job Type</div>
+    </div>
+
+    <!-- USER CHIPS (shown for By User) -->
+    <div class="user-chips" id="userChips">
+      <div class="uchip active" data-user="all">All</div>
+      <div class="uchip" data-user="Marcus Johnson">Marcus</div>
+      <div class="uchip" data-user="Sarah Chen">Sarah</div>
+      <div class="uchip" data-user="John Doe">John</div>
+      <div class="uchip" data-user="Emma White">Emma</div>
+    </div>
+
+    <!-- SORT ROW -->
+    <div class="sort-row" style="position:relative">
+      <div class="sort-count" id="sortCount">6 timesheets</div>
+      <div class="sort-btn" id="sortBtn">
+        Sort: Date ▾
+      </div>
+
+      <!-- Sort dropdown -->
+      <div class="overlay" id="overlay"></div>
+      <div class="sort-dropdown" id="sortDropdown" style="top:36px">
+        <div class="sort-opt selected" data-sort="date">
+          Date <span class="check">✓</span>
+        </div>
+        <div class="sort-opt" data-sort="hours">
+          Hours <span class="check">✓</span>
+        </div>
+        <div class="sort-opt" data-sort="status">
+          Status <span class="check">✓</span>
+        </div>
+        <div class="sort-opt" data-sort="workers">
+          Workers <span class="check">✓</span>
+        </div>
+        <div class="sort-opt" data-sort="job">
+          Job ID <span class="check">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIST -->
+    <div class="list-wrap" id="listWrap">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#8898aa" stroke-width="2"/>
+            <path d="M12 7v5l3 2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="empty-title">No timesheets found</div>
+        <div class="empty-sub">Try a different filter or search term</div>
+      </div>
+      <!-- cards injected by JS -->
+    </div>
+
+    <button class="fab" title="New Timesheet" onclick="alert('New timesheet flow coming soon')">+</button>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <div class="nav-item" onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon">
+          <img src="images/nav-home.png" alt="Home" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Home</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon active">
+          <img src="images/nav-contract-work.png" alt="Work" />
+        </div>
+        <div class="nav-label active">Work</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <img src="images/nav-contracts.png" alt="Contracts" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Contracts</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3z" stroke="#8898aa" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M9 4v13M15 7v13" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="nav-label">Map</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon">
+          <img src="images/nav-settings.png" alt="Settings" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%)" />
+        </div>
+        <div class="nav-label">Settings</div>
+      </div>
+    </nav>
+
+  </main>
+</div>
+
+<script>
+  // ── Scale ──
+  const baseW = 390, baseH = 844, pad = 32;
+  const updateScale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  updateScale();
+  window.addEventListener('resize', updateScale);
+
+  // ── Data ──
+  const data = [
+    { id: 'JOB-2025-089', job: 'Harvesting', loc: 'Field 4A',           dateGroup: 'today',     dateLabel: 'Today',        workers: 3,  hours: 24.5, status: 'active',   users: ['Marcus Johnson','Sarah Chen','John Doe'] },
+    { id: 'JOB-2025-088', job: 'Planting',   loc: 'North Block',         dateGroup: 'yesterday', dateLabel: 'Yesterday',     workers: 5,  hours: 42.0, status: 'approved', users: ['Marcus Johnson','Sarah Chen','Emma White','John Doe'] },
+    { id: 'JOB-2025-087', job: 'Irrigation', loc: 'South Paddock',       dateGroup: 'week',      dateLabel: 'Mon 26 May',    workers: 2,  hours: 16.0, status: 'approved', users: ['John Doe','Emma White'] },
+    { id: 'JOB-2025-086', job: 'Spraying',   loc: 'East Field',          dateGroup: 'week',      dateLabel: 'Fri 23 May',    workers: 4,  hours: 32.5, status: 'pending',  users: ['Marcus Johnson','Sarah Chen','Emma White','John Doe'] },
+    { id: 'JOB-2025-085', job: 'Maintenance',loc: 'Equipment Shed',      dateGroup: 'week',      dateLabel: 'Thu 22 May',    workers: 1,  hours:  8.0, status: 'pending',  users: ['Sarah Chen'] },
+    { id: 'JOB-2025-084', job: 'Harvesting', loc: 'Block C',             dateGroup: 'older',     dateLabel: 'Wed 21 May',    workers: 6,  hours: 51.0, status: 'approved', users: ['Marcus Johnson','John Doe','Emma White'] },
+  ];
+
+  const initials = n => n.split(' ').map(w=>w[0]).join('');
+  const avatarColors = { 'Marcus Johnson':'#d6f0e0','Sarah Chen':'#dde8ff','John Doe':'#dde8ff','Emma White':'#fde8f2' };
+  const textColors   = { 'Marcus Johnson':'#1b7239','Sarah Chen':'#2d5bd4','John Doe':'#2d5bd4','Emma White':'#7b1545' };
+
+  // ── State ──
+  let activeFilter = 'all';
+  let activeUser   = 'all';
+  let activeSort   = 'date';
+  let searchQuery  = '';
+
+  // ── Render ──
+  function getFiltered() {
+    let list = [...data];
+
+    // search
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(d =>
+        d.id.toLowerCase().includes(q) ||
+        d.job.toLowerCase().includes(q) ||
+        d.loc.toLowerCase().includes(q) ||
+        d.users.some(u => u.toLowerCase().includes(q))
+      );
+    }
+
+    // filter tab
+    if (activeFilter === 'today')     list = list.filter(d => d.dateGroup === 'today');
+    if (activeFilter === 'week')      list = list.filter(d => ['today','yesterday','week'].includes(d.dateGroup));
+    if (activeFilter === 'user' && activeUser !== 'all') list = list.filter(d => d.users.includes(activeUser));
+    if (activeFilter === 'job')       list = list.filter(d => d.job === activeJobType || !activeJobType);
+
+    // sort
+    if (activeSort === 'date')    list.sort((a,b) => { const o=['today','yesterday','week','older']; return o.indexOf(a.dateGroup)-o.indexOf(b.dateGroup); });
+    if (activeSort === 'hours')   list.sort((a,b) => b.hours - a.hours);
+    if (activeSort === 'workers') list.sort((a,b) => b.workers - a.workers);
+    if (activeSort === 'status')  list.sort((a,b) => { const o=['active','pending','approved']; return o.indexOf(a.status)-o.indexOf(b.status); });
+    if (activeSort === 'job')     list.sort((a,b) => a.id.localeCompare(b.id));
+
+    return list;
+  }
+
+  let activeJobType = '';
+
+  function render() {
+    const list = getFiltered();
+    const wrap = document.getElementById('listWrap');
+    const empty = document.getElementById('emptyState');
+
+    // update summary
+    document.getElementById('sumTotal').textContent   = list.length;
+    document.getElementById('sumActive').textContent  = list.filter(d=>d.status==='active').length;
+    document.getElementById('sumHours').textContent   = list.reduce((a,d)=>a+d.hours,0).toFixed(1);
+    document.getElementById('sumPending').textContent = list.filter(d=>d.status==='pending').length;
+    document.getElementById('sortCount').textContent  = list.length + ' timesheet' + (list.length!==1?'s':'');
+
+    // remove old cards
+    wrap.querySelectorAll('.ts-card, .group-label').forEach(el => el.remove());
+
+    if (!list.length) { empty.classList.add('visible'); return; }
+    empty.classList.remove('visible');
+
+    // group by date if sorting by date
+    if (activeSort === 'date' && activeFilter !== 'today') {
+      const groups = {};
+      const order  = ['today','yesterday','week','older'];
+      const labels = { today:'Today', yesterday:'Yesterday', week:'This Week', older:'Earlier' };
+      list.forEach(d => { (groups[d.dateGroup] = groups[d.dateGroup]||[]).push(d); });
+      order.forEach(gk => {
+        if (!groups[gk]) return;
+        const gl = document.createElement('div');
+        gl.className = 'group-label';
+        gl.textContent = labels[gk];
+        wrap.appendChild(gl);
+        groups[gk].forEach(d => wrap.appendChild(makeCard(d)));
+      });
+    } else {
+      list.forEach(d => wrap.appendChild(makeCard(d)));
+    }
+  }
+
+  function makeCard(d) {
+    const card = document.createElement('div');
+    card.className = 'ts-card';
+    card.onclick = () => window.location.href = 'timesheets.html';
+
+    const visibleUsers = d.users.slice(0,3);
+    const extraCount   = d.users.length - 3;
+    const avatarsHtml  = visibleUsers.map(u =>
+      `<div class="w-avatar" style="background:${avatarColors[u]||'#e0e8e0'};color:${textColors[u]||'#1b7239'}">${initials(u)}</div>`
+    ).join('') + (extraCount > 0 ? `<div class="w-more">+${extraCount}</div>` : '');
+
+    const statusLabel = { active:'In Progress', approved:'Approved', pending:'Pending' };
+
+    card.innerHTML = `
+      <div class="ts-card-top">
+        <div class="ts-left-bar ${d.status}"></div>
+        <div class="ts-info">
+          <div class="ts-job-id">${d.id}</div>
+          <div class="ts-job-name">${d.job} — ${d.loc}</div>
+        </div>
+        <div class="ts-right">
+          <div class="ts-hours">${d.hours}</div>
+          <div class="ts-hrs-lbl">hrs</div>
+        </div>
+      </div>
+      <div class="ts-card-bottom">
+        <div class="ts-meta-chip">${d.dateLabel}</div>
+        <div class="ts-dot"></div>
+        <div class="ts-meta-chip">${d.workers} worker${d.workers!==1?'s':''}</div>
+        <div class="ts-status ${d.status}">${statusLabel[d.status]}</div>
+        <svg class="ts-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="worker-strip">${avatarsHtml}<div class="worker-names" style="margin-left:${visibleUsers.length*16+10}px">${d.users.slice(0,2).join(', ')}${d.users.length>2?' +'+( d.users.length-2)+' more':''}</div></div>
+    `;
+    return card;
+  }
+
+  // ── Filter tabs ──
+  document.querySelectorAll('.ftab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.filter;
+      activeJobType = '';
+      activeUser = 'all';
+      document.querySelectorAll('.uchip').forEach(c => c.classList.toggle('active', c.dataset.user === 'all'));
+
+      const userChips = document.getElementById('userChips');
+      if (activeFilter === 'user') {
+        userChips.classList.add('visible');
+      } else {
+        userChips.classList.remove('visible');
+      }
+
+      // for "By Job Type" — build job type chips dynamically
+      if (activeFilter === 'job') {
+        const jobTypes = [...new Set(data.map(d=>d.job))];
+        userChips.classList.add('visible');
+        userChips.innerHTML = `<div class="uchip active" data-user="all">All Types</div>` +
+          jobTypes.map(j => `<div class="uchip" data-jobtype="${j}">${j}</div>`).join('');
+        userChips.querySelectorAll('[data-jobtype]').forEach(c => {
+          c.addEventListener('click', () => {
+            userChips.querySelectorAll('.uchip').forEach(x => x.classList.remove('active'));
+            c.classList.add('active');
+            activeJobType = c.dataset.jobtype;
+            render();
+          });
+        });
+        userChips.querySelector('[data-user="all"]').addEventListener('click', () => {
+          userChips.querySelectorAll('.uchip').forEach(x => x.classList.remove('active'));
+          userChips.querySelector('[data-user="all"]').classList.add('active');
+          activeJobType = '';
+          render();
+        });
+      }
+
+      render();
+    });
+  });
+
+  // ── User chips ──
+  document.getElementById('userChips').addEventListener('click', e => {
+    const chip = e.target.closest('.uchip[data-user]');
+    if (!chip) return;
+    document.querySelectorAll('.uchip[data-user]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeUser = chip.dataset.user;
+    render();
+  });
+
+  // ── Sort dropdown ──
+  const sortBtn      = document.getElementById('sortBtn');
+  const sortDropdown = document.getElementById('sortDropdown');
+  const overlay      = document.getElementById('overlay');
+
+  sortBtn.addEventListener('click', () => {
+    sortDropdown.classList.toggle('open');
+    overlay.classList.toggle('open');
+  });
+  overlay.addEventListener('click', () => {
+    sortDropdown.classList.remove('open');
+    overlay.classList.remove('open');
+  });
+
+  document.querySelectorAll('.sort-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.sort-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      activeSort = opt.dataset.sort;
+      const label = { date:'Date', hours:'Hours', status:'Status', workers:'Workers', job:'Job ID' };
+      sortBtn.textContent = 'Sort: ' + label[activeSort] + ' ▾';
+      sortDropdown.classList.remove('open');
+      overlay.classList.remove('open');
+      render();
+    });
+  });
+
+  // ── Search ──
+  const searchToggle = document.getElementById('searchToggleBtn');
+  const searchBar    = document.getElementById('searchBar');
+  const searchInput  = document.getElementById('searchInput');
+  const searchClear  = document.getElementById('searchClear');
+
+  searchToggle.addEventListener('click', () => {
+    const open = searchBar.style.display === 'none' || !searchBar.style.display;
+    searchBar.style.display = open ? 'block' : 'none';
+    if (open) searchInput.focus();
+    else { searchInput.value = ''; searchQuery = ''; render(); }
+  });
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value.trim();
+    searchClear.classList.toggle('visible', !!searchQuery);
+    render();
+  });
+  searchClear.addEventListener('click', () => {
+    searchInput.value = ''; searchQuery = '';
+    searchClear.classList.remove('visible');
+    searchInput.focus();
+    render();
+  });
+
+  // ── Initial render ──
+  render();
+</script>
+</body>
+</html>
