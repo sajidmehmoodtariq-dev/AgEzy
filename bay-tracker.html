@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Bay Tracker</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--blue:#2d5bd4;--red:#d63031;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--card);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    /* HEADER */
+    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+    .h-back{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+    .h-title-wrap{flex:1;}
+    .h-sup{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;}
+    .h-title{font-size:14px;font-weight:800;color:#fff;margin-top:1px;}
+    .h-more{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;color:#fff;font-size:20px;font-weight:700;letter-spacing:.5px;}
+
+    /* PROGRESS STRIP */
+    .prog-strip{background:var(--green-dark);padding:0 16px 16px;}
+    .day-dots{display:flex;gap:8px;margin-bottom:6px;}
+    .day-dot{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.2);}
+    .day-dot.done{background:var(--green);}
+    .day-dot.active{background:#fff;}
+    .day-label{font-size:11px;color:rgba(255,255,255,.5);font-weight:600;}
+
+    /* BODY */
+    .body{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+
+    /* COUNTER SECTION */
+    .counter-section{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:var(--card);}
+
+    .shed-badge{background:#f0faf4;border:1.5px solid #c8e8d4;border-radius:20px;padding:6px 18px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .shed-badge-txt{font-size:12px;font-weight:800;color:var(--green-mid);letter-spacing:.04em;}
+
+    .counter-label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;}
+    .counter-num{font-size:88px;font-weight:900;color:var(--text);line-height:1;letter-spacing:-.04em;transition:all .15s;}
+    .counter-num.bump{transform:scale(1.06);color:var(--green-mid);}
+    .counter-unit{font-size:16px;font-weight:700;color:var(--muted);margin-top:4px;letter-spacing:.04em;text-transform:uppercase;}
+
+    .counter-change{font-size:13px;font-weight:700;color:var(--green-mid);margin-top:6px;min-height:20px;transition:opacity .3s;}
+
+    /* ENTRY METHOD TABS */
+    .entry-tabs{display:flex;background:#f4f6f4;border-radius:14px;padding:4px;margin:16px 0 20px;}
+    .etab{flex:1;padding:10px;border-radius:10px;font-size:13px;font-weight:700;color:var(--muted);text-align:center;cursor:pointer;transition:all .2s;}
+    .etab.active{background:#fff;color:var(--text);box-shadow:0 1px 6px rgba(0,0,0,.08);}
+
+    /* NUMPAD */
+    .numpad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;}
+    .np-btn{aspect-ratio:1;border-radius:14px;border:none;background:#f4f6f4;font-size:18px;font-weight:700;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
+    .np-btn:active{background:#e0e4e0;transform:scale(.93);}
+    .np-btn.action{background:var(--green-mid);color:#fff;}
+    .np-btn.action:active{background:#156030;}
+    .np-btn.del{background:#fdedf0;}
+    .np-btn.clear{background:#fef3e2;color:var(--orange);}
+
+    /* QUICK ADD */
+    .quick-add{display:flex;gap:8px;width:100%;margin-top:12px;}
+    .qa-btn{flex:1;padding:12px 0;border-radius:12px;background:#f4f6f4;border:none;font-size:13px;font-weight:700;color:var(--green-mid);cursor:pointer;transition:background .15s;}
+    .qa-btn:active{background:#e0f0e8;}
+
+    /* SCAN BUTTON */
+    .scan-btn{width:100%;padding:16px;border-radius:16px;background:var(--green-mid);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;transition:opacity .15s;}
+    .scan-btn:active{opacity:.85;}
+
+    /* INFO STRIP */
+    .info-strip{flex:0 0 auto;background:#f4f6f4;padding:12px 16px;display:flex;gap:0;border-top:1px solid var(--border);}
+    .info-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border-right:1px solid var(--border);}
+    .info-item:last-child{border-right:none;}
+    .info-val{font-size:16px;font-weight:900;color:var(--text);}
+    .info-lbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+
+    /* SUBMIT BUTTON */
+    .submit-wrap{flex:0 0 auto;padding:12px 16px;background:var(--card);border-top:1px solid var(--border);}
+    .submit-btn{width:100%;padding:16px;border-radius:16px;background:var(--blue);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
+    .submit-btn:active{opacity:.85;}
+
+    .toast{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:#1a2a3a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;z-index:50;pointer-events:none;opacity:0;transition:opacity .25s;}
+    .toast.show{opacity:1;}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <header class="header">
+    <button class="h-back" onclick="history.back()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="h-title-wrap">
+      <div class="h-sup" id="dayLabel">Day 1 of 3</div>
+      <div class="h-title" id="shedTitle">Hay Shed North #1 – Bay 3</div>
+    </div>
+    <button class="h-more" onclick="showToast('Options')">···</button>
+  </header>
+
+  <!-- DAY PROGRESS -->
+  <div class="prog-strip">
+    <div class="day-dots">
+      <div class="day-dot done" id="dd1"></div>
+      <div class="day-dot active" id="dd2"></div>
+      <div class="day-dot" id="dd3"></div>
+    </div>
+    <div class="day-label" id="daySubLabel">Day 1 complete · Day 2 in progress · 1 day remaining</div>
+  </div>
+
+  <div class="body">
+    <div class="counter-section">
+
+      <div class="shed-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="#1b7239" stroke-width="2" stroke-linejoin="round"/><path d="M9 22V12h6v10" stroke="#1b7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="shed-badge-txt">Hay Shed North · Bay 3</span>
+      </div>
+
+      <div class="counter-label">Total Bales Recorded</div>
+      <div class="counter-num" id="counterNum">850</div>
+      <div class="counter-unit">Bales</div>
+      <div class="counter-change" id="changeLabel" style="opacity:0">+10 added</div>
+
+      <!-- ENTRY MODE TABS -->
+      <div class="entry-tabs">
+        <div class="etab active" onclick="setMode('manual',this)">Manual Entry</div>
+        <div class="etab" onclick="setMode('quick',this)">Quick Add</div>
+        <div class="etab" onclick="setMode('scan',this)">Scan</div>
+      </div>
+
+      <!-- MANUAL NUMPAD -->
+      <div id="modeManual" style="width:100%">
+        <div class="numpad">
+          <div class="np-btn" onclick="numPress('1')">1</div>
+          <div class="np-btn" onclick="numPress('2')">2</div>
+          <div class="np-btn" onclick="numPress('3')">3</div>
+          <div class="np-btn del" onclick="numDel()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 4H8l-7 8 7 8h13V4z" stroke="#d63031" stroke-width="2" stroke-linejoin="round"/><path d="M18 9l-3 3M15 9l3 3" stroke="#d63031" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="np-btn" onclick="numPress('4')">4</div>
+          <div class="np-btn" onclick="numPress('5')">5</div>
+          <div class="np-btn" onclick="numPress('6')">6</div>
+          <div class="np-btn clear" onclick="numClear()">CLR</div>
+          <div class="np-btn" onclick="numPress('7')">7</div>
+          <div class="np-btn" onclick="numPress('8')">8</div>
+          <div class="np-btn" onclick="numPress('9')">9</div>
+          <div class="np-btn action" onclick="addFromInput()">ADD</div>
+          <div class="np-btn" style="grid-column:span 2" onclick="numPress('0')">0</div>
+          <div class="np-btn" onclick="numPress('00')">00</div>
+          <div class="np-btn" style="background:#e4f8ee;color:var(--green-mid)" onclick="adjustCount(-1)">−1</div>
+        </div>
+      </div>
+
+      <!-- QUICK ADD BUTTONS -->
+      <div id="modeQuick" style="width:100%;display:none">
+        <div class="quick-add">
+          <button class="qa-btn" onclick="quickAdd(5)">+5</button>
+          <button class="qa-btn" onclick="quickAdd(10)">+10</button>
+          <button class="qa-btn" onclick="quickAdd(20)">+20</button>
+          <button class="qa-btn" onclick="quickAdd(50)">+50</button>
+        </div>
+        <div class="quick-add">
+          <button class="qa-btn" onclick="quickAdd(100)">+100</button>
+          <button class="qa-btn" onclick="quickAdd(200)">+200</button>
+          <button class="qa-btn" onclick="adjustCount(-1)" style="color:var(--red)">−1</button>
+          <button class="qa-btn" onclick="adjustCount(-10)" style="color:var(--red)">−10</button>
+        </div>
+      </div>
+
+      <!-- SCAN MODE -->
+      <div id="modeScan" style="width:100%;display:none;flex-direction:column;align-items:center;gap:12px">
+        <div style="width:120px;height:120px;border:3px dashed var(--border);border-radius:16px;display:flex;align-items:center;justify-content:center">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="#8898aa" stroke-width="2"/><circle cx="12" cy="14" r="3" stroke="#8898aa" stroke-width="2"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--muted);text-align:center">Tap to scan bale tag<br>or QR code</div>
+        <button class="scan-btn" onclick="simulateScan()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="#fff" stroke-width="2"/><circle cx="12" cy="14" r="3" stroke="#fff" stroke-width="2"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          Tap to Scan
+        </button>
+      </div>
+
+    </div>
+
+    <!-- INFO STRIP -->
+    <div class="info-strip">
+      <div class="info-item"><div class="info-val" id="infoToday">312</div><div class="info-lbl">Today</div></div>
+      <div class="info-item"><div class="info-val">538</div><div class="info-lbl">Yesterday</div></div>
+      <div class="info-item"><div class="info-val" id="infoTarget">1,200</div><div class="info-lbl">Target</div></div>
+      <div class="info-item"><div class="info-val" id="infoPct">71%</div><div class="info-lbl">Complete</div></div>
+    </div>
+
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-wrap">
+    <button class="submit-btn" onclick="submitCount()">Submit Bay Count →</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  let count=850;
+  let inputStr='';
+  let changeTimer;
+
+  function updateDisplay(change){
+    const el=document.getElementById('counterNum');
+    el.textContent=count.toLocaleString();
+    el.classList.add('bump');
+    setTimeout(()=>el.classList.remove('bump'),200);
+
+    // Update today and pct
+    document.getElementById('infoToday').textContent=(count-538).toLocaleString();
+    document.getElementById('infoPct').textContent=Math.round((count/1200)*100)+'%';
+
+    if(change!==undefined){
+      const lbl=document.getElementById('changeLabel');
+      lbl.textContent=(change>0?'+':'')+change+' bales';
+      lbl.style.opacity='1';
+      lbl.style.color=change>=0?'var(--green-mid)':'var(--red)';
+      clearTimeout(changeTimer);
+      changeTimer=setTimeout(()=>{lbl.style.opacity='0';},1800);
+    }
+  }
+
+  function adjustCount(d){
+    count=Math.max(0,count+d);
+    updateDisplay(d);
+  }
+
+  // Numpad
+  let pendingInput='';
+  function numPress(v){
+    pendingInput+=v;
+    if(pendingInput.length>4)pendingInput=pendingInput.slice(-4);
+    document.getElementById('counterNum').textContent=pendingInput||count.toLocaleString();
+  }
+  function numDel(){
+    pendingInput=pendingInput.slice(0,-1);
+    document.getElementById('counterNum').textContent=pendingInput||count.toLocaleString();
+  }
+  function numClear(){
+    pendingInput='';
+    document.getElementById('counterNum').textContent=count.toLocaleString();
+  }
+  function addFromInput(){
+    if(!pendingInput)return;
+    const v=parseInt(pendingInput)||0;
+    count+=v;
+    pendingInput='';
+    updateDisplay(v);
+  }
+
+  function quickAdd(v){adjustCount(v);}
+
+  function setMode(mode,el){
+    document.querySelectorAll('.etab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    ['modeManual','modeQuick','modeScan'].forEach(id=>{
+      const m=document.getElementById(id);
+      m.style.display='none';
+    });
+    if(mode==='manual')document.getElementById('modeManual').style.display='';
+    else if(mode==='quick')document.getElementById('modeQuick').style.display='';
+    else{document.getElementById('modeScan').style.display='flex';}
+  }
+
+  function simulateScan(){
+    showToast('Scanning bale tag…');
+    setTimeout(()=>{
+      count+=1;
+      updateDisplay(1);
+      showToast('Bale scanned ✓ — Total: '+count);
+    },1200);
+  }
+
+  function submitCount(){
+    showToast('Bay count submitted · '+count+' bales recorded');
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+  }
+</script>
+</body></html>
