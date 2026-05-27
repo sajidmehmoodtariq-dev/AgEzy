@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Contract Saved</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --blue:#2d5bd4;--text:#1a2a3a;--muted:#8898aa;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--green);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    /* ANIMATED BG */
+    .bg-blobs{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+    .blob{position:absolute;border-radius:50%;background:rgba(255,255,255,.07);}
+    .blob1{width:380px;height:380px;top:-100px;right:-100px;animation:blob 5s ease-in-out infinite;}
+    .blob2{width:260px;height:260px;bottom:-60px;left:-80px;animation:blob 5s ease-in-out infinite .6s;}
+    .blob3{width:140px;height:140px;top:300px;left:20px;animation:blob 5s ease-in-out infinite 1.2s;}
+    @keyframes blob{0%,100%{transform:scale(1) rotate(0deg);opacity:.5}50%{transform:scale(1.12) rotate(8deg);opacity:.9}}
+
+    .content{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;position:relative;z-index:1;}
+
+    /* ANIMATED CHECK */
+    .check-ring{width:110px;height:110px;border-radius:50%;border:3px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;margin-bottom:30px;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both;}
+    .check-inner{width:86px;height:86px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;animation:popIn .5s cubic-bezier(.34,1.56,.64,1) .12s both;}
+    @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+    .check-icon{animation:popIn .4s ease .3s both;}
+
+    .saved-title{font-size:34px;font-weight:900;color:#fff;text-align:center;margin-bottom:8px;letter-spacing:-.04em;animation:fadeUp .5s ease .4s both;}
+    .saved-sub{font-size:15px;color:rgba(255,255,255,.75);text-align:center;margin-bottom:30px;font-weight:500;animation:fadeUp .5s ease .5s both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+    /* CONTRACT SUMMARY */
+    .summary{background:rgba(255,255,255,.15);border-radius:20px;padding:18px 20px;width:100%;margin-bottom:20px;animation:fadeUp .5s ease .55s both;}
+    .sum-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .sum-row:last-child{margin-bottom:0;}
+    .sum-lbl{font-size:12px;color:rgba(255,255,255,.6);font-weight:600;}
+    .sum-val{font-size:13px;font-weight:800;color:#fff;}
+
+    .divider{height:1px;background:rgba(255,255,255,.2);margin:10px 0;}
+
+    /* WHAT'S NEXT */
+    .next-card{background:rgba(255,255,255,.12);border-radius:16px;padding:16px;width:100%;margin-bottom:24px;animation:fadeUp .5s ease .6s both;}
+    .next-title{font-size:12px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px;}
+    .next-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .next-item:last-child{margin-bottom:0;}
+    .next-dot{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex:0 0 20px;}
+    .next-txt{font-size:13px;color:rgba(255,255,255,.85);font-weight:600;}
+
+    /* BUTTONS */
+    .btn-white{width:100%;padding:16px;border-radius:16px;background:#fff;color:var(--green-dark);font-size:15px;font-weight:800;border:none;cursor:pointer;margin-bottom:10px;animation:fadeUp .5s ease .65s both;transition:opacity .15s;}
+    .btn-white:active{opacity:.85;}
+    .btn-ghost{width:100%;padding:15px;border-radius:16px;background:rgba(255,255,255,.15);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;animation:fadeUp .5s ease .7s both;transition:background .15s;}
+    .btn-ghost:active{background:rgba(255,255,255,.25);}
+
+    /* CONTRACT ID BADGE */
+    .con-id-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.2);border-radius:20px;padding:6px 16px;margin-bottom:20px;animation:fadeUp .5s ease .45s both;}
+    .con-id-txt{font-size:13px;font-weight:800;color:#fff;letter-spacing:.04em;}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <div class="bg-blobs">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+    <div class="blob blob3"></div>
+  </div>
+
+  <div class="content">
+
+    <div class="check-ring">
+      <div class="check-inner">
+        <div class="check-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="saved-title">Contract Saved!</div>
+    <div class="saved-sub">Your contract has been created and saved</div>
+
+    <div class="con-id-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="rgba(255,255,255,.8)" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="rgba(255,255,255,.8)" stroke-width="2"/></svg>
+      <div class="con-id-txt" id="contractIdBadge">CON-2025-007</div>
+    </div>
+
+    <div class="summary">
+      <div class="sum-row">
+        <span class="sum-lbl">Customer</span>
+        <span class="sum-val">Green Valley Farms</span>
+      </div>
+      <div class="sum-row">
+        <span class="sum-lbl">Service Type</span>
+        <span class="sum-val">Haymaking</span>
+      </div>
+      <div class="sum-row">
+        <span class="sum-lbl">Start Date</span>
+        <span class="sum-val">Oct 24, 2023</span>
+      </div>
+      <div class="divider"></div>
+      <div class="sum-row">
+        <span class="sum-lbl">Operators Assigned</span>
+        <span class="sum-val">John G.</span>
+      </div>
+      <div class="sum-row">
+        <span class="sum-lbl">Status</span>
+        <span class="sum-val" style="color:#c8f5d0">✓ Saved &amp; Active</span>
+      </div>
+    </div>
+
+    <div class="next-card">
+      <div class="next-title">What's Next</div>
+      <div class="next-item">
+        <div class="next-dot">1</div>
+        <div class="next-txt">Upload required documents</div>
+      </div>
+      <div class="next-item">
+        <div class="next-dot">2</div>
+        <div class="next-txt">Schedule the first job from Jobs Hub</div>
+      </div>
+      <div class="next-item">
+        <div class="next-dot">3</div>
+        <div class="next-txt">Notify assigned operators</div>
+      </div>
+    </div>
+
+    <button class="btn-white" onclick="window.location.href='contract-detail.html'">View Contract →</button>
+    <button class="btn-ghost" onclick="window.location.href='contracts-list.html'">Back to Contracts</button>
+
+  </div>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  const newId='CON-2025-00'+Math.floor(Math.random()*90+10);
+  document.getElementById('contractIdBadge').textContent=newId;
+  sessionStorage.setItem('contractId',newId);
+  sessionStorage.setItem('contractTitle','Hay Cutting & Baling');
+  sessionStorage.setItem('contractStatus','scheduled');
+  sessionStorage.setItem('contractCustomer','Green Valley Farms');
+  sessionStorage.setItem('contractAmount','$0');
+  sessionStorage.setItem('contractPct','0');
+</script>
+</body></html>

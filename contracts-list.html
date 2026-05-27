@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Contracts</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px 12px;display:flex;align-items:center;gap:10px;}
+    .h-title{flex:1;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.03em;}
+    .h-btn{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;border:none;font-size:20px;font-weight:300;}
+
+    /* SEARCH BAR */
+    .search-bar{background:var(--green-dark);padding:0 14px 14px;display:flex;align-items:center;gap:8px;}
+    .search-input{flex:1;background:rgba(255,255,255,.12);border:none;border-radius:12px;padding:10px 14px;font-size:14px;color:#fff;font-family:inherit;outline:none;}
+    .search-input::placeholder{color:rgba(255,255,255,.45);}
+
+    /* SUMMARY STRIP */
+    .summary-strip{flex:0 0 auto;background:var(--card);border-bottom:1px solid var(--border);display:flex;}
+    .sum-item{flex:1;padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;border-right:1px solid var(--border);}
+    .sum-item:last-child{border-right:none;}
+    .sum-val{font-size:16px;font-weight:900;color:var(--text);}
+    .sum-lbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+
+    /* FILTER TABS */
+    .filter-tabs{flex:0 0 auto;background:var(--card);border-bottom:1px solid var(--border);display:flex;}
+    .ftab{flex:1;padding:11px 0 9px;font-size:12px;font-weight:700;color:var(--muted);text-align:center;cursor:pointer;border-bottom:2.5px solid transparent;transition:all .15s;white-space:nowrap;}
+    .ftab.active{color:var(--green-mid);border-color:var(--green-mid);}
+
+    /* BODY */
+    .body{flex:1;overflow-y:auto;padding:12px 14px 4px;scrollbar-width:none;}
+    .body::-webkit-scrollbar{display:none;}
+
+    /* CONTRACT CARD */
+    .con-card{background:var(--card);border-radius:16px;margin-bottom:10px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;transition:transform .12s;position:relative;}
+    .con-card:active{transform:scale(.985);}
+    .con-bar{position:absolute;left:0;top:0;bottom:0;width:4px;}
+    .con-bar.scheduled{background:var(--blue);}
+    .con-bar.in-progress{background:var(--orange);}
+    .con-bar.completed{background:var(--green-mid);}
+
+    .con-inner{padding:14px 14px 12px 18px;}
+    .con-top{display:flex;align-items:flex-start;margin-bottom:10px;}
+    .con-info{flex:1;}
+    .con-id{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:3px;}
+    .con-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;}
+    .con-customer{font-size:12px;color:var(--muted);font-weight:500;}
+    .con-amount{text-align:right;}
+    .con-val{font-size:16px;font-weight:900;color:var(--text);}
+    .con-status{font-size:10px;font-weight:800;letter-spacing:.05em;text-align:right;margin-top:3px;}
+    .con-status.scheduled{color:var(--blue);}
+    .con-status.in-progress{color:var(--orange);}
+    .con-status.completed{color:var(--green-mid);}
+
+    .con-prog-wrap{margin-bottom:8px;}
+    .con-prog-bg{height:6px;border-radius:3px;background:#f0f4f0;overflow:hidden;}
+    .con-prog-fill{height:100%;border-radius:3px;transition:width .3s;}
+    .con-prog-fill.scheduled{background:var(--blue);}
+    .con-prog-fill.in-progress{background:var(--orange);}
+    .con-prog-fill.completed{background:var(--green-mid);}
+    .con-prog-label{display:flex;justify-content:space-between;margin-top:4px;}
+    .con-prog-pct{font-size:11px;font-weight:700;}
+    .con-prog-pct.scheduled{color:var(--blue);}
+    .con-prog-pct.in-progress{color:var(--orange);}
+    .con-prog-pct.completed{color:var(--green-mid);}
+    .con-prog-date{font-size:11px;color:var(--muted);}
+
+    .con-footer{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--border);}
+    .con-loc{font-size:12px;color:var(--muted);flex:1;font-weight:500;}
+    .con-docs-badge{background:#f0f4f0;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;color:var(--muted);}
+
+    /* FAB */
+    .fab{position:absolute;bottom:78px;right:18px;width:50px;height:50px;border-radius:25px;background:var(--green-mid);box-shadow:0 6px 18px rgba(27,114,57,.35);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:26px;border:none;z-index:10;transition:transform .15s;}
+    .fab:active{transform:scale(.92);}
+
+    /* EMPTY */
+    .empty{display:none;flex-direction:column;align-items:center;padding:40px 20px;gap:8px;text-align:center;}
+    .empty.show{display:flex;}
+    .empty-title{font-size:15px;font-weight:700;color:var(--text);}
+    .empty-sub{font-size:13px;color:var(--muted);}
+
+    /* BOTTOM NAV */
+    .bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    .nav-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .nav-ic.active{background:var(--green-dark);}
+    .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
+    .nav-lbl.active{color:var(--green-dark);}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="h-title">Contracts</div>
+    <button class="h-btn" id="searchToggle" title="Search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#fff" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="h-btn" onclick="window.location.href='create-contract.html'" title="New contract" style="font-size:22px">+</button>
+  </header>
+
+  <div class="search-bar" id="searchBar" style="display:none">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="rgba(255,255,255,.6)" stroke-width="2"/><path d="M16.5 16.5L21 21" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round"/></svg>
+    <input class="search-input" id="searchInput" type="text" placeholder="Search contracts…" oninput="render()" />
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip" id="summaryStrip">
+    <div class="sum-item"><div class="sum-val" id="sumTotal">6</div><div class="sum-lbl">Total</div></div>
+    <div class="sum-item"><div class="sum-val" id="sumActive">2</div><div class="sum-lbl">Active</div></div>
+    <div class="sum-item"><div class="sum-val" id="sumValue">$148k</div><div class="sum-lbl">Value</div></div>
+    <div class="sum-item"><div class="sum-val" id="sumComplete">3</div><div class="sum-lbl">Done</div></div>
+  </div>
+
+  <!-- FILTER TABS -->
+  <div class="filter-tabs">
+    <div class="ftab active" data-f="all">All</div>
+    <div class="ftab" data-f="scheduled">Scheduled</div>
+    <div class="ftab" data-f="in-progress">In Progress</div>
+    <div class="ftab" data-f="completed">Completed</div>
+  </div>
+
+  <!-- CONTRACT LIST -->
+  <div class="body" id="contractList">
+    <div class="empty" id="emptyState">
+      <div style="width:52px;height:52px;background:#eef2ee;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6" stroke="#8898aa" stroke-width="2"/></svg>
+      </div>
+      <div class="empty-title">No contracts found</div>
+      <div class="empty-sub">Try a different filter or create a new contract</div>
+    </div>
+  </div>
+
+  <button class="fab" onclick="window.location.href='create-contract.html'">+</button>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="nav-lbl">Home</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/><path d="M12 12v4M10 14h4" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Jobs</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-ic active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl active">Contracts</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='timesheets-list.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8898aa" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="nav-lbl">Timesheets</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#8898aa" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Settings</div>
+    </div>
+  </nav>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  const contracts=[
+    {id:'CON-2025-001',title:'Hay Cutting & Baling',customer:'Green Valley Farms',loc:'Green Acres Farm – 95ha',status:'in-progress',amount:'$28,500',pct:65,startDate:'Oct 15',endDate:'Nov 30',docs:4,type:'hay'},
+    {id:'CON-2025-002',title:'Canola Spray Program',customer:'Top Hill Station',loc:'North Paddock – 240ha',status:'scheduled',amount:'$14,200',pct:0,startDate:'Oct 28',endDate:'Nov 10',docs:3,type:'spray'},
+    {id:'CON-2025-003',title:'Wheat Harvest 2023',customer:'Highfield Organic',loc:'Block C – South Station',status:'in-progress',amount:'$52,000',pct:85,startDate:'Oct 1',endDate:'Nov 15',docs:5,type:'harvest'},
+    {id:'CON-2025-004',title:'Spring Spray Round',customer:'Valley View Station',loc:'Homestead – 180ha',status:'completed',amount:'$18,750',pct:100,startDate:'Sep 10',endDate:'Oct 5',docs:4,type:'spray'},
+    {id:'CON-2025-005',title:'Hay Season – Season A',customer:'Sunrise Ag Holdings',loc:'Top Farm – Block 1',status:'completed',amount:'$22,000',pct:100,startDate:'Aug 20',endDate:'Oct 1',docs:6,type:'hay'},
+    {id:'CON-2025-006',title:'Grain Harvest Contract',customer:'Brown Bros Farming',loc:'East Block – 320ha',status:'scheduled',amount:'$13,200',pct:0,startDate:'Nov 5',endDate:'Dec 20',docs:2,type:'harvest'},
+  ];
+
+  let activeFilter='all';
+  const statusLabels={'scheduled':'Scheduled','in-progress':'In Progress','completed':'Completed'};
+
+  function render(){
+    const list=document.getElementById('contractList');
+    list.querySelectorAll('.con-card').forEach(el=>el.remove());
+    const empty=document.getElementById('emptyState');
+    const q=(document.getElementById('searchInput')?.value||'').toLowerCase();
+
+    let filtered=contracts.filter(c=>{
+      if(activeFilter!=='all'&&c.status!==activeFilter)return false;
+      if(q&&!c.title.toLowerCase().includes(q)&&!c.customer.toLowerCase().includes(q)&&!c.id.toLowerCase().includes(q))return false;
+      return true;
+    });
+
+    if(!filtered.length){empty.classList.add('show');updateSummary([]);return;}
+    empty.classList.remove('show');
+    updateSummary(filtered);
+
+    filtered.forEach(c=>{
+      const card=document.createElement('div');
+      card.className='con-card';
+      card.innerHTML=`
+        <div class="con-bar ${c.status}"></div>
+        <div class="con-inner">
+          <div class="con-top">
+            <div class="con-info">
+              <div class="con-id">${c.id}</div>
+              <div class="con-title">${c.title}</div>
+              <div class="con-customer">${c.customer}</div>
+            </div>
+            <div class="con-amount">
+              <div class="con-val">${c.amount}</div>
+              <div class="con-status ${c.status}">${statusLabels[c.status]}</div>
+            </div>
+          </div>
+          <div class="con-prog-wrap">
+            <div class="con-prog-bg"><div class="con-prog-fill ${c.status}" style="width:${c.pct}%"></div></div>
+            <div class="con-prog-label">
+              <span class="con-prog-pct ${c.status}">${c.pct}% complete</span>
+              <span class="con-prog-date">${c.startDate} – ${c.endDate}</span>
+            </div>
+          </div>
+          <div class="con-footer">
+            <div class="con-loc">${c.loc}</div>
+            <div class="con-docs-badge">${c.docs} docs</div>
+          </div>
+        </div>`;
+      card.addEventListener('click',()=>{
+        sessionStorage.setItem('contractId',c.id);
+        sessionStorage.setItem('contractTitle',c.title);
+        sessionStorage.setItem('contractStatus',c.status);
+        sessionStorage.setItem('contractCustomer',c.customer);
+        sessionStorage.setItem('contractAmount',c.amount);
+        sessionStorage.setItem('contractPct',c.pct);
+        sessionStorage.setItem('contractType',c.type);
+        window.location.href='contract-detail.html';
+      });
+      list.appendChild(card);
+    });
+  }
+
+  function updateSummary(filtered){
+    const total=filtered.length||contracts.length;
+    const active=contracts.filter(c=>c.status==='in-progress').length;
+    const done=contracts.filter(c=>c.status==='completed').length;
+    const val=contracts.reduce((s,c)=>s+parseFloat(c.amount.replace(/[$,k]/g,m=>m==='k'?'000':m.replace(/[$,]/,''))),0);
+    document.getElementById('sumTotal').textContent=filtered.length;
+    document.getElementById('sumActive').textContent=filtered.filter(c=>c.status==='in-progress').length;
+    document.getElementById('sumComplete').textContent=filtered.filter(c=>c.status==='completed').length;
+  }
+
+  document.querySelectorAll('.ftab').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      activeFilter=t.dataset.f;
+      render();
+    });
+  });
+
+  document.getElementById('searchToggle').addEventListener('click',()=>{
+    const bar=document.getElementById('searchBar');
+    const isShown=bar.style.display!=='none';
+    bar.style.display=isShown?'none':'flex';
+    if(!isShown)document.getElementById('searchInput').focus();
+    else{document.getElementById('searchInput').value='';render();}
+  });
+
+  render();
+</script>
+</body></html>

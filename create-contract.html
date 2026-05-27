@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Create Contract</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    /* HEADER */
+    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+    .h-back{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+    .h-title{flex:1;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+    .h-step{font-size:12px;color:rgba(255,255,255,.55);font-weight:700;}
+
+    /* PROGRESS BAR */
+    .progress-bar-wrap{flex:0 0 auto;background:var(--green-dark);padding:0 16px 16px;}
+    .step-labels{display:flex;justify-content:space-between;margin-bottom:8px;}
+    .step-dot{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+    .step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;transition:all .3s;}
+    .step-circle.done{background:var(--green);color:#fff;}
+    .step-circle.active{background:#fff;color:var(--green-dark);}
+    .step-circle.inactive{background:rgba(255,255,255,.15);color:rgba(255,255,255,.4);}
+    .step-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;transition:color .3s;}
+    .step-name.active{color:#fff;}
+    .step-name.done{color:var(--green);}
+    .step-name.inactive{color:rgba(255,255,255,.3);}
+    .step-line-row{display:flex;align-items:center;padding:0 12px;margin-top:-16px;margin-bottom:8px;}
+    .step-line{flex:1;height:2px;background:rgba(255,255,255,.15);border-radius:1px;transition:background .3s;}
+    .step-line.done{background:var(--green);}
+
+    /* PANELS */
+    .panels{flex:1;position:relative;overflow:hidden;}
+    .panel{position:absolute;inset:0;overflow-y:auto;padding:16px;scrollbar-width:none;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
+    .panel::-webkit-scrollbar{display:none;}
+    .panel.active{transform:translateX(0);}
+    .panel.exit-left{transform:translateX(-100%);}
+
+    /* FIELDS */
+    .sec-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 10px;}
+    .sec-title:first-child{margin-top:0;}
+    .field{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;}
+    .field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+    .field-row{display:flex;align-items:center;justify-content:space-between;}
+    .field-val{font-size:15px;font-weight:600;color:var(--text);}
+    .field-ph{color:var(--muted);font-weight:500;}
+    .chev{color:var(--muted);}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .f-input{border:none;background:none;font-size:15px;font-weight:600;color:var(--text);width:100%;outline:none;font-family:inherit;}
+    .f-textarea{border:none;background:none;font-size:14px;color:var(--text);width:100%;outline:none;resize:none;height:72px;font-family:inherit;line-height:1.5;}
+
+    /* SERVICE TYPE GRID */
+    .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+    .svc-item{background:var(--card);border-radius:14px;padding:14px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+    .svc-item.active{border-color:var(--green-mid);background:#f0faf4;}
+    .svc-item:active{transform:scale(.95);}
+    .svc-ic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .svc-lbl{font-size:11px;font-weight:700;color:var(--text);text-align:center;}
+
+    /* OPERATOR / MACHINERY ROWS */
+    .op-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+    .op-row:last-of-type{border-bottom:none;}
+    .op-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex:0 0 38px;}
+    .op-nm{font-size:14px;font-weight:700;color:var(--text);}
+    .op-rl{font-size:12px;color:var(--muted);}
+    .op-chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex:0 0 24px;}
+    .op-chk.on{background:var(--green-mid);border-color:var(--green-mid);}
+    .mach-ic{width:38px;height:38px;border-radius:10px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}
+    .add-row{display:flex;align-items:center;gap:8px;color:var(--green-mid);font-size:14px;font-weight:600;cursor:pointer;padding:10px 0;}
+    .avail-badge{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#e4f8ee;color:var(--green-mid);white-space:nowrap;}
+
+    /* DATE/TIME PICKER VISUAL */
+    .date-strip{display:flex;gap:4px;padding:4px 0 8px;}
+    .date-pill{flex:1;background:#f4f6f4;border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+    .date-pill.active{background:var(--green-mid);border-color:var(--green-mid);}
+    .date-pill-day{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;}
+    .date-pill.active .date-pill-day{color:rgba(255,255,255,.7);}
+    .date-pill-num{font-size:15px;font-weight:800;color:var(--text);}
+    .date-pill.active .date-pill-num{color:#fff;}
+
+    /* DOCUMENTS CHECKLIST */
+    .doc-ck{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+    .doc-ck.checked{border-color:var(--green);}
+    .doc-ck-box{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex:0 0 24px;transition:all .15s;}
+    .doc-ck.checked .doc-ck-box{background:var(--green-mid);border-color:var(--green-mid);}
+    .doc-ck-title{font-size:14px;font-weight:700;color:var(--text);}
+    .doc-ck-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+    .doc-required{margin-left:auto;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#fdedf0;color:var(--red);white-space:nowrap;flex:0 0 auto;}
+
+    /* BOTTOM NAV STRIP */
+    .step-nav{flex:0 0 auto;background:var(--card);border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center;}
+    .back-btn{padding:14px 20px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;}
+    .next-btn{flex:1;padding:14px;border-radius:14px;background:var(--green-mid);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
+    .next-btn:active{opacity:.85;}
+    .save-btn{flex:1;padding:14px;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
+    .save-btn:active{opacity:.85;}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <!-- HEADER -->
+  <header class="header">
+    <button class="h-back" id="backBtn" onclick="handleBack()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="h-title" id="headerTitle">Create Contract</div>
+    <div class="h-step" id="headerStep">Step 1 of 4</div>
+  </header>
+
+  <!-- PROGRESS STEPPER -->
+  <div class="progress-bar-wrap">
+    <div style="display:flex;align-items:center;padding:0 4px;">
+      <div class="step-dot">
+        <div class="step-circle active" id="sc1">1</div>
+        <div class="step-name active" id="sn1">Basics</div>
+      </div>
+      <div class="step-line" id="sl1" style="margin-bottom:14px"></div>
+      <div class="step-dot">
+        <div class="step-circle inactive" id="sc2">2</div>
+        <div class="step-name inactive" id="sn2">Resources</div>
+      </div>
+      <div class="step-line" id="sl2" style="margin-bottom:14px"></div>
+      <div class="step-dot">
+        <div class="step-circle inactive" id="sc3">3</div>
+        <div class="step-name inactive" id="sn3">Schedule</div>
+      </div>
+      <div class="step-line" id="sl3" style="margin-bottom:14px"></div>
+      <div class="step-dot">
+        <div class="step-circle inactive" id="sc4">4</div>
+        <div class="step-name inactive" id="sn4">Documents</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANELS CONTAINER -->
+  <div class="panels">
+
+    <!-- STEP 1: BASICS -->
+    <div class="panel active" id="step1">
+      <div class="sec-title">Customer Details</div>
+      <div class="field" onclick="tapField(this,'Green Valley Farms')">
+        <div class="field-label">Customer</div>
+        <div class="field-row"><span class="field-val field-ph" id="fCustomer">Select customer…</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span></div>
+      </div>
+      <div class="field" onclick="tapField(this,'Green Acres Farm – Block C')">
+        <div class="field-label">Property / Farm</div>
+        <div class="field-row"><span class="field-val field-ph" id="fProperty">Select property…</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span></div>
+      </div>
+
+      <div class="sec-title">Service Type</div>
+      <div class="svc-grid">
+        <div class="svc-item" data-type="spray">
+          <div class="svc-ic" style="background:#e4ecfd"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h12M15 8l4 4-4 4" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="12" r="2" fill="#2d5bd4"/></svg></div>
+          <div class="svc-lbl">Spraying</div>
+        </div>
+        <div class="svc-item active" data-type="hay">
+          <div class="svc-ic" style="background:#fef3e2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="18" height="7" rx="2" stroke="#f5a623" stroke-width="2"/><path d="M7 13V9a5 5 0 0 1 10 0v4" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="svc-lbl">Haymaking</div>
+        </div>
+        <div class="svc-item" data-type="harvest">
+          <div class="svc-ic" style="background:#fdedf0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 10h5v11h6V10h5L12 2z" stroke="#d63031" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <div class="svc-lbl">Harvesting</div>
+        </div>
+        <div class="svc-item" data-type="spread">
+          <div class="svc-ic" style="background:#e8f5e9"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#1b7239"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div class="svc-lbl">Spreading</div>
+        </div>
+        <div class="svc-item" data-type="other">
+          <div class="svc-ic" style="background:#f3f4f6"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2" fill="#8898aa"/><circle cx="5" cy="12" r="2" fill="#8898aa"/><circle cx="19" cy="12" r="2" fill="#8898aa"/></svg></div>
+          <div class="svc-lbl">Others</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Contract Value</div>
+        <div class="field-row">
+          <span style="font-size:15px;font-weight:600;color:var(--muted)">$</span>
+          <input class="f-input" type="number" placeholder="0.00" style="text-align:right" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Description / Scope of Work</div>
+        <textarea class="f-textarea" placeholder="Describe the work to be done…"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 2: RESOURCES -->
+    <div class="panel" id="step2">
+      <div class="sec-title">Assign Operators</div>
+      <div class="field">
+        <div class="op-row">
+          <div class="op-av" style="background:#1b7239">JG</div>
+          <div style="flex:1"><div class="op-nm">John G.</div><div class="op-rl">Lead Operator</div></div>
+          <div class="op-chk on" onclick="toggleChk(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </div>
+        <div class="op-row">
+          <div class="op-av" style="background:#2d5bd4">SM</div>
+          <div style="flex:1"><div class="op-nm">Sarah M.</div><div class="op-rl">Operator</div></div>
+          <div class="op-chk" onclick="toggleChk(this)"></div>
+        </div>
+        <div class="op-row">
+          <div class="op-av" style="background:#f5a623">MF</div>
+          <div style="flex:1"><div class="op-nm">Miles F.</div><div class="op-rl">Operator</div></div>
+          <div class="op-chk" onclick="toggleChk(this)"></div>
+        </div>
+        <div class="op-row">
+          <div class="op-av" style="background:#d63031">JR</div>
+          <div style="flex:1"><div class="op-nm">James R.</div><div class="op-rl">Trainee</div></div>
+          <div class="op-chk" onclick="toggleChk(this)"></div>
+        </div>
+        <div class="add-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+          Add Operator
+        </div>
+      </div>
+
+      <div class="sec-title">Machinery Resources</div>
+      <div class="field">
+        <div class="op-row">
+          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="11" width="20" height="9" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M6 11V7a6 6 0 0 1 12 0v4" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="op-nm">Big Red Harvester</div><div class="op-rl">Header 40ft · ABC-123</div></div>
+          <div class="avail-badge">Available</div>
+        </div>
+        <div class="op-row">
+          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#8898aa" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#8898aa" stroke-width="2"/></svg></div>
+          <div style="flex:1"><div class="op-nm">John's Deere 8R</div><div class="op-rl">Tractor · XYZ-456</div></div>
+          <div class="avail-badge">Available</div>
+        </div>
+        <div class="op-row">
+          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#8898aa" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#8898aa" stroke-width="2"/></svg></div>
+          <div style="flex:1"><div class="op-nm">Boom Spray Rig #2</div><div class="op-rl">24m boom · Tank 2000L</div></div>
+          <div style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#fef3e2;color:var(--orange)">In Use</div>
+        </div>
+        <div class="add-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+          Add Machinery
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: SCHEDULE -->
+    <div class="panel" id="step3">
+      <div class="sec-title">Start Date</div>
+      <div class="field">
+        <div class="field-label">Select Week</div>
+        <div class="date-strip" id="dateStrip">
+          <div class="date-pill" onclick="selectDate(this,'23')"><div class="date-pill-day">Mon</div><div class="date-pill-num">23</div></div>
+          <div class="date-pill active" onclick="selectDate(this,'24')"><div class="date-pill-day">Tue</div><div class="date-pill-num">24</div></div>
+          <div class="date-pill" onclick="selectDate(this,'25')"><div class="date-pill-day">Wed</div><div class="date-pill-num">25</div></div>
+          <div class="date-pill" onclick="selectDate(this,'26')"><div class="date-pill-day">Thu</div><div class="date-pill-num">26</div></div>
+          <div class="date-pill" onclick="selectDate(this,'27')"><div class="date-pill-day">Fri</div><div class="date-pill-num">27</div></div>
+          <div class="date-pill" onclick="selectDate(this,'28')"><div class="date-pill-day">Sat</div><div class="date-pill-num">28</div></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1">
+            <div class="field-label">Month / Year</div>
+            <div class="field-val">October 2023</div>
+          </div>
+          <div style="flex:1">
+            <div class="field-label">Start Time</div>
+            <div class="field-val" style="cursor:pointer" onclick="cycleTime(this)">07:30 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-title">End Date</div>
+      <div class="field">
+        <div class="field-label">Estimated Completion</div>
+        <div class="field-row">
+          <span class="field-val">November 30, 2023</span>
+          <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+        </div>
+      </div>
+
+      <div class="sec-title">Duration &amp; Notes</div>
+      <div class="two-col">
+        <div class="field" onclick="tapField(this,'6 Weeks')">
+          <div class="field-label">Duration</div>
+          <div class="field-val" id="fDuration">4 Weeks</div>
+        </div>
+        <div class="field" onclick="tapField(this,'Daily')">
+          <div class="field-label">Frequency</div>
+          <div class="field-val" id="fFrequency">As Needed</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-label">Schedule Notes</div>
+        <textarea class="f-textarea" placeholder="Any scheduling constraints or preferences…"></textarea>
+      </div>
+    </div>
+
+    <!-- STEP 4: DOCUMENTS -->
+    <div class="panel" id="step4">
+      <div class="sec-title">Required Documents</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">
+        Confirm that the following documents are ready or will be provided before work begins.
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Contract Agreement</div>
+          <div class="doc-ck-sub">Signed by both parties</div>
+        </div>
+        <div class="doc-required">Required</div>
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Work Order</div>
+          <div class="doc-ck-sub">Detailed scope of work</div>
+        </div>
+        <div class="doc-required">Required</div>
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Public Liability Insurance</div>
+          <div class="doc-ck-sub">Valid certificate of currency</div>
+        </div>
+        <div class="doc-required">Required</div>
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Chemical Use Permit</div>
+          <div class="doc-ck-sub">If spraying operations included</div>
+        </div>
+        <div style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e4ecfd;color:var(--blue);white-space:nowrap;flex:0 0 auto;">Optional</div>
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Safety Management Plan</div>
+          <div class="doc-ck-sub">Site-specific safety plan</div>
+        </div>
+        <div class="doc-required">Required</div>
+      </div>
+
+      <div class="doc-ck" onclick="toggleDoc(this)">
+        <div class="doc-ck-box"></div>
+        <div style="flex:1">
+          <div class="doc-ck-title">Farm Property Map</div>
+          <div class="doc-ck-sub">Paddock layout and access points</div>
+        </div>
+        <div style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e4ecfd;color:var(--blue);white-space:nowrap;flex:0 0 auto;">Optional</div>
+      </div>
+
+      <div style="margin-top:4px;background:var(--card);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+        <div style="font-size:14px;font-weight:700;color:var(--green-mid)">Add Custom Document</div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- STEP NAVIGATION -->
+  <div class="step-nav">
+    <button class="back-btn" id="navBack" onclick="handleBack()">Back</button>
+    <button class="next-btn" id="navNext" onclick="handleNext()">Continue →</button>
+  </div>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  const stepTitles=['Basics','Assign Resources','Schedule','Documents'];
+  let currentStep=1;
+
+  function goToStep(next){
+    const prev=currentStep;
+    const fromPanel=document.getElementById('step'+prev);
+    const toPanel=document.getElementById('step'+next);
+
+    if(next>prev){
+      toPanel.classList.remove('exit-left');
+      toPanel.style.transform='translateX(100%)';
+      requestAnimationFrame(()=>{
+        fromPanel.classList.remove('active');
+        fromPanel.classList.add('exit-left');
+        toPanel.classList.add('active');
+        toPanel.style.transform='';
+      });
+    } else {
+      fromPanel.style.transform='';
+      fromPanel.classList.remove('active');
+      fromPanel.classList.remove('exit-left');
+      fromPanel.style.transform='translateX(100%)';
+      toPanel.classList.remove('exit-left');
+      toPanel.classList.add('active');
+    }
+
+    currentStep=next;
+    updateStepper();
+  }
+
+  function updateStepper(){
+    for(let i=1;i<=4;i++){
+      const circle=document.getElementById('sc'+i);
+      const name=document.getElementById('sn'+i);
+      if(i<currentStep){
+        circle.className='step-circle done';
+        circle.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        name.className='step-name done';
+      } else if(i===currentStep){
+        circle.className='step-circle active';
+        circle.textContent=i;
+        name.className='step-name active';
+      } else {
+        circle.className='step-circle inactive';
+        circle.textContent=i;
+        name.className='step-name inactive';
+      }
+      if(i<4){
+        const line=document.getElementById('sl'+i);
+        line.className='step-line'+(i<currentStep?' done':'');
+      }
+    }
+    document.getElementById('headerStep').textContent='Step '+currentStep+' of 4';
+    document.getElementById('headerTitle').textContent=stepTitles[currentStep-1];
+    if(currentStep===4){
+      document.getElementById('navNext').className='save-btn';
+      document.getElementById('navNext').textContent='Save Contract →';
+    } else {
+      document.getElementById('navNext').className='next-btn';
+      document.getElementById('navNext').textContent='Continue →';
+    }
+  }
+
+  function handleNext(){
+    if(currentStep<4){goToStep(currentStep+1);}
+    else{saveContract();}
+  }
+
+  function handleBack(){
+    if(currentStep>1){goToStep(currentStep-1);}
+    else{window.location.href='contracts-list.html';}
+  }
+
+  function saveContract(){
+    sessionStorage.setItem('newContractSaved','true');
+    window.location.href='contract-saved.html';
+  }
+
+  // Field interactions
+  function tapField(el,val){
+    const span=el.querySelector('.field-val,.field-ph');
+    if(span){span.textContent=val;span.classList.remove('field-ph');}
+  }
+
+  const timeOpts=['06:00 AM','06:30 AM','07:00 AM','07:30 AM','08:00 AM','08:30 AM','09:00 AM'];
+  let timeIdx=3;
+  function cycleTime(el){
+    timeIdx=(timeIdx+1)%timeOpts.length;
+    el.textContent=timeOpts[timeIdx];
+  }
+
+  function selectDate(el){
+    document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function toggleChk(btn){
+    const on=btn.classList.toggle('on');
+    btn.innerHTML=on?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
+  }
+
+  function toggleDoc(item){
+    item.classList.toggle('checked');
+    const box=item.querySelector('.doc-ck-box');
+    if(item.classList.contains('checked')){
+      box.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    }else{box.innerHTML='';}
+  }
+
+  document.querySelectorAll('.svc-item').forEach(item=>{
+    item.addEventListener('click',()=>{
+      document.querySelectorAll('#step1 .svc-item').forEach(x=>x.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  updateStepper();
+</script>
+</body></html>
