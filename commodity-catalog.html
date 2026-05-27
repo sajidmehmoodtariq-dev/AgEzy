@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commodity Catalog – AgEzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+  --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+  --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+  --app-scale:1;
+}
+html,body{width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center}
+.screen{
+  width:390px;height:844px;background:var(--bg);border-radius:40px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  transform:scale(var(--app-scale));transform-origin:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+/* Header */
+.hdr{background:var(--green-dark);padding:52px 20px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-title{color:#fff;font:700 18px/1 system-ui;flex:1}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:7px 14px;color:#fff;font:600 13px system-ui;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+/* Search bar */
+.search-bar{background:var(--green-dark);padding:0 20px 16px;flex-shrink:0}
+.search-wrap{position:relative}
+.search-input{width:100%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 14px 10px 38px;color:#fff;font:400 14px system-ui;outline:none}
+.search-input::placeholder{color:rgba(255,255,255,.5)}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.6}
+
+/* Filter tabs - scrollable */
+.ftab-wrap{background:var(--green-dark);padding:0 20px 16px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0}
+.ftab-wrap::-webkit-scrollbar{display:none}
+.ftab{padding:7px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.25);background:transparent;font:500 12px system-ui;color:rgba(255,255,255,.7);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ftab.active{border-color:#fff;color:#fff;background:rgba(255,255,255,.2)}
+
+/* Stats strip */
+.stats-strip{background:var(--green-mid);padding:10px 20px;display:flex;gap:0;flex-shrink:0}
+.stat-item{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
+.stat-item:last-child{border-right:none}
+.stat-num{color:#fff;font:700 17px system-ui}
+.stat-lbl{color:rgba(255,255,255,.7);font:400 10px system-ui;margin-top:1px}
+
+/* Body */
+.body{flex:1;overflow-y:auto;padding:16px 20px 100px}
+.body::-webkit-scrollbar{display:none}
+
+/* Section label */
+.sec-lbl{font:600 11px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px}
+
+/* Commodity card */
+.com-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s}
+.com-card:active{transform:scale(.98)}
+.com-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.com-info{flex:1;min-width:0}
+.com-name{font:700 14px system-ui;color:var(--text)}
+.com-meta{font:400 12px system-ui;color:var(--muted);margin-top:2px}
+.com-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.com-tag{padding:2px 8px;border-radius:20px;font:500 10px system-ui}
+.tag-grain{background:#fff8e1;color:#c47a00}
+.tag-hay{background:#e8f7ed;color:var(--green-mid)}
+.tag-chemical{background:#fce4ec;color:#c62828}
+.tag-livestock{background:#e8f3ff;color:var(--blue)}
+.tag-fuel{background:#f3e5f5;color:var(--purple)}
+.tag-other{background:#f0f0f0;color:#555}
+.com-right{text-align:right;flex-shrink:0}
+.com-price{font:700 14px system-ui;color:var(--text)}
+.com-unit{font:400 11px system-ui;color:var(--muted);margin-top:2px}
+.com-stock{font:500 11px system-ui;margin-top:4px}
+.stock-ok{color:var(--green)}
+.stock-low{color:var(--orange)}
+.stock-out{color:var(--red)}
+
+/* Expand chevron */
+.chev{transition:transform .2s}
+.chev.open{transform:rotate(180deg)}
+
+/* Detail expand panel */
+.com-detail{display:none;padding:10px 14px 14px;border-top:1px solid var(--border);margin-top:2px}
+.com-detail.show{display:block}
+.detail-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font:400 12px system-ui;color:var(--muted)}
+.detail-val{font:600 12px system-ui;color:var(--text)}
+.detail-actions{display:flex;gap:8px;margin-top:12px}
+.det-btn{flex:1;padding:9px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font:600 12px system-ui;color:var(--text);cursor:pointer;text-align:center}
+.det-btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+
+/* Fab */
+.fab{position:absolute;bottom:88px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,171,79,.4);z-index:20}
+
+/* Bottom nav */
+.nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:none}
+.nav-ic{width:40px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.nav-ic.active{background:var(--green-dark)}
+.nav-lbl{font:500 10px system-ui;color:var(--muted)}
+.nav-item.active .nav-lbl{color:var(--green-dark);font-weight:700}
+
+/* Backdrop + Sheet */
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.show{opacity:1;pointer-events:all}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85%}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.sheet-title{font:700 16px system-ui;color:var(--text)}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 20px 24px;overflow-y:auto;max-height:72vh}
+.sheet-body::-webkit-scrollbar{display:none}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field label{font:600 12px system-ui;color:var(--muted);display:block;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:400 14px system-ui;color:var(--text);background:#fff;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}
+.field textarea{resize:none;height:72px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;padding:15px;border-radius:14px;background:var(--green);border:none;color:#fff;font:700 15px system-ui;cursor:pointer;margin-top:6px}
+
+/* Category chips */
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.cat-chip{padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);font:500 12px system-ui;color:var(--text);cursor:pointer;background:#fff}
+.cat-chip.sel{border-color:var(--green);background:#e8f7ed;color:var(--green-mid)}
+
+/* Toast */
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,61,40,.95);color:#fff;padding:10px 20px;border-radius:24px;font:500 13px system-ui;white-space:nowrap;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="hdr-back" onclick="window.location.href='settings.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="hdr-title">Commodity Catalog</span>
+    <button class="hdr-btn" onclick="openAddSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search commodities…" oninput="filterCommodities(this.value)">
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="ftab-wrap">
+    <div class="ftab active" onclick="setTab(this,'all')">All</div>
+    <div class="ftab" onclick="setTab(this,'grain')">Grain</div>
+    <div class="ftab" onclick="setTab(this,'hay')">Hay & Fodder</div>
+    <div class="ftab" onclick="setTab(this,'chemical')">Chemicals</div>
+    <div class="ftab" onclick="setTab(this,'livestock')">Livestock</div>
+    <div class="ftab" onclick="setTab(this,'fuel')">Fuel</div>
+    <div class="ftab" onclick="setTab(this,'other')">Other</div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num" id="st-total">14</div><div class="stat-lbl">Items</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-lbl">Low Stock</div></div>
+    <div class="stat-item"><div class="stat-num">1</div><div class="stat-lbl">Out of Stock</div></div>
+    <div class="stat-item"><div class="stat-num">$42k</div><div class="stat-lbl">Est. Value</div></div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" id="body">
+    <div class="sec-lbl" id="sec-label">All Commodities</div>
+    <div id="com-list"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAddSheet()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+      <span class="nav-lbl">Jobs</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='contracts-list.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <span class="nav-lbl">Contracts</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='farm-map.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+      <span class="nav-lbl">Map</span>
+    </button>
+    <button class="nav-item active" onclick="window.location.href='settings.html'">
+      <div class="nav-ic active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></div>
+      <span class="nav-lbl">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Add Commodity Sheet -->
+  <div class="backdrop" id="addBackdrop" onclick="closeSheet('addBackdrop','addSheet')"></div>
+  <div class="sheet" id="addSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Add Commodity</span>
+      <button class="sheet-close" onclick="closeSheet('addBackdrop','addSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Commodity Name</label>
+        <input type="text" id="add-name" placeholder="e.g. Canola, Round Bale Hay…">
+      </div>
+      <div class="field">
+        <label>Category</label>
+        <div class="cat-chips" id="cat-chips">
+          <div class="cat-chip sel" onclick="selectCat(this,'grain')">Grain</div>
+          <div class="cat-chip" onclick="selectCat(this,'hay')">Hay & Fodder</div>
+          <div class="cat-chip" onclick="selectCat(this,'chemical')">Chemical</div>
+          <div class="cat-chip" onclick="selectCat(this,'livestock')">Livestock</div>
+          <div class="cat-chip" onclick="selectCat(this,'fuel')">Fuel</div>
+          <div class="cat-chip" onclick="selectCat(this,'other')">Other</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Unit of Measure</label>
+          <select id="add-unit">
+            <option>Tonne</option>
+            <option>Bale</option>
+            <option>Litre</option>
+            <option>Kilogram</option>
+            <option>Bag</option>
+            <option>Head</option>
+            <option>Each</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Price / Unit ($)</label>
+          <input type="number" id="add-price" placeholder="0.00">
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Current Stock</label>
+          <input type="number" id="add-stock" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Low Stock Alert</label>
+          <input type="number" id="add-threshold" placeholder="Min qty">
+        </div>
+      </div>
+      <div class="field">
+        <label>Description (optional)</label>
+        <textarea id="add-desc" placeholder="Grade, specification, notes…"></textarea>
+      </div>
+      <button class="btn-primary" onclick="addCommodity()">Save Commodity →</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const CATS = {
+  grain:{label:'Grain',bg:'#fff8e1',color:'#c47a00',tagClass:'tag-grain',icon:'<path d="M12 2a10 10 0 100 20 10 10 0 000-20z" fill="#c47a00" opacity=".15"/><path d="M12 6v12M8 9l4-3 4 3M8 15l4 3 4-3" stroke="#c47a00" stroke-width="1.8" fill="none" stroke-linecap="round"/>'},
+  hay:{label:'Hay',bg:'#e8f7ed',color:'#1b7239',tagClass:'tag-hay',icon:'<rect x="3" y="8" width="18" height="8" rx="3" fill="#1b7239" opacity=".15"/><path d="M3 12h18M8 8v8M16 8v8" stroke="#1b7239" stroke-width="1.8" fill="none" stroke-linecap="round"/>'},
+  chemical:{label:'Chemical',bg:'#fce4ec',color:'#c62828',tagClass:'tag-chemical',icon:'<path d="M9 3h6v6l3 10H6L9 9z" fill="#c62828" opacity=".15"/><path d="M9 3h6M9 9h6" stroke="#c62828" stroke-width="1.8" fill="none" stroke-linecap="round"/>'},
+  livestock:{label:'Livestock',bg:'#e8f3ff',color:'#2d5bd4',tagClass:'tag-livestock',icon:'<circle cx="12" cy="10" r="4" fill="#2d5bd4" opacity=".15"/><path d="M12 14c-5 0-8 2-8 4v1h16v-1c0-2-3-4-8-4z" fill="#2d5bd4" opacity=".3"/><circle cx="12" cy="10" r="4" stroke="#2d5bd4" stroke-width="1.8" fill="none"/>'},
+  fuel:{label:'Fuel',bg:'#f3e5f5',color:'#7c3aed',tagClass:'tag-fuel',icon:'<rect x="6" y="3" width="10" height="16" rx="2" fill="#7c3aed" opacity=".15"/><path d="M6 8h10M9 3v4" stroke="#7c3aed" stroke-width="1.8" fill="none" stroke-linecap="round"/>'},
+  other:{label:'Other',bg:'#f0f0f0',color:'#555',tagClass:'tag-other',icon:'<circle cx="12" cy="12" r="8" fill="#555" opacity=".1"/><path d="M12 8v4l3 3" stroke="#555" stroke-width="1.8" fill="none" stroke-linecap="round"/>'},
+};
+
+let commodities = [
+  {id:'C001',name:'Wheat',cat:'grain',unit:'Tonne',price:320,stock:450,threshold:100,desc:'APW1 grade, 11.5% protein',stockStatus:'ok'},
+  {id:'C002',name:'Canola',cat:'grain',unit:'Tonne',price:680,stock:82,threshold:100,desc:'AUS Canola standard',stockStatus:'low'},
+  {id:'C003',name:'Barley',cat:'grain',unit:'Tonne',price:275,stock:210,threshold:50,desc:'Malting grade preferred',stockStatus:'ok'},
+  {id:'C004',name:'Sorghum',cat:'grain',unit:'Tonne',price:290,stock:0,threshold:50,desc:'Feed grade',stockStatus:'out'},
+  {id:'C005',name:'Round Bale Hay',cat:'hay',unit:'Bale',price:85,stock:340,threshold:50,desc:'Rhodes grass, 400kg avg',stockStatus:'ok'},
+  {id:'C006',name:'Square Bale Lucerne',cat:'hay',unit:'Bale',price:22,stock:1200,threshold:200,desc:'Premium dairy grade',stockStatus:'ok'},
+  {id:'C007',name:'Silage',cat:'hay',unit:'Tonne',price:55,stock:18,threshold:30,desc:'Corn silage wrapped',stockStatus:'low'},
+  {id:'C008',name:'Glyphosate 450',cat:'chemical',unit:'Litre',price:4.2,stock:650,threshold:100,desc:'Non-selective herbicide',stockStatus:'ok'},
+  {id:'C009',name:'Urea 46% N',cat:'chemical',unit:'Kilogram',price:1.1,stock:2400,threshold:500,desc:'Granular nitrogen fertiliser',stockStatus:'ok'},
+  {id:'C010',name:'Fungicide Mix',cat:'chemical',unit:'Litre',price:18.5,stock:40,threshold:60,desc:'Broadleaf protection',stockStatus:'low'},
+  {id:'C011',name:'Brahman Cattle',cat:'livestock',unit:'Head',price:1800,stock:62,threshold:10,desc:'Breeder cows 18–24mo',stockStatus:'ok'},
+  {id:'C012',name:'Merino Sheep',cat:'livestock',unit:'Head',price:280,stock:320,threshold:30,desc:'Fine wool 18.5 micron',stockStatus:'ok'},
+  {id:'C013',name:'Diesel',cat:'fuel',unit:'Litre',price:1.98,stock:8200,threshold:2000,desc:'Bulk storage tank A',stockStatus:'ok'},
+  {id:'C014',name:'Petrol',cat:'fuel',unit:'Litre',price:2.05,stock:1100,threshold:500,desc:'Unleaded 91',stockStatus:'ok'},
+];
+
+let currentTab = 'all';
+let selectedCat = 'grain';
+let expandedId = null;
+
+function setTab(el, tab) {
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  const labels = {all:'All Commodities',grain:'Grain',hay:'Hay & Fodder',chemical:'Chemicals',livestock:'Livestock',fuel:'Fuel',other:'Other'};
+  document.getElementById('sec-label').textContent = labels[tab]||'All Commodities';
+  renderList();
+}
+
+function filterCommodities(q) {
+  renderList(q.toLowerCase());
+}
+
+function stockClass(s) {
+  if (s==='out') return 'stock-out';
+  if (s==='low') return 'stock-low';
+  return 'stock-ok';
+}
+function stockText(c) {
+  if (c.stockStatus==='out') return 'Out of Stock';
+  if (c.stockStatus==='low') return `${c.stock} ${c.unit} – Low`;
+  return `${c.stock} ${c.unit}`;
+}
+
+function renderList(q='') {
+  const list = document.getElementById('com-list');
+  const filtered = commodities.filter(c=>{
+    const matchTab = currentTab==='all' || c.cat===currentTab;
+    const matchQ = !q || c.name.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q);
+    return matchTab && matchQ;
+  });
+  document.getElementById('st-total').textContent = filtered.length;
+
+  list.innerHTML = filtered.map(c=>{
+    const cat = CATS[c.cat]||CATS.other;
+    const isOpen = expandedId===c.id;
+    return `
+    <div class="com-card" id="card-${c.id}" style="flex-direction:column;align-items:stretch;padding:0;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px" onclick="toggleExpand('${c.id}')">
+        <div class="com-icon" style="background:${cat.bg}">
+          <svg width="24" height="24" viewBox="0 0 24 24">${cat.icon}</svg>
+        </div>
+        <div class="com-info">
+          <div class="com-name">${c.name}</div>
+          <div class="com-meta">${c.desc}</div>
+          <div class="com-tags">
+            <span class="com-tag ${cat.tagClass}">${cat.label}</span>
+          </div>
+        </div>
+        <div class="com-right">
+          <div class="com-price">$${typeof c.price==='number'&&c.price<10?c.price.toFixed(2):c.price}</div>
+          <div class="com-unit">per ${c.unit}</div>
+          <div class="com-stock ${stockClass(c.stockStatus)}">${stockText(c)}</div>
+        </div>
+        <svg class="chev${isOpen?' open':''}" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="com-detail${isOpen?' show':''}">
+        <div class="detail-row"><span class="detail-label">Commodity ID</span><span class="detail-val">${c.id}</span></div>
+        <div class="detail-row"><span class="detail-label">Unit</span><span class="detail-val">${c.unit}</span></div>
+        <div class="detail-row"><span class="detail-label">Current Stock</span><span class="detail-val ${stockClass(c.stockStatus)}">${c.stock} ${c.unit}</span></div>
+        <div class="detail-row"><span class="detail-label">Low Stock Alert</span><span class="detail-val">${c.threshold} ${c.unit}</span></div>
+        <div class="detail-row"><span class="detail-label">Price / Unit</span><span class="detail-val">$${c.price} / ${c.unit}</span></div>
+        <div class="detail-row"><span class="detail-label">Est. Total Value</span><span class="detail-val">$${(c.price*c.stock).toLocaleString('en-AU',{maximumFractionDigits:0})}</span></div>
+        <div class="detail-actions">
+          <div class="det-btn" onclick="editCom('${c.id}')">Edit</div>
+          <div class="det-btn" onclick="deleteCom('${c.id}')">Delete</div>
+          <div class="det-btn primary" onclick="orderCom('${c.id}')">Order Stock</div>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function toggleExpand(id) {
+  expandedId = expandedId===id ? null : id;
+  renderList(document.querySelector('.search-input').value.toLowerCase());
+}
+
+function openAddSheet() {
+  document.getElementById('addBackdrop').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('addSheet').classList.add('open'));
+}
+
+function closeSheet(bId, sId) {
+  document.getElementById(sId).classList.remove('open');
+  setTimeout(()=>document.getElementById(bId).classList.remove('show'), 300);
+}
+
+function selectCat(el, cat) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function addCommodity() {
+  const name = document.getElementById('add-name').value.trim();
+  const unit = document.getElementById('add-unit').value;
+  const price = parseFloat(document.getElementById('add-price').value)||0;
+  const stock = parseInt(document.getElementById('add-stock').value)||0;
+  const threshold = parseInt(document.getElementById('add-threshold').value)||0;
+  const desc = document.getElementById('add-desc').value.trim();
+  if (!name) { showToast('Enter a commodity name'); return; }
+  const id = 'C'+String(commodities.length+1).padStart(3,'0');
+  const ss = stock===0?'out':stock<=threshold?'low':'ok';
+  commodities.push({id, name, cat:selectedCat, unit, price, stock, threshold, desc:desc||'—', stockStatus:ss});
+  closeSheet('addBackdrop','addSheet');
+  renderList();
+  showToast(name+' added to catalog');
+  // clear form
+  ['add-name','add-price','add-stock','add-threshold','add-desc'].forEach(i=>document.getElementById(i).value='');
+}
+
+function editCom(id) {
+  showToast('Edit mode coming soon');
+}
+function deleteCom(id) {
+  const idx = commodities.findIndex(c=>c.id===id);
+  if (idx>-1){ const n=commodities[idx].name; commodities.splice(idx,1); expandedId=null; renderList(); showToast(n+' removed'); }
+}
+function orderCom(id) {
+  const c = commodities.find(x=>x.id===id);
+  showToast(c ? 'Order placed for '+c.name : 'Order placed');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// Scale
+function resize(){
+  const s=Math.min((innerWidth-24)/390,(innerHeight-24)/844,1);
+  document.documentElement.style.setProperty('--app-scale',s);
+}
+window.addEventListener('resize',resize); resize();
+
+renderList();
+</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>User Management – AgEzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+  --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+  --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+  --app-scale:1;
+}
+html,body{width:100%;height:100%;background:#2a2a2a;display:flex;align-items:center;justify-content:center}
+.screen{
+  width:390px;height:844px;background:var(--bg);border-radius:40px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  transform:scale(var(--app-scale));transform-origin:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+/* Header */
+.hdr{background:var(--green-dark);padding:52px 20px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-title{color:#fff;font:700 18px/1 system-ui;flex:1}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:7px 14px;color:#fff;font:600 13px system-ui;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+/* Search bar */
+.search-bar{background:var(--green-dark);padding:0 20px 16px;flex-shrink:0}
+.search-input{width:100%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 14px 10px 38px;color:#fff;font:400 14px system-ui;outline:none;position:relative}
+.search-input::placeholder{color:rgba(255,255,255,.5)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.6}
+
+/* Stats strip */
+.stats-strip{background:var(--green-mid);padding:12px 20px;display:flex;gap:0;flex-shrink:0}
+.stat-item{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
+.stat-item:last-child{border-right:none}
+.stat-num{color:#fff;font:700 18px system-ui}
+.stat-lbl{color:rgba(255,255,255,.7);font:400 10px system-ui;margin-top:2px}
+
+/* Body */
+.body{flex:1;overflow-y:auto;padding:16px 20px 100px}
+.body::-webkit-scrollbar{display:none}
+
+/* Filter tabs */
+.ftabs{display:flex;gap:6px;margin-bottom:16px}
+.ftab{padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;font:500 12px system-ui;color:var(--muted);cursor:pointer;white-space:nowrap}
+.ftab.active{border-color:var(--green);color:var(--green);background:#e8f7ed}
+
+/* Section label */
+.sec-lbl{font:600 11px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px}
+
+/* User card */
+.user-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .1s}
+.user-card:active{transform:scale(.98)}
+.user-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 16px system-ui;color:#fff;flex-shrink:0;position:relative}
+.av-dot{position:absolute;bottom:1px;right:1px;width:11px;height:11px;border-radius:50%;border:2px solid #fff}
+.av-dot.online{background:#00ab4f}
+.av-dot.offline{background:#8898aa}
+.av-dot.away{background:#f5a623}
+.user-info{flex:1;min-width:0}
+.user-name{font:600 14px system-ui;color:var(--text)}
+.user-meta{font:400 12px system-ui;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.role-pill{padding:3px 9px;border-radius:20px;font:600 11px system-ui}
+.role-admin{background:#ede9fe;color:var(--purple)}
+.role-manager{background:#e8f7ed;color:var(--green-mid)}
+.role-operator{background:#e8f3ff;color:var(--blue)}
+.role-trainee{background:#fff3e0;color:#e67e22}
+.status-lbl{font:400 11px system-ui;color:var(--muted)}
+.status-lbl.active-lbl{color:var(--green)}
+.user-action{width:28px;height:28px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Bottom nav */
+.nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:none}
+.nav-ic{width:40px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.nav-ic.active{background:var(--green-dark)}
+.nav-lbl{font:500 10px system-ui;color:var(--muted)}
+.nav-item.active .nav-lbl{color:var(--green-dark);font-weight:700}
+
+/* Backdrop + Sheet */
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.show{opacity:1;pointer-events:all}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:82%}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.sheet-title{font:700 16px system-ui;color:var(--text)}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 20px 20px;overflow-y:auto;max-height:calc(82vh - 80px)}
+.sheet-body::-webkit-scrollbar{display:none}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field label{font:600 12px system-ui;color:var(--muted);display:block;margin-bottom:5px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:400 14px system-ui;color:var(--text);background:#fff;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green)}
+
+/* Role grid */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.role-opt{border:1.5px solid var(--border);border-radius:12px;padding:10px;cursor:pointer;text-align:center}
+.role-opt.sel{border-color:var(--green);background:#e8f7ed}
+.role-opt-icon{width:32px;height:32px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center}
+.role-opt-name{font:600 12px system-ui;color:var(--text)}
+.role-opt-desc{font:400 10px system-ui;color:var(--muted);margin-top:2px}
+
+/* Action buttons */
+.btn-primary{width:100%;padding:15px;border-radius:14px;background:var(--green);border:none;color:#fff;font:700 15px system-ui;cursor:pointer;margin-top:8px}
+.btn-danger{width:100%;padding:13px;border-radius:14px;background:#fff;border:1.5px solid var(--red);color:var(--red);font:600 14px system-ui;cursor:pointer;margin-top:8px}
+
+/* User detail sheet */
+.ud-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 22px system-ui;color:#fff;margin:0 auto 12px}
+.ud-name{text-align:center;font:700 18px system-ui;color:var(--text)}
+.ud-role{text-align:center;margin-top:6px}
+.ud-info-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ud-info-row:last-child{border-bottom:none}
+.ud-info-label{font:400 13px system-ui;color:var(--muted);flex:1}
+.ud-info-val{font:600 13px system-ui;color:var(--text)}
+.section-divider{height:1px;background:var(--border);margin:14px 0}
+.assign-role-label{font:700 14px system-ui;color:var(--text);margin-bottom:10px}
+
+/* Toast */
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,61,40,.95);color:#fff;padding:10px 20px;border-radius:24px;font:500 13px system-ui;white-space:nowrap;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="hdr-back" onclick="window.location.href='settings.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="hdr-title">User Management</span>
+    <button class="hdr-btn" onclick="openInviteSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Invite
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search users…" oninput="filterUsers(this.value)">
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num">5</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-item"><div class="stat-num">4</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-item"><div class="stat-num">1</div><div class="stat-lbl">Invite Pending</div></div>
+    <div class="stat-item"><div class="stat-num">2</div><div class="stat-lbl">Admins</div></div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" id="body">
+    <!-- Filter tabs -->
+    <div class="ftabs">
+      <div class="ftab active" onclick="setTab(this,'all')">All</div>
+      <div class="ftab" onclick="setTab(this,'admin')">Admin</div>
+      <div class="ftab" onclick="setTab(this,'manager')">Manager</div>
+      <div class="ftab" onclick="setTab(this,'operator')">Operator</div>
+    </div>
+
+    <div class="sec-lbl">Active Users</div>
+    <div id="users-list"></div>
+
+    <div class="sec-lbl" id="pending-lbl">Pending Invites</div>
+    <div id="pending-list"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+      <span class="nav-lbl">Jobs</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='contracts-list.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <span class="nav-lbl">Contracts</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='farm-map.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+      <span class="nav-lbl">Map</span>
+    </button>
+    <button class="nav-item active" onclick="window.location.href='settings.html'">
+      <div class="nav-ic active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></div>
+      <span class="nav-lbl">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Invite User Sheet -->
+  <div class="backdrop" id="inviteBackdrop" onclick="closeSheet('inviteBackdrop','inviteSheet')"></div>
+  <div class="sheet" id="inviteSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Invite User</span>
+      <button class="sheet-close" onclick="closeSheet('inviteBackdrop','inviteSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="inv-name" placeholder="e.g. Jane Smith">
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="inv-email" placeholder="jane@greenfarm.com">
+      </div>
+      <div class="field">
+        <label>Phone (optional)</label>
+        <input type="tel" id="inv-phone" placeholder="+61 4xx xxx xxx">
+      </div>
+      <div class="field">
+        <label>Assign Role</label>
+        <div class="role-grid">
+          <div class="role-opt" id="ro-admin" onclick="selectRole('admin')">
+            <div class="role-opt-icon" style="background:#ede9fe"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg></div>
+            <div class="role-opt-name">Admin</div>
+            <div class="role-opt-desc">Full access</div>
+          </div>
+          <div class="role-opt sel" id="ro-manager" onclick="selectRole('manager')">
+            <div class="role-opt-icon" style="background:#e8f7ed"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1b7239" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></div>
+            <div class="role-opt-name">Manager</div>
+            <div class="role-opt-desc">Manage teams</div>
+          </div>
+          <div class="role-opt" id="ro-operator" onclick="selectRole('operator')">
+            <div class="role-opt-icon" style="background:#e8f3ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d5bd4" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+            <div class="role-opt-name">Operator</div>
+            <div class="role-opt-desc">Field access</div>
+          </div>
+          <div class="role-opt" id="ro-trainee" onclick="selectRole('trainee')">
+            <div class="role-opt-icon" style="background:#fff3e0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div>
+            <div class="role-opt-name">Trainee</div>
+            <div class="role-opt-desc">View only</div>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Property Access</label>
+        <select>
+          <option>Green Acres (Primary)</option>
+          <option>Top Hill Farm</option>
+          <option>Highfield Organic</option>
+          <option>All Properties</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="sendInvite()">Send Invite →</button>
+    </div>
+  </div>
+
+  <!-- User Detail / Assign Role Sheet -->
+  <div class="backdrop" id="userBackdrop" onclick="closeSheet('userBackdrop','userSheet')"></div>
+  <div class="sheet" id="userSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">User Details</span>
+      <button class="sheet-close" onclick="closeSheet('userBackdrop','userSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="userSheetBody"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const users = [
+  {id:'USR001',name:'John Doe',role:'admin',email:'john@greenfarm.com',phone:'+61 412 345 678',status:'active',lastSeen:'Now',joined:'Jan 2023',property:'Green Acres',color:'#1a3d28',initials:'JD'},
+  {id:'USR002',name:'Sarah Mitchell',role:'manager',email:'sarah@greenfarm.com',phone:'+61 413 222 111',status:'active',lastSeen:'2h ago',joined:'Mar 2023',property:'Green Acres',color:'#1b7239',initials:'SM'},
+  {id:'USR003',name:'Alex Parker',role:'operator',email:'alex@greenfarm.com',phone:'+61 414 888 777',status:'active',lastSeen:'15m ago',joined:'Jun 2023',property:'Top Hill Farm',color:'#2d5bd4',initials:'AP'},
+  {id:'USR004',name:'James Russel',role:'operator',email:'james@greenfarm.com',phone:'+61 415 333 444',status:'active',lastSeen:'Yesterday',joined:'Aug 2023',property:'Highfield Organic',color:'#c47a00',initials:'JR'},
+];
+const pending = [
+  {id:'INV001',name:'Emily Watson',role:'trainee',email:'emily@mail.com',sentDays:2},
+];
+
+let currentTab = 'all';
+let selectedRole = 'manager';
+
+function setTab(el, tab) {
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  renderUsers();
+}
+
+function filterUsers(q) {
+  renderUsers(q.toLowerCase());
+}
+
+function rolePill(role) {
+  const map = {admin:'role-admin',manager:'role-manager',operator:'role-operator',trainee:'role-trainee'};
+  const lbl = role.charAt(0).toUpperCase()+role.slice(1);
+  return `<span class="role-pill ${map[role]||''}">${lbl}</span>`;
+}
+
+function statusDot(status) {
+  const map = {active:'online',offline:'offline',break:'away'};
+  return `<span class="av-dot ${map[status]||'offline'}"></span>`;
+}
+
+function renderUsers(q='') {
+  const list = document.getElementById('users-list');
+  const pl = document.getElementById('pending-list');
+  const pLbl = document.getElementById('pending-lbl');
+
+  const filtered = users.filter(u=>{
+    const matchTab = currentTab==='all' || u.role===currentTab;
+    const matchQ = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    return matchTab && matchQ;
+  });
+
+  list.innerHTML = filtered.map(u=>`
+    <div class="user-card" onclick="openUserSheet('${u.id}')">
+      <div class="user-av" style="background:${u.color}">
+        ${u.initials}
+        ${statusDot(u.status)}
+      </div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-meta">${u.email}</div>
+        <div class="user-meta" style="margin-top:2px">${u.property} · Last seen ${u.lastSeen}</div>
+      </div>
+      <div class="user-right">
+        ${rolePill(u.role)}
+        <span class="status-lbl active-lbl">Active</span>
+      </div>
+    </div>
+  `).join('');
+
+  const pendFiltered = pending.filter(u=>!q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
+  pLbl.style.display = pendFiltered.length ? '' : 'none';
+  pl.innerHTML = pendFiltered.map(u=>`
+    <div class="user-card">
+      <div class="user-av" style="background:#8898aa">${u.initials||u.name.split(' ').map(n=>n[0]).join('')}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-meta">${u.email}</div>
+        <div class="user-meta" style="margin-top:2px">Invited ${u.sentDays} days ago</div>
+      </div>
+      <div class="user-right">
+        ${rolePill(u.role)}
+        <span class="status-lbl">Pending</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openInviteSheet() {
+  document.getElementById('inviteBackdrop').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('inviteSheet').classList.add('open'));
+}
+
+function closeSheet(bId, sId) {
+  document.getElementById(sId).classList.remove('open');
+  setTimeout(()=>document.getElementById(bId).classList.remove('show'), 300);
+}
+
+function selectRole(role) {
+  selectedRole = role;
+  ['admin','manager','operator','trainee'].forEach(r=>{
+    document.getElementById('ro-'+r).classList.toggle('sel', r===role);
+  });
+}
+
+function sendInvite() {
+  const name = document.getElementById('inv-name').value.trim();
+  const email = document.getElementById('inv-email').value.trim();
+  if (!name || !email) { showToast('Please fill name and email'); return; }
+  closeSheet('inviteBackdrop','inviteSheet');
+  pending.push({id:'INV'+(pending.length+2).toString().padStart(3,'0'), name, email, role:selectedRole, sentDays:0});
+  renderUsers();
+  showToast('Invite sent to '+email);
+}
+
+function openUserSheet(uid) {
+  const u = users.find(x=>x.id===uid);
+  if (!u) return;
+  const roleMap = {admin:'role-admin',manager:'role-manager',operator:'role-operator',trainee:'role-trainee'};
+  document.getElementById('userSheetBody').innerHTML = `
+    <div style="padding-bottom:4px">
+      <div class="ud-avatar" style="background:${u.color}">${u.initials}</div>
+      <div class="ud-name">${u.name}</div>
+      <div class="ud-role">${rolePill(u.role)}</div>
+      <div style="margin-top:16px">
+        <div class="ud-info-row"><span class="ud-info-label">Email</span><span class="ud-info-val">${u.email}</span></div>
+        <div class="ud-info-row"><span class="ud-info-label">Phone</span><span class="ud-info-val">${u.phone}</span></div>
+        <div class="ud-info-row"><span class="ud-info-label">Property</span><span class="ud-info-val">${u.property}</span></div>
+        <div class="ud-info-row"><span class="ud-info-label">Joined</span><span class="ud-info-val">${u.joined}</span></div>
+        <div class="ud-info-row"><span class="ud-info-label">Last Active</span><span class="ud-info-val">${u.lastSeen}</span></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="assign-role-label">Assign Role</div>
+      <div class="role-grid" id="ud-role-grid">
+        ${['admin','manager','operator','trainee'].map(r=>{
+          const icons = {admin:'<path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/>',manager:'<circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/>',operator:'<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>',trainee:'<path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>'};
+          const bg = {admin:'#ede9fe',manager:'#e8f7ed',operator:'#e8f3ff',trainee:'#fff3e0'};
+          const sc = {admin:'#7c3aed',manager:'#1b7239',operator:'#2d5bd4',trainee:'#e67e22'};
+          const lbl = {admin:'Admin',manager:'Manager',operator:'Operator',trainee:'Trainee'};
+          const desc = {admin:'Full access',manager:'Manage teams',operator:'Field access',trainee:'View only'};
+          return `<div class="role-opt${u.role===r?' sel':''}" onclick="assignRole('${uid}','${r}',this)">
+            <div class="role-opt-icon" style="background:${bg[r]}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${sc[r]}" stroke-width="2">${icons[r]}</svg></div>
+            <div class="role-opt-name">${lbl[r]}</div>
+            <div class="role-opt-desc">${desc[r]}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <button class="btn-danger" onclick="removeUser('${uid}')">Remove User</button>
+    </div>
+  `;
+  document.getElementById('userBackdrop').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('userSheet').classList.add('open'));
+}
+
+function assignRole(uid, role, el) {
+  const u = users.find(x=>x.id===uid);
+  if (!u) return;
+  u.role = role;
+  el.closest('.role-grid').querySelectorAll('.role-opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  renderUsers();
+  showToast('Role updated to '+role.charAt(0).toUpperCase()+role.slice(1));
+}
+
+function removeUser(uid) {
+  const idx = users.findIndex(x=>x.id===uid);
+  if (idx>-1) { const name=users[idx].name; users.splice(idx,1); renderUsers(); }
+  closeSheet('userBackdrop','userSheet');
+  showToast('User removed');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// Scale
+function resize(){
+  const s=Math.min((innerWidth-24)/390,(innerHeight-24)/844,1);
+  document.documentElement.style.setProperty('--app-scale',s);
+}
+window.addEventListener('resize',resize); resize();
+
+renderUsers();
+</script>
+</body>
+</html>

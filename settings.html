@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Settings</title>
+  <style>
+    :root{
+      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f2f4f2;--card:#fff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
+    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
+    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+
+    /* HEADER */
+    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px 0;display:flex;align-items:center;gap:10px;}
+    .h-title{flex:1;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.03em;}
+
+    /* PROFILE CARD (extends from header) */
+    .profile-hero{background:var(--green-dark);padding:16px 16px 24px;display:flex;align-items:center;gap:16px;}
+    .profile-av-wrap{position:relative;}
+    .profile-av{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.18);border:2.5px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;}
+    .profile-camera{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--green);border:2px solid var(--green-dark);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .profile-info{flex:1;}
+    .profile-name{font-size:19px;font-weight:900;color:#fff;margin-bottom:2px;}
+    .profile-role{font-size:12px;color:rgba(255,255,255,.6);font-weight:600;}
+    .profile-farm{display:flex;align-items:center;gap:5px;margin-top:4px;}
+    .profile-farm-txt{font-size:12px;color:rgba(255,255,255,.5);}
+    .profile-edit-btn{padding:8px 16px;border-radius:20px;background:rgba(255,255,255,.15);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;align-self:flex-start;margin-top:4px;transition:background .15s;}
+    .profile-edit-btn:active{background:rgba(255,255,255,.25);}
+
+    /* ADMIN BADGE */
+    .admin-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(124,58,237,.25);border-radius:12px;padding:3px 10px;margin-top:6px;}
+    .admin-badge-txt{font-size:10px;font-weight:800;color:#c4b0ff;letter-spacing:.05em;text-transform:uppercase;}
+
+    /* BODY */
+    .body{flex:1;overflow-y:auto;padding:16px 14px 8px;scrollbar-width:none;}
+    .body::-webkit-scrollbar{display:none;}
+
+    /* SECTION */
+    .sec-lbl{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 2px 8px;}
+    .sec-lbl:first-child{margin-top:0;}
+
+    /* SETTING CARDS */
+    .setting-group{background:var(--card);border-radius:18px;overflow:hidden;margin-bottom:4px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+    .setting-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;min-height:56px;}
+    .setting-row:last-child{border-bottom:none;}
+    .setting-row:active{background:#f6f8f6;}
+
+    .sr-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 36px;}
+    .sr-label{flex:1;}
+    .sr-title{font-size:14px;font-weight:700;color:var(--text);}
+    .sr-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+    .sr-val{font-size:13px;color:var(--muted);font-weight:600;text-align:right;}
+    .sr-chev{flex:0 0 auto;color:#ccc;}
+
+    /* TOGGLE SWITCH */
+    .tog{width:48px;height:28px;border-radius:14px;background:#ddd;position:relative;cursor:pointer;flex:0 0 48px;transition:background .25s;}
+    .tog.on{background:var(--green-mid);}
+    .tog-thumb{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .25s;}
+    .tog.on .tog-thumb{transform:translateX(20px);}
+
+    /* NOTIFICATION SUB-TOGGLES */
+    .notif-sub{padding:0 16px 6px;border-top:1px solid var(--border);background:var(--card);}
+    .notif-sub-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f4f6f4;}
+    .notif-sub-row:last-child{border-bottom:none;}
+    .notif-sub-lbl{font-size:13px;color:var(--text);font-weight:600;}
+
+    /* DEVICE CARDS */
+    .device-card{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);}
+    .device-card:last-child{border-bottom:none;}
+    .dev-ic{width:38px;height:38px;border-radius:10px;background:#f4f6f4;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}
+    .dev-name{font-size:14px;font-weight:700;color:var(--text);}
+    .dev-sub{font-size:12px;color:var(--muted);}
+    .dev-current{padding:2px 8px;border-radius:10px;background:#e4f8ee;color:var(--green-mid);font-size:10px;font-weight:800;}
+    .dev-remove{padding:4px 10px;border-radius:10px;background:#fdedf0;color:var(--red);font-size:11px;font-weight:700;border:none;cursor:pointer;}
+
+    /* PROPERTY LIST */
+    .prop-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
+    .prop-row:last-child{border-bottom:none;}
+    .prop-av{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 38px;font-size:18px;}
+    .prop-name{font-size:14px;font-weight:700;color:var(--text);}
+    .prop-area{font-size:12px;color:var(--muted);}
+    .prop-primary{padding:2px 8px;border-radius:10px;background:#e4f8ee;color:var(--green-mid);font-size:10px;font-weight:800;margin-left:auto;white-space:nowrap;}
+
+    /* ADMIN ROW */
+    .admin-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s;}
+    .admin-row:last-child{border-bottom:none;}
+    .admin-row:active{background:#f6f8f6;}
+    .adm-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:0 0 36px;}
+
+    /* DANGER */
+    .danger-row{display:flex;align-items:center;gap:14px;padding:15px 16px;cursor:pointer;transition:background .12s;}
+    .danger-row:active{background:#fdf4f4;}
+
+    /* 2FA STATUS */
+    .twofa-status{display:flex;align-items:center;gap:6px;}
+    .twofa-dot{width:8px;height:8px;border-radius:50%;}
+
+    /* BOTTOM NAV */
+    .bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
+    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
+    .nav-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .nav-ic.active{background:var(--green-dark);}
+    .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
+    .nav-lbl.active{color:var(--green-dark);}
+
+    /* BOTTOM SHEET */
+    .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;}
+    .backdrop.show{display:flex;}
+    .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:88%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+    .backdrop.show .sheet{transform:translateY(0);}
+    .sheet-handle{width:40px;height:4px;border-radius:2px;background:#dde;margin:12px auto 0;}
+    .sheet-hdr{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .sheet-hdr-title{font-size:16px;font-weight:800;color:var(--text);}
+    .sheet-close{width:30px;height:30px;border-radius:50%;background:#f4f6f4;display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
+    .sheet-body{flex:1;overflow-y:auto;padding:16px;scrollbar-width:none;}
+    .sheet-body::-webkit-scrollbar{display:none;}
+    .sheet-footer{padding:12px 16px;border-top:1px solid var(--border);}
+
+    /* EDIT FIELD */
+    .edit-field{background:#f4f6f4;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+    .ef-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+    .ef-input{border:none;background:none;font-size:15px;font-weight:600;color:var(--text);width:100%;outline:none;font-family:inherit;}
+
+    .save-btn{width:100%;padding:15px;border-radius:14px;background:var(--green-mid);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
+    .save-btn:active{opacity:.85;}
+
+    /* TOAST */
+    .toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);background:#1a2a3a;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;z-index:50;pointer-events:none;opacity:0;transition:opacity .25s;}
+    .toast.show{opacity:1;}
+
+    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<div class="viewport"><main class="screen">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="h-title">Settings</div>
+  </div>
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div class="profile-av-wrap">
+      <div class="profile-av" id="profileAv">JD</div>
+      <div class="profile-camera" onclick="showToast('Change profile photo')">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="#fff" stroke-width="2.2"/><circle cx="12" cy="14" r="3" stroke="#fff" stroke-width="2"/><path d="M9 8V7a3 3 0 0 1 6 0v1" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+    <div style="flex:1">
+      <div class="profile-name" id="dispName">John Doe</div>
+      <div class="profile-role" id="dispRole">Farm Manager</div>
+      <div class="profile-farm">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="rgba(255,255,255,.5)" stroke-width="2.2" stroke-linecap="round"/><path d="M5 10v9h5v-5h4v5h5v-9" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="profile-farm-txt" id="dispFarm">Green Valley Farms</div>
+      </div>
+      <div class="admin-badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" fill="#c4b0ff"/></svg><span class="admin-badge-txt">Admin</span></div>
+    </div>
+    <button class="profile-edit-btn" onclick="openSheet('profileSheet')">Edit Profile</button>
+  </div>
+
+  <div class="body">
+
+    <!-- ACCOUNT -->
+    <div class="sec-lbl">Account</div>
+    <div class="setting-group">
+
+      <!-- Notifications -->
+      <div class="setting-row" onclick="toggleNotifPanel()">
+        <div class="sr-ic" style="background:#fef3e2">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" stroke="#f5a623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">Notifications</div>
+          <div class="sr-sub">Push, email, SMS alerts</div>
+        </div>
+        <div class="sr-chev" id="notifChev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+      <div id="notifPanel" style="display:none">
+        <div class="notif-sub">
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Job Updates</div>
+            <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Stock Alerts</div>
+            <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Timesheet Reminders</div>
+            <div class="tog" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Contract Milestones</div>
+            <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Team Clock In/Out</div>
+            <div class="tog" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Weather Alerts</div>
+            <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+          <div class="notif-sub-row">
+            <div class="notif-sub-lbl">Email Summary (Daily)</div>
+            <div class="tog" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2FA -->
+      <div class="setting-row" onclick="openSheet('tfaSheet')">
+        <div class="sr-ic" style="background:#e4ecfd">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#2d5bd4" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="#2d5bd4"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">Two-Factor Authentication</div>
+          <div class="sr-sub" id="tfaStatus">Enabled · Authenticator App</div>
+        </div>
+        <div class="twofa-status">
+          <div class="twofa-dot" id="tfaDot" style="background:var(--green)"></div>
+          <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Biometric -->
+      <div class="setting-row" onclick="togSwitch(this.querySelector('.tog'))">
+        <div class="sr-ic" style="background:#f0e8fd">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C9.79 2 8 3.79 8 6v2" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><path d="M12 22c-1.1 0-2-.9-2-2v-6a2 2 0 0 1 4 0v6c0 1.1-.9 2-2 2z" stroke="#7c3aed" stroke-width="2"/><path d="M5 10a7 7 0 0 0 7 7" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><path d="M19 10a7 7 0 0 1-7 7" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><path d="M12 6v4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">Biometric Login</div>
+          <div class="sr-sub">Face ID / Fingerprint</div>
+        </div>
+        <div class="tog on" onclick="event.stopPropagation();togSwitch(this)"><div class="tog-thumb"></div></div>
+      </div>
+
+    </div>
+
+    <!-- MY PROPERTIES -->
+    <div class="sec-lbl">My Properties</div>
+    <div class="setting-group">
+      <div class="prop-row" onclick="showToast('Green Acres Farm selected')">
+        <div class="prop-av" style="background:#e4f8ee">🌾</div>
+        <div style="flex:1">
+          <div class="prop-name">Green Acres Farm</div>
+          <div class="prop-area">350 ha · 5 Blocks</div>
+        </div>
+        <div class="prop-primary">Primary</div>
+      </div>
+      <div class="prop-row" onclick="showToast('Top Hill Station selected')">
+        <div class="prop-av" style="background:#fef3e2">🏔</div>
+        <div style="flex:1">
+          <div class="prop-name">Top Hill Station</div>
+          <div class="prop-area">240 ha · 3 Blocks</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="prop-row" onclick="showToast('Highfield Organic selected')">
+        <div class="prop-av" style="background:#f0f4f0">🌿</div>
+        <div style="flex:1">
+          <div class="prop-name">Highfield Organic</div>
+          <div class="prop-area">180 ha · 2 Blocks</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+      <div class="prop-row" onclick="openSheet('addPropertySheet')">
+        <div class="prop-av" style="background:#f4f6f4;font-size:14px">+</div>
+        <div style="flex:1"><div class="prop-name" style="color:var(--green-mid)">Add Property</div></div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <!-- LISTED DEVICES -->
+    <div class="sec-lbl">Listed Devices</div>
+    <div class="setting-group">
+      <div class="device-card">
+        <div class="dev-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M12 18h.01" stroke="#8898aa" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </div>
+        <div style="flex:1">
+          <div class="dev-name">iPhone 14 Pro</div>
+          <div class="dev-sub">Last active: Just now</div>
+        </div>
+        <div class="dev-current">This device</div>
+      </div>
+      <div class="device-card">
+        <div class="dev-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="14" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M8 22h8M12 18v4" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="flex:1">
+          <div class="dev-name">MacBook Pro</div>
+          <div class="dev-sub">Last active: 2 hours ago</div>
+        </div>
+        <button class="dev-remove" onclick="showToast('Device removed')">Remove</button>
+      </div>
+      <div class="device-card">
+        <div class="dev-ic">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M7 20h10M12 18v2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="flex:1">
+          <div class="dev-name">iPad Air</div>
+          <div class="dev-sub">Last active: Yesterday</div>
+        </div>
+        <button class="dev-remove" onclick="showToast('Device removed')">Remove</button>
+      </div>
+    </div>
+
+    <!-- ADMIN SECTION -->
+    <div class="sec-lbl" style="display:flex;align-items:center;gap:8px">
+      Admin Tools
+      <span style="background:rgba(124,58,237,.15);color:#7c3aed;font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em">Admin Only</span>
+    </div>
+    <div class="setting-group">
+
+      <div class="admin-row" onclick="window.location.href='user-management.html'">
+        <div class="adm-ic" style="background:#e8e4fd">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="#7c3aed" stroke-width="2"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/><path d="M16 11l2 2 4-4" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">User Management</div>
+          <div class="sr-sub">Invite users · Assign roles</div>
+        </div>
+        <div style="background:#e8e4fd;color:#7c3aed;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;margin-right:6px">5 Users</div>
+        <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+
+      <div class="admin-row" onclick="openSheet('teamGroupSheet')">
+        <div class="adm-ic" style="background:#e4ecfd">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="#2d5bd4" stroke-width="2"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round"/><circle cx="17" cy="7" r="3" stroke="#2d5bd4" stroke-width="2"/><path d="M21 21v-1.5a3 3 0 0 0-3-3h-1" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">Team Groups</div>
+          <div class="sr-sub">Harvest crew · Spray team</div>
+        </div>
+        <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+
+      <div class="admin-row" onclick="window.location.href='commodity-catalog.html'">
+        <div class="adm-ic" style="background:#e4f8ee">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" stroke="#1b7239" stroke-width="2" stroke-linejoin="round"/><path d="M3 8l9 5 9-5M12 13v8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sr-label">
+          <div class="sr-title">Commodity Catalog</div>
+          <div class="sr-sub">Hay · Grain · Chemical types</div>
+        </div>
+        <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+
+    </div>
+
+    <!-- SUPPORT & ABOUT -->
+    <div class="sec-lbl">Support</div>
+    <div class="setting-group">
+      <div class="setting-row" onclick="openSheet('helpSheet')">
+        <div class="sr-ic" style="background:#f4f6f4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#8898aa" stroke-width="2"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="sr-label"><div class="sr-title">Help & Support</div><div class="sr-sub">FAQs, contact, tutorials</div></div>
+        <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+      <div class="setting-row" onclick="showToast('AgEzy v2.4.1 · Build 240')">
+        <div class="sr-ic" style="background:#f4f6f4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#8898aa" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div class="sr-label"><div class="sr-title">About AgEzy</div></div>
+        <div class="sr-val">v2.4.1</div>
+        <div class="sr-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+      </div>
+    </div>
+
+    <!-- SIGN OUT -->
+    <div class="setting-group" style="margin-bottom:20px">
+      <div class="danger-row" onclick="signOut()">
+        <div class="sr-ic" style="background:#fdedf0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="#d63031" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="16,17 21,12 16,7" stroke="#d63031" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#d63031" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--red);flex:1">Sign Out</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── BOTTOM SHEETS ─── -->
+
+  <!-- PROFILE EDIT SHEET -->
+  <div class="backdrop" id="profileSheet" onclick="handleBd(event,'profileSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-hdr-title">Edit Profile</div>
+        <button class="sheet-close" onclick="closeSheet('profileSheet')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div class="edit-field"><div class="ef-label">Full Name</div><input class="ef-input" id="editName" type="text" value="John Doe" /></div>
+        <div class="edit-field"><div class="ef-label">Role</div><input class="ef-input" id="editRole" type="text" value="Farm Manager" /></div>
+        <div class="edit-field"><div class="ef-label">Email</div><input class="ef-input" type="email" value="john.doe@greenvalley.com.au" /></div>
+        <div class="edit-field"><div class="ef-label">Phone</div><input class="ef-input" type="tel" value="+61 400 000 000" /></div>
+        <div class="edit-field"><div class="ef-label">Primary Farm</div><input class="ef-input" id="editFarm" type="text" value="Green Valley Farms" /></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="save-btn" onclick="saveProfile()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2FA SHEET -->
+  <div class="backdrop" id="tfaSheet" onclick="handleBd(event,'tfaSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-hdr-title">Two-Factor Authentication</div>
+        <button class="sheet-close" onclick="closeSheet('tfaSheet')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div style="background:#e4f8ee;border-radius:14px;padding:14px;display:flex;gap:12px;align-items:flex-start;margin-bottom:18px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 11l3 3L22 4" stroke="#1b7239" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div><div style="font-size:13px;font-weight:800;color:var(--green-mid)">2FA is Active</div><div style="font-size:12px;color:#3a8050;margin-top:2px">Your account is protected with an authenticator app</div></div>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.5">Two-factor authentication adds an extra layer of security. When enabled, you'll need your password and a code from your authenticator app to sign in.</div>
+        <div style="background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Backup Codes</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="background:#f4f6f4;border-radius:8px;padding:8px;font-size:12px;font-weight:700;color:var(--text);text-align:center;letter-spacing:.1em">A1B2-C3D4</div>
+            <div style="background:#f4f6f4;border-radius:8px;padding:8px;font-size:12px;font-weight:700;color:var(--text);text-align:center;letter-spacing:.1em">E5F6-G7H8</div>
+            <div style="background:#f4f6f4;border-radius:8px;padding:8px;font-size:12px;font-weight:700;color:var(--text);text-align:center;letter-spacing:.1em">I9J0-K1L2</div>
+            <div style="background:#f4f6f4;border-radius:8px;padding:8px;font-size:12px;font-weight:700;color:var(--text);text-align:center;letter-spacing:.1em">M3N4-O5P6</div>
+          </div>
+        </div>
+        <button style="width:100%;padding:14px;border-radius:14px;background:#fdedf0;color:var(--red);font-size:14px;font-weight:700;border:none;cursor:pointer;margin-bottom:8px" onclick="showToast('2FA disabled');closeSheet('tfaSheet')">Disable 2FA</button>
+        <button style="width:100%;padding:14px;border-radius:14px;background:#f4f6f4;color:var(--text);font-size:14px;font-weight:700;border:none;cursor:pointer" onclick="showToast('Re-configuring authenticator…')">Reconfigure Authenticator</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEAM GROUPS SHEET -->
+  <div class="backdrop" id="teamGroupSheet" onclick="handleBd(event,'teamGroupSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-hdr-title">Team Groups</div>
+        <button class="sheet-close" onclick="closeSheet('teamGroupSheet')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer" onclick="showToast('Harvest Crew group')">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:14px;font-weight:800;color:var(--text)">Harvest Crew</div>
+              <div style="background:#fef3e2;color:var(--orange);font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px">4 members</div>
+            </div>
+            <div style="display:flex;gap:-6px">
+              <div style="width:26px;height:26px;border-radius:50%;background:#1b7239;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;z-index:4">JG</div>
+              <div style="width:26px;height:26px;border-radius:50%;background:#2d5bd4;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;margin-left:-8px;z-index:3">AP</div>
+              <div style="width:26px;height:26px;border-radius:50%;background:#f5a623;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;margin-left:-8px;z-index:2">JR</div>
+              <div style="width:26px;height:26px;border-radius:50%;background:#ccc;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;margin-left:-8px;z-index:1">+1</div>
+            </div>
+          </div>
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer" onclick="showToast('Spray Team group')">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <div style="font-size:14px;font-weight:800;color:var(--text)">Spray Team</div>
+              <div style="background:#e4ecfd;color:var(--blue);font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px">2 members</div>
+            </div>
+            <div style="display:flex;gap:-6px">
+              <div style="width:26px;height:26px;border-radius:50%;background:#2d5bd4;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff">SM</div>
+              <div style="width:26px;height:26px;border-radius:50%;background:#d63031;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff;margin-left:-8px">EW</div>
+            </div>
+          </div>
+          <button style="width:100%;padding:14px;border-radius:14px;border:2px dashed var(--border);background:transparent;color:var(--green-mid);font-size:14px;font-weight:700;cursor:pointer" onclick="showToast('Create new group')">+ Create New Group</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD PROPERTY SHEET -->
+  <div class="backdrop" id="addPropertySheet" onclick="handleBd(event,'addPropertySheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-hdr-title">Add Property</div>
+        <button class="sheet-close" onclick="closeSheet('addPropertySheet')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div class="edit-field"><div class="ef-label">Property Name</div><input class="ef-input" type="text" placeholder="e.g. South Valley Farm" /></div>
+        <div class="edit-field"><div class="ef-label">Total Area (ha)</div><input class="ef-input" type="number" placeholder="0" /></div>
+        <div class="edit-field"><div class="ef-label">Address / Location</div><input class="ef-input" type="text" placeholder="Street, Suburb, State" /></div>
+        <div class="edit-field"><div class="ef-label">Property Type</div><input class="ef-input" type="text" placeholder="Cropping / Grazing / Mixed" /></div>
+      </div>
+      <div class="sheet-footer">
+        <button class="save-btn" onclick="showToast('Property added');closeSheet('addPropertySheet')">Add Property</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HELP SHEET -->
+  <div class="backdrop" id="helpSheet" onclick="handleBd(event,'helpSheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-hdr">
+        <div class="sheet-hdr-title">Help & Support</div>
+        <button class="sheet-close" onclick="closeSheet('helpSheet')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="sheet-body">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="showToast('Opening tutorials…')">
+            <div style="width:40px;height:40px;border-radius:12px;background:#e4ecfd;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="5,3 19,12 5,21" stroke="#2d5bd4" stroke-width="2" stroke-linejoin="round"/></svg></div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--text)">Video Tutorials</div><div style="font-size:12px;color:var(--muted)">Learn how to use AgEzy</div></div>
+          </div>
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="showToast('Opening FAQs…')">
+            <div style="width:40px;height:40px;border-radius:12px;background:#e4f8ee;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M9 9a3 3 0 0 1 6 0c0 2-3 3-3 3M12 17h.01" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--text)">FAQs</div><div style="font-size:12px;color:var(--muted)">Common questions answered</div></div>
+          </div>
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="showToast('Opening support chat…')">
+            <div style="width:40px;height:40px;border-radius:12px;background:#fef3e2;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#f5a623" stroke-width="2" stroke-linejoin="round"/></svg></div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--text)">Live Chat Support</div><div style="font-size:12px;color:var(--muted)">Mon–Fri · 8am – 6pm AEST</div></div>
+          </div>
+          <div style="background:#f4f6f4;border-radius:14px;padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px" onclick="showToast('Email: support@agezy.com')">
+            <div style="width:40px;height:40px;border-radius:12px;background:#fdedf0;display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="2" stroke="#d63031" stroke-width="2"/><path d="M2 7l10 7 10-7" stroke="#d63031" stroke-width="2"/></svg></div>
+            <div><div style="font-size:14px;font-weight:700;color:var(--text)">Email Support</div><div style="font-size:12px;color:var(--muted)">support@agezy.com</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div class="nav-lbl">Home</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Jobs</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='contracts-list.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Contracts</div>
+    </div>
+    <div class="nav-item" onclick="window.location.href='farm-map.html'">
+      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9 4l-6 3v13l6-3 6 3 6-3V4l-6 3-6-3z" stroke="#8898aa" stroke-width="2" stroke-linejoin="round"/><path d="M9 4v13M15 7v13" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl">Map</div>
+    </div>
+    <div class="nav-item">
+      <div class="nav-ic active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#fff" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+      <div class="nav-lbl active">Settings</div>
+    </div>
+  </nav>
+
+</main></div>
+<script>
+  const baseW=390,baseH=844,pad=32;
+  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
+  scale();addEventListener('resize',scale);
+
+  // Notification panel toggle
+  let notifOpen=false;
+  function toggleNotifPanel(){
+    notifOpen=!notifOpen;
+    document.getElementById('notifPanel').style.display=notifOpen?'block':'none';
+    const chev=document.getElementById('notifChev');
+    chev.innerHTML=notifOpen
+      ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg>'
+      :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#ccc" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  }
+
+  // Toggle switch
+  function togSwitch(sw){
+    sw.classList.toggle('on');
+    const thumb=sw.querySelector('.tog-thumb');
+    if(thumb)thumb.style.transform=sw.classList.contains('on')?'translateX(20px)':'';
+  }
+
+  // Sheets
+  function openSheet(id){document.getElementById(id).classList.add('show');}
+  function closeSheet(id){document.getElementById(id).classList.remove('show');}
+  function handleBd(e,id){if(e.target===document.getElementById(id))closeSheet(id);}
+
+  // Save profile
+  function saveProfile(){
+    const n=document.getElementById('editName').value;
+    const r=document.getElementById('editRole').value;
+    const f=document.getElementById('editFarm').value;
+    document.getElementById('dispName').textContent=n;
+    document.getElementById('dispRole').textContent=r;
+    document.getElementById('dispFarm').textContent=f;
+    // Update initials
+    const parts=n.trim().split(' ');
+    document.getElementById('profileAv').textContent=(parts[0][0]+(parts[1]?parts[1][0]:'')).toUpperCase();
+    closeSheet('profileSheet');
+    showToast('Profile saved');
+  }
+
+  function signOut(){
+    showToast('Signing out…');
+    setTimeout(()=>{window.location.href='index.html';},1200);
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+  }
+</script>
+</body></html>
