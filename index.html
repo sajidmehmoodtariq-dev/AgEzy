@@ -58,7 +58,7 @@
 		.splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 		.splash-logo { width: 126px; height: auto; display: block; user-select: none; }
 
-		/* ─── ONBOARDING ─── */
+		/* ─── ONBOARDING WRAPPER ─── */
 		.onboarding {
 			position: absolute; inset: 0;
 			background: #fff;
@@ -66,6 +66,7 @@
 			transform: translateX(100%);
 			transition: transform 360ms cubic-bezier(.4,0,.2,1);
 			z-index: 9;
+			overflow: hidden;
 		}
 		.onboarding.is-visible  { transform: translateX(0); }
 		.onboarding.is-gone     { transform: translateX(-60px); opacity: 0; pointer-events: none; transition: transform 280ms ease, opacity 280ms ease; }
@@ -75,6 +76,7 @@
 			flex: 0 0 auto;
 			height: 44px; padding: 12px 22px 0;
 			display: flex; align-items: center; justify-content: space-between;
+			position: relative; z-index: 2;
 		}
 		.ob-time { font-size: 15px; font-weight: 700; color: var(--text); }
 		.ob-icons { display: flex; align-items: center; gap: 6px; }
@@ -84,11 +86,32 @@
 			flex: 0 0 auto;
 			display: flex; justify-content: flex-end;
 			padding: 4px 22px 0;
+			position: relative; z-index: 2;
 		}
 		.ob-skip {
 			background: none; border: none; cursor: pointer;
 			font-size: 15px; font-weight: 600; color: var(--muted);
-			padding: 4px 0;
+			padding: 4px 0; transition: opacity .15s;
+		}
+		.ob-skip:active { opacity: .6; }
+
+		/* Slide viewport */
+		.ob-slides-viewport {
+			flex: 1 1 auto;
+			overflow: hidden;
+			position: relative;
+		}
+		.ob-slides-track {
+			display: flex;
+			width: 400%; /* 4 slides */
+			height: 100%;
+			transition: transform 380ms cubic-bezier(.4,0,.2,1);
+		}
+		.ob-slide {
+			width: 25%; /* each slide = 1/4 of track = full viewport */
+			height: 100%;
+			display: flex; flex-direction: column;
+			flex-shrink: 0;
 		}
 
 		/* hero image area */
@@ -96,50 +119,40 @@
 			flex: 0 0 auto;
 			margin: 10px 22px 0;
 			border-radius: 22px; overflow: hidden;
-			height: 290px; position: relative;
-		}
-		.ob-hero img {
-			width: 100%; height: 100%;
-			object-fit: cover; display: block;
-		}
-
-		/* tablet frame overlay */
-		.ob-tablet-frame {
-			position: absolute; inset: 0;
-			display: flex; align-items: center; justify-content: center;
+			height: 270px; position: relative;
 		}
 
 		/* text content */
 		.ob-content {
 			flex: 1 1 auto;
-			padding: 26px 28px 0;
-			display: flex; flex-direction: column; align-items: center;
+			padding: 20px 28px 0;
+			display: flex; flex-direction: column; align-items: center; justify-content: center;
 		}
 		.ob-title {
-			font-size: 28px; font-weight: 800; color: var(--text);
-			letter-spacing: -0.04em; margin-bottom: 12px; text-align: center;
+			font-size: 27px; font-weight: 800; color: var(--text);
+			letter-spacing: -0.04em; margin-bottom: 10px; text-align: center;
 		}
 		.ob-title .brand-green { color: var(--green); }
 		.ob-subtitle {
-			font-size: 15px; color: var(--muted);
-			line-height: 1.55; text-align: center; letter-spacing: -0.01em;
+			font-size: 14px; color: var(--muted);
+			line-height: 1.6; text-align: center; letter-spacing: -0.01em;
 		}
 
 		/* pagination dots */
 		.ob-dots {
 			flex: 0 0 auto;
 			display: flex; align-items: center; justify-content: center;
-			gap: 7px; padding: 20px 0 16px;
+			gap: 7px; padding: 16px 0 12px;
 		}
 		.ob-dot {
 			width: 8px; height: 8px; border-radius: 50%;
-			background: #d8e0d8; transition: all 0.2s;
+			background: #d8e0d8; transition: all 0.25s;
 		}
 		.ob-dot.active {
 			background: var(--text); width: 22px; border-radius: 4px;
 		}
 
-		/* get started button */
+		/* get started / next button */
 		.ob-btn-wrap { flex: 0 0 auto; padding: 0 22px 28px; }
 		.ob-btn {
 			width: 100%; height: 56px;
@@ -272,25 +285,22 @@
 		<!-- ── ONBOARDING ── -->
 		<section class="onboarding" id="onboardingScreen" aria-label="Welcome screen">
 
-			<!-- Status bar -->
+			<!-- Status bar (fixed above slides) -->
 			<div class="ob-status">
 				<div class="ob-time">9:41</div>
 				<div class="ob-icons">
-					<!-- Signal -->
 					<svg width="17" height="13" viewBox="0 0 17 13" fill="none">
 						<rect x="0"  y="8"  width="3" height="5"  rx="1" fill="#1f2940"/>
 						<rect x="4"  y="5"  width="3" height="8"  rx="1" fill="#1f2940"/>
 						<rect x="8"  y="2"  width="3" height="11" rx="1" fill="#1f2940"/>
 						<rect x="12" y="0"  width="3" height="13" rx="1" fill="#1f2940" opacity=".3"/>
 					</svg>
-					<!-- WiFi -->
 					<svg width="16" height="12" viewBox="0 0 16 12" fill="none">
 						<path d="M1 4a9.9 9.9 0 0 1 14 0" stroke="#1f2940" stroke-width="1.5" stroke-linecap="round" opacity=".35"/>
 						<path d="M3.3 6.5A6.5 6.5 0 0 1 12.7 6.5" stroke="#1f2940" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
 						<path d="M5.7 9A3 3 0 0 1 10.3 9" stroke="#1f2940" stroke-width="1.5" stroke-linecap="round"/>
 						<circle cx="8" cy="11.5" r="1" fill="#1f2940"/>
 					</svg>
-					<!-- Battery -->
 					<svg width="25" height="13" viewBox="0 0 25 13" fill="none">
 						<rect x="0.5" y="0.5" width="21" height="12" rx="3" stroke="#1f2940" stroke-opacity=".35"/>
 						<rect x="2" y="2" width="16" height="9" rx="2" fill="#1f2940"/>
@@ -304,124 +314,301 @@
 				<button class="ob-skip" id="skipBtn">Skip</button>
 			</div>
 
-			<!-- Hero: farm + tablet SVG illustration -->
-			<div class="ob-hero">
-				<!-- Farm field background -->
-				<svg width="346" height="290" viewBox="0 0 346 290" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
-					<!-- Sky gradient -->
-					<defs>
-						<linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0%" stop-color="#c8e8f8"/>
-							<stop offset="100%" stop-color="#e8f4e8"/>
-						</linearGradient>
-						<linearGradient id="fieldGrad" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0%" stop-color="#4a9a30"/>
-							<stop offset="100%" stop-color="#2a6a18"/>
-						</linearGradient>
-						<linearGradient id="rowLight" x1="0" y1="0" x2="0" y2="1">
-							<stop offset="0%" stop-color="#6abf48"/>
-							<stop offset="100%" stop-color="#3a8020"/>
-						</linearGradient>
-					</defs>
-					<!-- Sky -->
-					<rect width="346" height="290" fill="url(#skyGrad)"/>
-					<!-- Distant tree line -->
-					<ellipse cx="60"  cy="112" rx="38" ry="22" fill="#3a7a20" opacity=".6"/>
-					<ellipse cx="100" cy="108" rx="30" ry="18" fill="#4a8a28" opacity=".7"/>
-					<ellipse cx="260" cy="110" rx="42" ry="24" fill="#3a7a20" opacity=".6"/>
-					<ellipse cx="300" cy="106" rx="28" ry="16" fill="#4a8a28" opacity=".7"/>
-					<!-- Horizon -->
-					<rect x="0" y="118" width="346" height="172" fill="url(#fieldGrad)"/>
-					<!-- Crop rows (perspective converging to center) -->
-					<path d="M173 118 L0 290"   stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L40 290"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L80 290"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L120 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L160 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L200 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L240 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L280 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L320 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<path d="M173 118 L346 290" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-					<!-- Row highlights -->
-					<path d="M173 118 L20 290"  stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L60 290"  stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L100 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L140 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L180 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L220 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L260 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L300 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-					<path d="M173 118 L340 290" stroke="#5aaa30" stroke-width="1" opacity=".3"/>
-				</svg>
+			<!-- Slide viewport -->
+			<div class="ob-slides-viewport">
+				<div class="ob-slides-track" id="slidesTrack">
 
-				<!-- Tablet device overlay -->
-				<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-					<div style="width:200px;background:#111;border-radius:14px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,0.45)">
-						<!-- Tablet screen -->
-						<div style="background:#fff;border-radius:10px;overflow:hidden">
-							<!-- App header -->
-							<div style="background:#1a3d28;padding:7px 10px;display:flex;align-items:center;gap:6px">
-								<img src="images/logo.png" alt="" style="width:18px;height:18px;object-fit:contain;filter:brightness(0) invert(1)" onerror="this.style.display='none'"/>
-								<span style="color:#fff;font-size:9px;font-weight:700;letter-spacing:-0.02em">AgEzy</span>
-								<span style="flex:1"></span>
-								<div style="width:14px;height:14px;background:rgba(255,255,255,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center">
-									<svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#fff" stroke-width="2.5"/><path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="#fff" stroke-width="2.5"/></svg>
-								</div>
-							</div>
-							<!-- Mini dashboard cards -->
-							<div style="padding:6px;background:#f4f6f4">
-								<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px">
-									<div style="background:#edf0fa;border-radius:6px;padding:5px 3px;text-align:center">
-										<div style="width:14px;height:14px;background:#6b7ef8;border-radius:50%;margin:0 auto 2px"></div>
-										<div style="font-size:6px;font-weight:700;color:#4a6cf7">Sheets</div>
+					<!-- ── SLIDE 1: Welcome ── -->
+					<div class="ob-slide">
+						<div class="ob-hero">
+							<!-- Farm field SVG -->
+							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+								<defs>
+									<linearGradient id="s1sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e8f8"/><stop offset="100%" stop-color="#dff0e8"/></linearGradient>
+									<linearGradient id="s1field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a9a30"/><stop offset="100%" stop-color="#2a6a18"/></linearGradient>
+								</defs>
+								<rect width="346" height="270" fill="url(#s1sky)"/>
+								<ellipse cx="60"  cy="105" rx="38" ry="22" fill="#3a7a20" opacity=".6"/>
+								<ellipse cx="100" cy="101" rx="30" ry="18" fill="#4a8a28" opacity=".7"/>
+								<ellipse cx="260" cy="103" rx="42" ry="24" fill="#3a7a20" opacity=".6"/>
+								<ellipse cx="300" cy="99"  rx="28" ry="16" fill="#4a8a28" opacity=".7"/>
+								<rect x="0" y="112" width="346" height="158" fill="url(#s1field)"/>
+								<path d="M173 112 L0 270"   stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L40 270"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L80 270"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L120 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L160 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L200 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L240 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L280 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L320 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L346 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+							</svg>
+							<!-- Tablet overlay -->
+							<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+								<div style="width:200px;background:#111;border-radius:14px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.45)">
+									<div style="background:#fff;border-radius:10px;overflow:hidden">
+										<div style="background:#1a3d28;padding:7px 10px;display:flex;align-items:center;gap:6px">
+											<img src="images/logo.png" alt="" style="width:18px;height:18px;object-fit:contain;filter:brightness(0) invert(1)" onerror="this.style.display='none'"/>
+											<span style="color:#fff;font-size:9px;font-weight:700">AgEzy</span>
+											<span style="flex:1"></span>
+											<div style="width:14px;height:14px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center">
+												<svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#fff" stroke-width="2.5"/><path d="M13.73 21a2 2 0 01-3.46 0" stroke="#fff" stroke-width="2.5"/></svg>
+											</div>
+										</div>
+										<div style="padding:6px;background:#f4f6f4">
+											<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px">
+												<div style="background:#edf0fa;border-radius:6px;padding:5px 3px;text-align:center">
+													<div style="width:14px;height:14px;background:#6b7ef8;border-radius:50%;margin:0 auto 2px"></div>
+													<div style="font-size:6px;font-weight:700;color:#4a6cf7">Sheets</div>
+												</div>
+												<div style="background:#edfaf2;border-radius:6px;padding:5px 3px;text-align:center">
+													<div style="width:14px;height:14px;background:#1b7239;border-radius:50%;margin:0 auto 2px"></div>
+													<div style="font-size:6px;font-weight:700;color:#1b7239">Stock In</div>
+												</div>
+												<div style="background:#fdeef0;border-radius:6px;padding:5px 3px;text-align:center">
+													<div style="width:14px;height:14px;background:#d63031;border-radius:50%;margin:0 auto 2px"></div>
+													<div style="font-size:6px;font-weight:700;color:#d63031">Stock Out</div>
+												</div>
+											</div>
+											<div style="background:#fff;border-radius:6px;padding:5px 6px;border:1px dashed #b8ccb8">
+												<div style="font-size:6px;font-weight:700;color:#1a2a3a;margin-bottom:3px">Resource Summary</div>
+												<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px">
+													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">420</div><div style="font-size:5px;color:#8898aa">Ltrs</div></div>
+													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">86</div><div style="font-size:5px;color:#8898aa">Hrs</div></div>
+													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">1.2k</div><div style="font-size:5px;color:#8898aa">Items</div></div>
+													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">98</div><div style="font-size:5px;color:#8898aa">%</div></div>
+												</div>
+											</div>
+										</div>
 									</div>
-									<div style="background:#edfaf2;border-radius:6px;padding:5px 3px;text-align:center">
-										<div style="width:14px;height:14px;background:#1b7239;border-radius:50%;margin:0 auto 2px"></div>
-										<div style="font-size:6px;font-weight:700;color:#1b7239">Stock In</div>
-									</div>
-									<div style="background:#fdeef0;border-radius:6px;padding:5px 3px;text-align:center">
-										<div style="width:14px;height:14px;background:#d63031;border-radius:50%;margin:0 auto 2px"></div>
-										<div style="font-size:6px;font-weight:700;color:#d63031">Stock Out</div>
-									</div>
-								</div>
-								<!-- Mini stats row -->
-								<div style="background:#fff;border-radius:6px;padding:5px 6px;border:1px dashed #b8ccb8">
-									<div style="font-size:6px;font-weight:700;color:#1a2a3a;margin-bottom:3px">Resource Summary</div>
-									<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px">
-										<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">420</div><div style="font-size:5px;color:#8898aa">Ltrs</div></div>
-										<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">86</div><div style="font-size:5px;color:#8898aa">Hrs</div></div>
-										<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">1.2k</div><div style="font-size:5px;color:#8898aa">Items</div></div>
-										<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">98</div><div style="font-size:5px;color:#8898aa">%</div></div>
+									<div style="height:8px;display:flex;align-items:center;justify-content:center;margin-top:2px">
+										<div style="width:24px;height:3px;background:rgba(255,255,255,.3);border-radius:2px"></div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<!-- Home button -->
-						<div style="height:8px;display:flex;align-items:center;justify-content:center;margin-top:2px">
-							<div style="width:24px;height:3px;background:rgba(255,255,255,0.3);border-radius:2px"></div>
+						<div class="ob-content">
+							<h1 class="ob-title">Welcome to <span class="brand-green">AgEzy</span></h1>
+							<p class="ob-subtitle">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
 						</div>
 					</div>
-				</div>
-			</div>
 
-			<!-- Text -->
-			<div class="ob-content">
-				<h1 class="ob-title">Welcome to <span class="brand-green">AgEzy</span></h1>
-				<p class="ob-subtitle">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
-			</div>
+					<!-- ── SLIDE 2: Smart Job Management ── -->
+					<div class="ob-slide">
+						<div class="ob-hero">
+							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+								<defs>
+									<linearGradient id="s2bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#e8f0fd"/><stop offset="100%" stop-color="#f0f8f0"/></linearGradient>
+								</defs>
+								<rect width="346" height="270" fill="url(#s2bg)"/>
+								<!-- Decorative circles -->
+								<circle cx="300" cy="40"  r="60" fill="#2d5bd4" opacity=".06"/>
+								<circle cx="50"  cy="220" r="50" fill="#00ab4f" opacity=".08"/>
+								<!-- Phone mockup -->
+								<rect x="93" y="18" width="160" height="234" rx="20" fill="#1a3d28"/>
+								<rect x="99" y="26" width="148" height="218" rx="14" fill="#f4f6f4"/>
+								<!-- Jobs hub header -->
+								<rect x="99" y="26" width="148" height="38" rx="14" fill="#1a3d28"/>
+								<rect x="99" y="50" width="148" height="14" fill="#1a3d28"/>
+								<text x="173" y="49" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Jobs Hub</text>
+								<!-- Job cards -->
+								<rect x="107" y="72" width="132" height="30" rx="6" fill="#fff"/>
+								<rect x="107" y="72" width="4"   height="30" rx="2" fill="#00ab4f"/>
+								<text x="117" y="84" fill="#1a2a3a" font-size="7" font-weight="700">Spray – Block A</text>
+								<text x="117" y="94" fill="#8898aa" font-size="6">In Progress · Oct 24</text>
+								<rect x="221" y="77" width="12" height="8" rx="3" fill="#e8f7ed"/>
+								<text x="227" y="83" text-anchor="middle" fill="#1b7239" font-size="5" font-weight="700">✓</text>
+
+								<rect x="107" y="108" width="132" height="30" rx="6" fill="#fff"/>
+								<rect x="107" y="108" width="4"   height="30" rx="2" fill="#f5a623"/>
+								<text x="117" y="120" fill="#1a2a3a" font-size="7" font-weight="700">Hay – South Block</text>
+								<text x="117" y="130" fill="#8898aa" font-size="6">Scheduled · Oct 25</text>
+								<rect x="217" y="113" width="18" height="8" rx="3" fill="#fff3e0"/>
+								<text x="226" y="119" text-anchor="middle" fill="#c47a00" font-size="5" font-weight="700">SCHED</text>
+
+								<rect x="107" y="144" width="132" height="30" rx="6" fill="#fff"/>
+								<rect x="107" y="144" width="4"   height="30" rx="2" fill="#2d5bd4"/>
+								<text x="117" y="156" fill="#1a2a3a" font-size="7" font-weight="700">Harvest – Home Pad</text>
+								<text x="117" y="166" fill="#8898aa" font-size="6">42 Loads · 1.2k T</text>
+								<rect x="219" y="149" width="16" height="8" rx="3" fill="#e8f3ff"/>
+								<text x="227" y="155" text-anchor="middle" fill="#2d5bd4" font-size="5" font-weight="700">LIVE</text>
+
+								<!-- Create job button -->
+								<rect x="107" y="184" width="132" height="20" rx="10" fill="#00ab4f"/>
+								<text x="173" y="196" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">+ Create Contract Work</text>
+
+								<!-- Bottom nav dots -->
+								<circle cx="130" cy="230" r="4" fill="#1a3d28"/>
+								<circle cx="150" cy="230" r="3" fill="#dde8dd"/>
+								<circle cx="168" cy="230" r="3" fill="#dde8dd"/>
+								<circle cx="186" cy="230" r="3" fill="#dde8dd"/>
+								<circle cx="204" cy="230" r="3" fill="#dde8dd"/>
+							</svg>
+						</div>
+						<div class="ob-content">
+							<h1 class="ob-title">Smart <span class="brand-green">Job Management</span></h1>
+							<p class="ob-subtitle">Create, assign, and track spray, hay, and harvest jobs with mandatory pre-start safety checklists built right in.</p>
+						</div>
+					</div>
+
+					<!-- ── SLIDE 3: Track Your Team ── -->
+					<div class="ob-slide">
+						<div class="ob-hero">
+							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+								<defs>
+									<linearGradient id="s3bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0f5e8"/><stop offset="100%" stop-color="#e8f4f0"/></linearGradient>
+								</defs>
+								<rect width="346" height="270" fill="url(#s3bg)"/>
+								<circle cx="330" cy="60"  r="70" fill="#00ab4f" opacity=".05"/>
+								<circle cx="20"  cy="200" r="55" fill="#1b7239" opacity=".06"/>
+								<!-- Phone mockup -->
+								<rect x="83" y="14" width="180" height="242" rx="20" fill="#1a3d28"/>
+								<rect x="89" y="22" width="168" height="226" rx="14" fill="#f4f6f4"/>
+								<!-- Header -->
+								<rect x="89" y="22" width="168" height="42" rx="14" fill="#1a3d28"/>
+								<rect x="89" y="52" width="168" height="12" fill="#1a3d28"/>
+								<text x="173" y="44" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Daily Farm Team</text>
+								<text x="173" y="57" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="6">Oct 24, 2023</text>
+								<!-- Summary strip -->
+								<rect x="97" y="70" width="152" height="24" rx="6" fill="#fff"/>
+								<text x="121" y="84" text-anchor="middle" fill="#1a2a3a" font-size="8" font-weight="800">4</text>
+								<text x="121" y="91" text-anchor="middle" fill="#8898aa" font-size="5">On Site</text>
+								<text x="151" y="84" text-anchor="middle" fill="#1a2a3a" font-size="8" font-weight="800">85.5</text>
+								<text x="151" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Hours</text>
+								<text x="185" y="84" text-anchor="middle" fill="#1a2a3a" font-size="8" font-weight="800">3</text>
+								<text x="185" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Jobs</text>
+								<text x="219" y="84" text-anchor="middle" fill="#f5a623" font-size="8" font-weight="800">1</text>
+								<text x="219" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Break</text>
+								<!-- Team cards -->
+								<rect x="97"  y="100" width="152" height="28" rx="6" fill="#fff"/>
+								<circle cx="113" cy="114" r="8" fill="#1a3d28"/>
+								<text x="113" y="117" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">JG</text>
+								<circle cx="121" cy="107" r="3" fill="#00ab4f" stroke="#fff" stroke-width="1"/>
+								<text x="130" y="111" fill="#1a2a3a" font-size="6.5" font-weight="700">John G.</text>
+								<text x="130" y="120" fill="#8898aa" font-size="5.5">Farm Manager</text>
+								<rect x="208" y="108" width="34" height="10" rx="4" fill="#e8f7ed"/>
+								<text x="225" y="115" text-anchor="middle" fill="#1b7239" font-size="5.5" font-weight="700">Clocked In</text>
+
+								<rect x="97"  y="132" width="152" height="28" rx="6" fill="#fff"/>
+								<circle cx="113" cy="146" r="8" fill="#2d5bd4"/>
+								<text x="113" y="149" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">SM</text>
+								<circle cx="121" cy="139" r="3" fill="#f5a623" stroke="#fff" stroke-width="1"/>
+								<text x="130" y="143" fill="#1a2a3a" font-size="6.5" font-weight="700">Sarah M.</text>
+								<text x="130" y="152" fill="#8898aa" font-size="5.5">Spray Operator</text>
+								<rect x="211" y="140" width="31" height="10" rx="4" fill="#fff3e0"/>
+								<text x="226" y="147" text-anchor="middle" fill="#c47a00" font-size="5.5" font-weight="700">On Break</text>
+
+								<rect x="97"  y="164" width="152" height="28" rx="6" fill="#fff"/>
+								<circle cx="113" cy="178" r="8" fill="#c47a00"/>
+								<text x="113" y="181" text-anchor="middle" fill="#fff" font-size="6" font-weight="700">AP</text>
+								<circle cx="121" cy="171" r="3" fill="#00ab4f" stroke="#fff" stroke-width="1"/>
+								<text x="130" y="175" fill="#1a2a3a" font-size="6.5" font-weight="700">Alex P.</text>
+								<text x="130" y="184" fill="#8898aa" font-size="5.5">Harvest Operator</text>
+								<rect x="208" y="172" width="34" height="10" rx="4" fill="#e8f7ed"/>
+								<text x="225" y="179" text-anchor="middle" fill="#1b7239" font-size="5.5" font-weight="700">Clocked In</text>
+
+								<!-- Nav dots -->
+								<circle cx="148" cy="232" r="4" fill="#dde8dd"/>
+								<circle cx="163" cy="232" r="3" fill="#dde8dd"/>
+								<circle cx="178" cy="232" r="6" fill="#1a3d28" opacity=".3"/>
+								<circle cx="178" cy="232" r="3" fill="#1a3d28"/>
+								<circle cx="195" cy="232" r="3" fill="#dde8dd"/>
+								<circle cx="210" cy="232" r="3" fill="#dde8dd"/>
+							</svg>
+						</div>
+						<div class="ob-content">
+							<h1 class="ob-title">Track Your <span class="brand-green">Team</span></h1>
+							<p class="ob-subtitle">See who's on site, on break, or clocked out. Monitor hours, jobs, and real-time GPS location for every team member.</p>
+						</div>
+					</div>
+
+					<!-- ── SLIDE 4: Farm Intelligence ── -->
+					<div class="ob-slide">
+						<div class="ob-hero">
+							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+								<defs>
+									<linearGradient id="s4bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a3d28"/><stop offset="100%" stop-color="#1b7239"/></linearGradient>
+									<linearGradient id="s4bar1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00ab4f"/><stop offset="100%" stop-color="#1b7239"/></linearGradient>
+									<linearGradient id="s4bar2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a9fff"/><stop offset="100%" stop-color="#2d5bd4"/></linearGradient>
+									<linearGradient id="s4bar3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffb84a"/><stop offset="100%" stop-color="#f5a623"/></linearGradient>
+								</defs>
+								<rect width="346" height="270" fill="url(#s4bg)"/>
+								<!-- Subtle grid lines -->
+								<line x1="0" y1="60"  x2="346" y2="60"  stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+								<line x1="0" y1="120" x2="346" y2="120" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+								<line x1="0" y1="180" x2="346" y2="180" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+								<line x1="0" y1="240" x2="346" y2="240" stroke="rgba(255,255,255,.06)" stroke-width="1"/>
+								<!-- Chart background card -->
+								<rect x="30" y="20" width="286" height="170" rx="14" fill="rgba(255,255,255,.08)"/>
+								<!-- Chart title -->
+								<text x="46" y="42" fill="#fff" font-size="9" font-weight="700">Season Summary 2023</text>
+								<text x="46" y="54" fill="rgba(255,255,255,.5)" font-size="7">Tonnes harvested by month</text>
+								<!-- Y-axis labels -->
+								<text x="42" y="72"  fill="rgba(255,255,255,.4)" font-size="6" text-anchor="end">1.2k</text>
+								<text x="42" y="102" fill="rgba(255,255,255,.4)" font-size="6" text-anchor="end">800</text>
+								<text x="42" y="132" fill="rgba(255,255,255,.4)" font-size="6" text-anchor="end">400</text>
+								<text x="42" y="162" fill="rgba(255,255,255,.4)" font-size="6" text-anchor="end">0</text>
+								<!-- Bars group -->
+								<!-- Aug -->
+								<rect x="54"  y="122" width="18" height="42" rx="4" fill="url(#s4bar1)" opacity=".8"/>
+								<text x="63" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Aug</text>
+								<!-- Sep -->
+								<rect x="82"  y="100" width="18" height="64" rx="4" fill="url(#s4bar1)"/>
+								<text x="91" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Sep</text>
+								<!-- Oct -->
+								<rect x="110" y="78"  width="18" height="86" rx="4" fill="url(#s4bar1)"/>
+								<rect x="110" y="78"  width="18" height="8"  rx="4" fill="#fff" opacity=".3"/>
+								<text x="119" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Oct</text>
+								<!-- Nov -->
+								<rect x="138" y="92"  width="18" height="72" rx="4" fill="url(#s4bar2)" opacity=".85"/>
+								<text x="147" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Nov</text>
+								<!-- Dec -->
+								<rect x="166" y="110" width="18" height="54" rx="4" fill="url(#s4bar3)" opacity=".85"/>
+								<text x="175" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Dec</text>
+								<!-- Jan -->
+								<rect x="194" y="130" width="18" height="34" rx="4" fill="url(#s4bar3)" opacity=".6"/>
+								<text x="203" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Jan</text>
+								<!-- Feb -->
+								<rect x="222" y="142" width="18" height="22" rx="4" fill="rgba(255,255,255,.2)"/>
+								<text x="231" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Feb</text>
+								<!-- Mar -->
+								<rect x="250" y="150" width="18" height="14" rx="4" fill="rgba(255,255,255,.15)"/>
+								<text x="259" y="175" text-anchor="middle" fill="rgba(255,255,255,.5)" font-size="6">Mar</text>
+								<!-- Trend line -->
+								<polyline points="63,122 91,100 119,78 147,92 175,110 203,130 231,142 259,150" stroke="rgba(255,255,255,.35)" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+								<!-- Stats row -->
+								<rect x="30" y="200" width="86"  height="50" rx="10" fill="rgba(255,255,255,.1)"/>
+								<rect x="126" y="200" width="74"  height="50" rx="10" fill="rgba(255,255,255,.1)"/>
+								<rect x="210" y="200" width="106" height="50" rx="10" fill="rgba(255,255,255,.1)"/>
+								<text x="73"  y="223" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">24</text>
+								<text x="73"  y="237" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="6.5">Reports</text>
+								<text x="163" y="223" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">98%</text>
+								<text x="163" y="237" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="6.5">Accuracy</text>
+								<text x="263" y="223" text-anchor="middle" fill="#fff" font-size="14" font-weight="800">$142k</text>
+								<text x="263" y="237" text-anchor="middle" fill="rgba(255,255,255,.55)" font-size="6.5">Season Value</text>
+							</svg>
+						</div>
+						<div class="ob-content">
+							<h1 class="ob-title">Farm <span class="brand-green">Intelligence</span></h1>
+							<p class="ob-subtitle">Powerful reports and analytics give you a full picture of your season — jobs completed, tonnes harvested, and financial performance.</p>
+						</div>
+					</div>
+
+				</div><!-- /slides-track -->
+			</div><!-- /slides-viewport -->
 
 			<!-- Dots -->
-			<div class="ob-dots">
+			<div class="ob-dots" id="obDots">
 				<div class="ob-dot active"></div>
 				<div class="ob-dot"></div>
 				<div class="ob-dot"></div>
 				<div class="ob-dot"></div>
 			</div>
 
-			<!-- Get Started -->
+			<!-- CTA Button -->
 			<div class="ob-btn-wrap">
-				<button class="ob-btn" id="getStartedBtn">Get Started →</button>
+				<button class="ob-btn" id="getStartedBtn">Next →</button>
 			</div>
 		</section>
 
@@ -526,19 +713,53 @@
 	updateScale();
 	window.addEventListener('resize', updateScale);
 
-	// ── Flow: Splash → Onboarding → Login ──
+	// ── Multi-slide onboarding ──
+	const TOTAL_SLIDES = 4;
+	let currentSlide = 0;
+
+	const slidesTrack = document.getElementById('slidesTrack');
+	const obDots      = document.getElementById('obDots');
+	const getStartedBtn = document.getElementById('getStartedBtn');
+	const dots = obDots.querySelectorAll('.ob-dot');
+
+	function goToSlide(n) {
+		currentSlide = n;
+		slidesTrack.style.transform = `translateX(-${n * 25}%)`;
+		dots.forEach((d, i) => d.classList.toggle('active', i === n));
+		getStartedBtn.textContent = n === TOTAL_SLIDES - 1 ? 'Get Started →' : 'Next →';
+	}
+
 	function showLogin() {
 		onboardingScreen.classList.add('is-gone');
 		loginScreen.classList.add('is-visible');
 	}
 
+	getStartedBtn.addEventListener('click', () => {
+		if (currentSlide < TOTAL_SLIDES - 1) {
+			goToSlide(currentSlide + 1);
+		} else {
+			showLogin();
+		}
+	});
+
+	document.getElementById('skipBtn').addEventListener('click', showLogin);
+
+	// Swipe support
+	let touchStartX = 0;
+	const vp = document.querySelector('.ob-slides-viewport');
+	vp.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+	vp.addEventListener('touchend', e => {
+		const dx = e.changedTouches[0].clientX - touchStartX;
+		if (Math.abs(dx) > 40) {
+			if (dx < 0 && currentSlide < TOTAL_SLIDES - 1) goToSlide(currentSlide + 1);
+			else if (dx > 0 && currentSlide > 0) goToSlide(currentSlide - 1);
+		}
+	}, { passive: true });
+
 	window.setTimeout(() => {
 		splashScreen.classList.add('is-hidden');
 		onboardingScreen.classList.add('is-visible');
 	}, 1500);
-
-	document.getElementById('getStartedBtn').addEventListener('click', showLogin);
-	document.getElementById('skipBtn').addEventListener('click', showLogin);
 
 	// ── Sign in ──
 	signInButton.addEventListener('click', () => {
