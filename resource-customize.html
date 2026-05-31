@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Resource Summary – AgEzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+  --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+  --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+  --app-scale:1;
+}
+html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:center;justify-content:center}
+.screen{
+  width:390px;height:844px;background:var(--bg);border-radius:40px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  transform:scale(var(--app-scale));transform-origin:center;
+  box-shadow:0 28px 80px rgba(0,0,0,.22);
+}
+
+/* Header */
+.hdr{background:var(--green-dark);padding:52px 20px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-info{flex:1}
+.hdr-title{color:#fff;font:700 18px/1 system-ui}
+.hdr-sub{color:rgba(255,255,255,.6);font:400 12px system-ui;margin-top:3px}
+.hdr-save{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:7px 16px;color:#fff;font:700 13px system-ui;cursor:pointer}
+
+/* Body */
+.body{flex:1;overflow-y:auto;padding:16px 20px 100px}
+.body::-webkit-scrollbar{display:none}
+
+/* Section label */
+.sec-lbl{font:700 11px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 10px}
+.sec-lbl:first-child{margin-top:0}
+
+/* Live preview card */
+.preview-card{background:#fff;border:1.8px dashed #b8ccb8;border-radius:16px;padding:16px;margin-bottom:4px}
+.preview-hdr{font:700 14px system-ui;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.preview-grid{display:grid;gap:6px}
+.preview-stat{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;background:#f8faf8;border-radius:12px;transition:opacity .2s}
+.preview-stat.hidden-tile{opacity:.3}
+.preview-stat-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.preview-stat-lbl{font:600 9px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.preview-stat-val{font:800 19px system-ui;color:var(--text);line-height:1}
+.preview-stat-unit{font:500 10px system-ui;color:var(--muted)}
+
+/* Tile rows */
+.tile-row{background:#fff;border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.tile-drag{color:#ccc;cursor:grab;flex-shrink:0}
+.tile-drag:active{cursor:grabbing}
+.tile-icon-box{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tile-info{flex:1;min-width:0}
+.tile-name{font:600 14px system-ui;color:var(--text)}
+.tile-meta{font:400 12px system-ui;color:var(--muted);margin-top:2px}
+.tile-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+
+/* Toggle */
+.tog{width:44px;height:26px;border-radius:13px;background:#dde8dd;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.tog.on{background:var(--green)}
+.tog-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+.tog.on .tog-thumb{transform:translateX(18px)}
+
+/* Edit target button */
+.edit-target{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:5px 10px;font:600 12px system-ui;color:var(--muted);cursor:pointer;white-space:nowrap}
+.edit-target:active{background:#eaeef2}
+
+/* Add tile button */
+.add-tile-btn{width:100%;padding:14px;border-radius:14px;background:#fff;border:1.5px dashed #b8ccb8;color:var(--green-mid);font:600 14px system-ui;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.add-tile-btn:active{background:#f0f8f4}
+
+/* Reset link */
+.reset-link{text-align:center;color:var(--muted);font:500 13px system-ui;padding:8px;cursor:pointer}
+.reset-link:active{color:var(--red)}
+
+/* Refresh interval card */
+.interval-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:8px}
+.interval-row{display:flex;align-items:center;justify-content:space-between}
+.interval-label{font:600 14px system-ui;color:var(--text)}
+.interval-sub{font:400 12px system-ui;color:var(--muted);margin-top:2px}
+.interval-chips{display:flex;gap:6px;margin-top:10px}
+.interval-chip{flex:1;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font:600 12px system-ui;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+.interval-chip.active{border-color:var(--green);color:var(--green-mid);background:#e8f7ed}
+
+/* Bottom nav */
+.nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:none}
+.nav-ic{width:40px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.nav-ic.active{background:var(--green-dark)}
+.nav-lbl{font:500 10px system-ui;color:var(--muted)}
+.nav-item.active .nav-lbl{color:var(--green-dark);font-weight:700}
+
+/* Backdrop + Sheet */
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.show{opacity:1;pointer-events:all}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85%}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 10px}
+.sheet-title{font:700 16px system-ui;color:var(--text)}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 20px 28px;overflow-y:auto;max-height:70vh}
+.sheet-body::-webkit-scrollbar{display:none}
+.field{margin-bottom:14px}
+.field label{font:600 12px system-ui;color:var(--muted);display:block;margin-bottom:5px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:400 14px system-ui;color:var(--text);background:#fff;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.color-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-chip{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s}
+.color-chip.sel{border-color:var(--text)}
+.btn-primary{width:100%;padding:15px;border-radius:14px;background:var(--green);border:none;color:#fff;font:700 15px system-ui;cursor:pointer;margin-top:8px}
+
+/* Toast */
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,61,40,.95);color:#fff;padding:10px 20px;border-radius:24px;font:500 13px system-ui;white-space:nowrap;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="screen">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="hdr-back" onclick="window.location.href='dashboard.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="hdr-info">
+      <div class="hdr-title">Resource Summary</div>
+      <div class="hdr-sub">Customise your dashboard tiles</div>
+    </div>
+    <button class="hdr-save" onclick="saveChanges()">Save</button>
+  </div>
+
+  <!-- Body -->
+  <div class="body">
+
+    <!-- Live preview -->
+    <div class="sec-lbl">Live Preview</div>
+    <div class="preview-card">
+      <div class="preview-hdr">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1a2a3a" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Resource Summary
+      </div>
+      <div class="preview-grid" id="previewGrid"></div>
+    </div>
+
+    <!-- Tiles -->
+    <div class="sec-lbl">Visible Tiles</div>
+    <div id="tileList"></div>
+
+    <button class="add-tile-btn" onclick="openAddSheet()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add Custom Tile
+    </button>
+
+    <!-- Refresh interval -->
+    <div class="sec-lbl">Data Refresh</div>
+    <div class="interval-card">
+      <div class="interval-row">
+        <div>
+          <div class="interval-label">Auto-refresh interval</div>
+          <div class="interval-sub">How often dashboard data updates</div>
+        </div>
+        <div class="tog on" id="refreshTog" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+      </div>
+      <div class="interval-chips" id="intervalChips">
+        <div class="interval-chip" onclick="setInterval2(this)">1 min</div>
+        <div class="interval-chip active" onclick="setInterval2(this)">5 min</div>
+        <div class="interval-chip" onclick="setInterval2(this)">15 min</div>
+        <div class="interval-chip" onclick="setInterval2(this)">30 min</div>
+      </div>
+    </div>
+
+    <!-- Display options -->
+    <div class="sec-lbl">Display Options</div>
+    <div class="interval-card">
+      <div class="interval-row" style="margin-bottom:12px">
+        <div>
+          <div class="interval-label">Show trend arrows</div>
+          <div class="interval-sub">↑↓ indicators vs last week</div>
+        </div>
+        <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+      </div>
+      <div class="interval-row" style="margin-bottom:12px">
+        <div>
+          <div class="interval-label">Show target progress</div>
+          <div class="interval-sub">Progress bars under each value</div>
+        </div>
+        <div class="tog on" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+      </div>
+      <div class="interval-row">
+        <div>
+          <div class="interval-label">Compact mode</div>
+          <div class="interval-sub">Smaller tiles, show more at once</div>
+        </div>
+        <div class="tog" onclick="togSwitch(this)"><div class="tog-thumb"></div></div>
+      </div>
+    </div>
+
+    <div class="reset-link" onclick="resetDefaults()">Reset to defaults</div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="nav">
+    <button class="nav-item active" onclick="window.location.href='dashboard.html'">
+      <div class="nav-ic active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+      <span class="nav-lbl">Home</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='jobs-hub.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+      <span class="nav-lbl">Jobs</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='contracts-list.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <span class="nav-lbl">Contracts</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='farm-map.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+      <span class="nav-lbl">Map</span>
+    </button>
+    <button class="nav-item" onclick="window.location.href='settings.html'">
+      <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg></div>
+      <span class="nav-lbl">Settings</span>
+    </button>
+  </nav>
+
+  <!-- Add Tile Sheet -->
+  <div class="backdrop" id="addBackdrop" onclick="closeSheet('addBackdrop','addSheet')"></div>
+  <div class="sheet" id="addSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Add Custom Tile</span>
+      <button class="sheet-close" onclick="closeSheet('addBackdrop','addSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Tile Label</label>
+        <input type="text" id="new-label" placeholder="e.g. Hectares, Bales, Water…">
+      </div>
+      <div class="field">
+        <label>Current Value</label>
+        <input type="text" id="new-value" placeholder="e.g. 245">
+      </div>
+      <div class="field">
+        <label>Unit</label>
+        <input type="text" id="new-unit" placeholder="e.g. Ha, Bales, kL">
+      </div>
+      <div class="field">
+        <label>Target Value (optional)</label>
+        <input type="text" id="new-target" placeholder="e.g. 500">
+      </div>
+      <div class="field">
+        <label>Colour</label>
+        <div class="color-chips" id="colorChips">
+          <div class="color-chip sel" style="background:#1b7239" onclick="pickColor(this,'#1b7239')"></div>
+          <div class="color-chip" style="background:#2d5bd4" onclick="pickColor(this,'#2d5bd4')"></div>
+          <div class="color-chip" style="background:#d63031" onclick="pickColor(this,'#d63031')"></div>
+          <div class="color-chip" style="background:#c47a00" onclick="pickColor(this,'#c47a00')"></div>
+          <div class="color-chip" style="background:#7c3aed" onclick="pickColor(this,'#7c3aed')"></div>
+          <div class="color-chip" style="background:#009688" onclick="pickColor(this,'#009688')"></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="addTile()">Add Tile →</button>
+    </div>
+  </div>
+
+  <!-- Edit Target Sheet -->
+  <div class="backdrop" id="editBackdrop" onclick="closeSheet('editBackdrop','editSheet')"></div>
+  <div class="sheet" id="editSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title" id="editSheetTitle">Edit Tile</span>
+      <button class="sheet-close" onclick="closeSheet('editBackdrop','editSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="editSheetBody"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+let selectedColor = '#1b7239';
+let editingId = null;
+
+let tiles = [
+  {id:'t1', label:'Fuel',   value:'420', unit:'Ltrs',  target:'600', visible:true,  color:'#1b7239',
+   icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 22V6a2 2 0 012-2h8a2 2 0 012 2v10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 10h1a2 2 0 012 2v4a2 2 0 002 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M4 22h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="7" y="9" width="6" height="4" rx="1" fill="currentColor"/></svg>`},
+  {id:'t2', label:'Labor',  value:'86',  unit:'Hrs',   target:'120', visible:true,  color:'#2d5bd4',
+   icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c0-4 2.7-6 6-6s6 2 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M16 11l2 2 3-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`},
+  {id:'t3', label:'Units',  value:'1.2k',unit:'Items', target:'2000',visible:true,  color:'#7b1545',
+   icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 8l9 5 9-5M12 13v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`},
+  {id:'t4', label:'Score',  value:'98',  unit:'%',     target:'100', visible:true,  color:'#d63031',
+   icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.8 5.6 6.2.9-4.5 4.4 1.1 6.1L12 16l-5.6 3 1.1-6.1L3 8.5l6.2-.9L12 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`},
+];
+
+function renderPreview() {
+  const visible = tiles.filter(t => t.visible);
+  const cols = visible.length <= 2 ? visible.length : visible.length <= 4 ? 4 : Math.min(visible.length, 4);
+  const grid = document.getElementById('previewGrid');
+  grid.style.gridTemplateColumns = `repeat(${Math.min(cols, 4)}, 1fr)`;
+  grid.innerHTML = tiles.map(t => `
+    <div class="preview-stat${t.visible ? '' : ' hidden-tile'}">
+      <div class="preview-stat-icon" style="color:${t.color}">${t.icon}</div>
+      <div class="preview-stat-lbl">${t.label}</div>
+      <div class="preview-stat-val">${t.value}</div>
+      <div class="preview-stat-unit">${t.unit}</div>
+    </div>
+  `).join('');
+}
+
+function renderTiles() {
+  document.getElementById('tileList').innerHTML = tiles.map((t, i) => `
+    <div class="tile-row" id="row-${t.id}">
+      <div class="tile-drag">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2"><circle cx="9" cy="5" r="1" fill="#ccc" stroke="none"/><circle cx="15" cy="5" r="1" fill="#ccc" stroke="none"/><circle cx="9" cy="12" r="1" fill="#ccc" stroke="none"/><circle cx="15" cy="12" r="1" fill="#ccc" stroke="none"/><circle cx="9" cy="19" r="1" fill="#ccc" stroke="none"/><circle cx="15" cy="19" r="1" fill="#ccc" stroke="none"/></svg>
+      </div>
+      <div class="tile-icon-box" style="background:${t.color}18;color:${t.color}">${t.icon}</div>
+      <div class="tile-info">
+        <div class="tile-name">${t.label}</div>
+        <div class="tile-meta">${t.value} ${t.unit} · Target: ${t.target} ${t.unit}</div>
+      </div>
+      <div class="tile-right">
+        <button class="edit-target" onclick="openEdit('${t.id}')">Edit</button>
+        <div class="tog${t.visible ? ' on' : ''}" onclick="toggleTile('${t.id}')"><div class="tog-thumb"></div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleTile(id) {
+  const t = tiles.find(x => x.id === id);
+  if (!t) return;
+  const visibleCount = tiles.filter(x => x.visible).length;
+  if (t.visible && visibleCount <= 1) { showToast('Keep at least one tile visible'); return; }
+  t.visible = !t.visible;
+  renderTiles();
+  renderPreview();
+}
+
+function openEdit(id) {
+  const t = tiles.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('editSheetTitle').textContent = 'Edit – ' + t.label;
+  document.getElementById('editSheetBody').innerHTML = `
+    <div class="field"><label>Tile Label</label><input id="e-label" value="${t.label}"></div>
+    <div class="field"><label>Current Value</label><input id="e-value" value="${t.value}"></div>
+    <div class="field"><label>Unit</label><input id="e-unit" value="${t.unit}"></div>
+    <div class="field"><label>Target Value</label><input id="e-target" value="${t.target}"></div>
+    <button class="btn-primary" onclick="saveEdit()">Save Changes</button>
+    ${!['t1','t2','t3','t4'].includes(id) ? `<button class="btn-primary" style="background:#fdeef0;color:#d63031;border:1.5px solid #fdeef0;margin-top:8px" onclick="deleteTile('${id}')">Remove Tile</button>` : ''}
+  `;
+  document.getElementById('editBackdrop').classList.add('show');
+  requestAnimationFrame(() => document.getElementById('editSheet').classList.add('open'));
+}
+
+function saveEdit() {
+  const t = tiles.find(x => x.id === editingId);
+  if (!t) return;
+  t.label  = document.getElementById('e-label').value.trim() || t.label;
+  t.value  = document.getElementById('e-value').value.trim() || t.value;
+  t.unit   = document.getElementById('e-unit').value.trim() || t.unit;
+  t.target = document.getElementById('e-target').value.trim() || t.target;
+  closeSheet('editBackdrop','editSheet');
+  renderTiles(); renderPreview();
+  showToast('Tile updated');
+}
+
+function deleteTile(id) {
+  tiles = tiles.filter(t => t.id !== id);
+  closeSheet('editBackdrop','editSheet');
+  renderTiles(); renderPreview();
+  showToast('Tile removed');
+}
+
+function openAddSheet() {
+  selectedColor = '#1b7239';
+  document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('sel'));
+  document.querySelectorAll('.color-chip')[0].classList.add('sel');
+  ['new-label','new-value','new-unit','new-target'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('addBackdrop').classList.add('show');
+  requestAnimationFrame(() => document.getElementById('addSheet').classList.add('open'));
+}
+
+function addTile() {
+  const label  = document.getElementById('new-label').value.trim();
+  const value  = document.getElementById('new-value').value.trim();
+  const unit   = document.getElementById('new-unit').value.trim();
+  const target = document.getElementById('new-target').value.trim() || '—';
+  if (!label || !value) { showToast('Label and value are required'); return; }
+  const id = 'tc' + Date.now();
+  tiles.push({
+    id, label, value, unit, target, visible: true, color: selectedColor,
+    icon: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`
+  });
+  closeSheet('addBackdrop','addSheet');
+  renderTiles(); renderPreview();
+  showToast(label + ' tile added');
+}
+
+function pickColor(el, color) {
+  selectedColor = color;
+  document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function setInterval2(el) {
+  document.querySelectorAll('.interval-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function togSwitch(sw) {
+  sw.classList.toggle('on');
+}
+
+function closeSheet(bId, sId) {
+  document.getElementById(sId).classList.remove('open');
+  setTimeout(() => document.getElementById(bId).classList.remove('show'), 300);
+}
+
+function saveChanges() {
+  showToast('Resource summary saved ✓');
+  setTimeout(() => window.location.href = 'dashboard.html', 1000);
+}
+
+function resetDefaults() {
+  tiles.forEach(t => { t.visible = true; });
+  tiles = tiles.filter(t => ['t1','t2','t3','t4'].includes(t.id));
+  renderTiles(); renderPreview();
+  showToast('Reset to defaults');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+function resize() {
+  const s = Math.min((innerWidth - 24) / 390, (innerHeight - 24) / 844, 1);
+  document.documentElement.style.setProperty('--app-scale', s);
+}
+window.addEventListener('resize', resize); resize();
+
+renderPreview();
+renderTiles();
+</script>
+</body>
+</html>
