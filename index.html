@@ -50,13 +50,13 @@
 		/* ─── SPLASH ─── */
 		.splash {
 			position: absolute; inset: 0;
-			background: var(--green);
+			background: #00A34A;
 			display: flex; align-items: center; justify-content: center;
 			transition: opacity 280ms ease, visibility 280ms ease;
 			z-index: 10;
 		}
 		.splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-		.splash-logo { width: 126px; height: auto; display: block; user-select: none; }
+		.splash-logo { width: 170px; height: auto; display: block; user-select: none; }
 
 		/* ─── ONBOARDING WRAPPER ─── */
 		.onboarding {
@@ -285,10 +285,10 @@
 				<div class="ob-slides-track" id="slidesTrack">
 
 					<!-- ── SLIDE 1: Welcome ── -->
-					<div class="ob-slide">
-						<div class="ob-hero">
+					<div class="ob-slide" style="position:relative;">
+						<div class="ob-hero" style="position:absolute; inset:0; margin:0; border-radius:0; height:100%; width:100%; z-index:1;">
 							<!-- Farm field SVG -->
-							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+							<svg viewBox="0 0 346 270" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
 								<defs>
 									<linearGradient id="s1sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e8f8"/><stop offset="100%" stop-color="#dff0e8"/></linearGradient>
 									<linearGradient id="s1field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a9a30"/><stop offset="100%" stop-color="#2a6a18"/></linearGradient>
@@ -338,7 +338,7 @@
 												</div>
 											</div>
 											<div style="background:#fff;border-radius:6px;padding:5px 6px;border:1px dashed #b8ccb8">
-												<div style="font-size:6px;font-weight:700;color:#1a2a3a;margin-bottom:3px">Resource Summary</div>
+												<div style="font-size:6px;font-weight:700;color:#1a2a3a;margin-bottom:3px">Inventory Summary</div>
 												<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:2px">
 													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">420</div><div style="font-size:5px;color:#8898aa">Ltrs</div></div>
 													<div style="text-align:center"><div style="font-size:8px;font-weight:800;color:#1a2a3a">86</div><div style="font-size:5px;color:#8898aa">Hrs</div></div>
@@ -354,9 +354,9 @@
 								</div>
 							</div>
 						</div>
-						<div class="ob-content">
-							<h1 class="ob-title">Welcome to <span class="brand-green">AgEzy</span></h1>
-							<p class="ob-subtitle">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
+						<div class="ob-content" style="position:relative; z-index:2; justify-content:flex-end; padding-bottom:100px;">
+							<h1 class="ob-title" style="color:#fff; font-size:34px; text-shadow:0 2px 10px rgba(0,0,0,0.5);">Welcome to <span style="color:#fff;">AgEzy</span></h1>
+							<p class="ob-subtitle" style="color:#fff; font-size:17px; font-weight:500; text-shadow:0 1px 6px rgba(0,0,0,0.5);">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
 						</div>
 					</div>
 
@@ -374,10 +374,10 @@
 								<!-- Phone mockup -->
 								<rect x="93" y="18" width="160" height="234" rx="20" fill="#1a3d28"/>
 								<rect x="99" y="26" width="148" height="218" rx="14" fill="#f4f6f4"/>
-								<!-- Jobs hub header -->
+								<!-- Contracting hub header -->
 								<rect x="99" y="26" width="148" height="38" rx="14" fill="#1a3d28"/>
 								<rect x="99" y="50" width="148" height="14" fill="#1a3d28"/>
-								<text x="173" y="49" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Jobs Hub</text>
+								<text x="173" y="49" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Contracting Hub</text>
 								<!-- Job cards -->
 								<rect x="107" y="72" width="132" height="30" rx="6" fill="#fff"/>
 								<rect x="107" y="72" width="4"   height="30" rx="2" fill="#00ab4f"/>
@@ -402,7 +402,7 @@
 
 								<!-- Create job button -->
 								<rect x="107" y="184" width="132" height="20" rx="10" fill="#00ab4f"/>
-								<text x="173" y="196" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">+ Create Contract Work</text>
+								<text x="173" y="196" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">+ Create Contracting</text>
 
 								<!-- Bottom nav dots -->
 								<circle cx="130" cy="230" r="4" fill="#1a3d28"/>
@@ -443,7 +443,7 @@
 								<text x="151" y="84" text-anchor="middle" fill="#1a2a3a" font-size="8" font-weight="800">85.5</text>
 								<text x="151" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Hours</text>
 								<text x="185" y="84" text-anchor="middle" fill="#1a2a3a" font-size="8" font-weight="800">3</text>
-								<text x="185" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Jobs</text>
+								<text x="185" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Contracting</text>
 								<text x="219" y="84" text-anchor="middle" fill="#f5a623" font-size="8" font-weight="800">1</text>
 								<text x="219" y="91" text-anchor="middle" fill="#8898aa" font-size="5">Break</text>
 								<!-- Team cards -->

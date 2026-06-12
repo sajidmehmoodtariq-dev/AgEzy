@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Stock Movements</title>
+  <style>
+    :root {
+      --green-dark: #1a3d28;
+      --green-mid: #1b7239;
+      --green: #00ab4f;
+      --transfer-blue: #2d5bd4;
+      --text: #1a2a3a;
+      --muted: #8898aa;
+      --border: #dde8e0;
+      --bg: #f4f6f4;
+      --card: #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #e0e0e0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+
+    .screen {
+      position: relative;
+      width: 390px; height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+      display: flex; flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .top-header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      height: 60px;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+    }
+    .th-back { cursor: pointer; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.12); }
+    .th-title {
+      flex: 1; font-size: 18px; font-weight: 700;
+      color: #fff; letter-spacing: -0.02em; text-align: center; margin-right: 34px;
+    }
+
+    /* ── SCROLLABLE BODY ── */
+    .scroll-body {
+      flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
+      padding: 16px 14px 20px;
+      scrollbar-width: none;
+    }
+    .scroll-body::-webkit-scrollbar { display: none; }
+
+    /* ── FORMS & CARDS ── */
+    .card {
+      background: var(--card); border-radius: 14px;
+      padding: 16px; margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    
+    .section-title {
+      font-size: 16px; font-weight: 800; color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .input-group { margin-bottom: 14px; }
+    .input-label {
+      font-size: 12px; font-weight: 600; color: var(--muted);
+      margin-bottom: 6px; display: block;
+    }
+    
+    .select-field, .text-field {
+      width: 100%; height: 42px;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 0 14px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text); background: var(--bg);
+    }
+    
+    .select-field {
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    .text-area {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text); background: var(--bg); resize: none; min-height: 80px;
+    }
+
+    .form-section { display: none; }
+    .form-section.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── BUTTON ── */
+    .submit-btn {
+      width: 100%; height: 52px;
+      border: none; border-radius: 26px;
+      background: var(--transfer-blue);
+      color: #fff; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer; margin-top: 24px;
+      box-shadow: 0 8px 20px rgba(45,91,212,0.3);
+      transition: opacity 0.15s;
+    }
+    .submit-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+    .btn-green {
+      background: var(--green-mid);
+      box-shadow: 0 8px 20px rgba(27,114,57,0.3);
+    }
+
+    @media (max-width: 767px) {
+      .viewport { padding: 0; }
+      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="viewport">
+  <main class="screen">
+
+    <div class="top-header">
+      <div class="th-back" onclick="window.location.href='dashboard.html'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="th-title">Stock Movements</div>
+    </div>
+
+    <div class="scroll-body">
+      
+      <!-- Primary Selector -->
+      <div class="card">
+        <div class="input-group" style="margin-bottom:0;">
+          <label class="input-label">Movement Type</label>
+          <select class="select-field" id="movementTypeSelect" onchange="toggleForm()">
+            <option value="" disabled selected>Select movement type...</option>
+            <option value="sale">Sale</option>
+            <option value="contract">Contract</option>
+            <option value="internal">Internal Use</option>
+            <option value="transfer">Transfer</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SALE FORM -->
+      <div id="form-sale" class="form-section">
+        <div class="card">
+          <div class="section-title">Record Sale</div>
+          <div class="input-group">
+            <label class="input-label">Commodity</label>
+            <select class="select-field">
+              <option>Wheat (APW1)</option>
+              <option>Barley (Malt)</option>
+              <option>Canola</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity (Tonnes)</label>
+            <input type="number" class="text-field" placeholder="e.g. 50">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Sale Price ($/t)</label>
+            <input type="number" class="text-field" placeholder="e.g. 320">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Buyer Name</label>
+            <input type="text" class="text-field" placeholder="Company or Individual">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Destination</label>
+            <input type="text" class="text-field" placeholder="Delivery address">
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">Truck Registration</label>
+            <input type="text" class="text-field" placeholder="e.g. XY-123-Z">
+          </div>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">Submit Sale Record</button>
+      </div>
+
+      <!-- CONTRACT FORM -->
+      <div id="form-contract" class="form-section">
+        <div class="card">
+          <div class="section-title">Fulfill Contract</div>
+          <div class="input-group">
+            <label class="input-label">Select Contract</label>
+            <select class="select-field">
+              <option>CON-2024-001 (GrainCorp)</option>
+              <option>CON-2024-008 (CBH Group)</option>
+              <option>CON-2025-012 (Viterra)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Commodity</label>
+            <select class="select-field">
+              <option>Wheat (APW1)</option>
+              <option>Barley (Malt)</option>
+              <option>Canola</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity (Tonnes)</label>
+            <input type="number" class="text-field" placeholder="e.g. 100">
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">Storage Location (Source)</label>
+            <select class="select-field">
+              <option>Shed 01 - Bay A</option>
+              <option>Shed 04 - Bay 8-120</option>
+              <option>Silo 3</option>
+            </select>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">Submit Contract Fulfillment</button>
+      </div>
+
+      <!-- INTERNAL USE FORM -->
+      <div id="form-internal" class="form-section">
+        <div class="card">
+          <div class="section-title">Internal Use</div>
+          <div class="input-group">
+            <label class="input-label">Commodity / Resource</label>
+            <select class="select-field">
+              <option>Seed Wheat</option>
+              <option>Fertilizer (Urea)</option>
+              <option>Diesel Fuel</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity</label>
+            <input type="number" class="text-field" placeholder="Amount used">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Purpose / Job</label>
+            <input type="text" class="text-field" placeholder="e.g. Seeding North Paddock">
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">Location Used</label>
+            <select class="select-field">
+              <option>North Paddock</option>
+              <option>South Field</option>
+              <option>East Block</option>
+            </select>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">Record Internal Use</button>
+      </div>
+
+      <!-- TRANSFER FORM -->
+      <div id="form-transfer" class="form-section">
+        <div class="card">
+          <div class="section-title">Stock Transfer</div>
+          <div class="input-group">
+            <label class="input-label">Commodity</label>
+            <select class="select-field">
+              <option>Wheat (APW1)</option>
+              <option>Barley (Malt)</option>
+              <option>Fertilizer</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity (Tonnes)</label>
+            <input type="number" class="text-field" placeholder="e.g. 25">
+          </div>
+          <div class="input-group">
+            <label class="input-label">From Location</label>
+            <select class="select-field">
+              <option>Silo 1</option>
+              <option>Shed 4</option>
+              <option>Temporary Bunker</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">To Location</label>
+            <select class="select-field">
+              <option>Shed 4</option>
+              <option>Silo 2</option>
+              <option>Field Bin 1</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">Operator / Vehicle</label>
+            <input type="text" class="text-field" placeholder="e.g. John (Truck 2)">
+          </div>
+        </div>
+        <button class="submit-btn btn-green" onclick="submitForm()">Complete Transfer</button>
+      </div>
+
+      <!-- OTHER FORM -->
+      <div id="form-other" class="form-section">
+        <div class="card">
+          <div class="section-title">Other Movement</div>
+          <div class="input-group">
+            <label class="input-label">Commodity</label>
+            <select class="select-field">
+              <option>Wheat (APW1)</option>
+              <option>Barley (Malt)</option>
+              <option>Canola</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label class="input-label">Quantity</label>
+            <input type="number" class="text-field" placeholder="Amount">
+          </div>
+          <div class="input-group" style="margin-bottom:0;">
+            <label class="input-label">Reason / Description</label>
+            <textarea class="text-area" placeholder="Provide details (e.g. spoilage, quality adjustment, audit adjustment)"></textarea>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">Save Movement</button>
+      </div>
+
+      <div style="height: 20px;"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ── Scale ──
+  const baseW = 390, baseH = 844, pad = 32;
+  const updateScale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  updateScale();
+  window.addEventListener('resize', updateScale);
+
+  function toggleForm() {
+    const type = document.getElementById('movementTypeSelect').value;
+    
+    // Hide all forms
+    const forms = document.querySelectorAll('.form-section');
+    forms.forEach(f => f.classList.remove('active'));
+    
+    // Show selected
+    if (type) {
+      document.getElementById('form-' + type).classList.add('active');
+    }
+  }
+
+  function submitForm() {
+    alert("Record submitted successfully!");
+    window.location.href = 'dashboard.html';
+  }
+</script>
+</body>
+</html>

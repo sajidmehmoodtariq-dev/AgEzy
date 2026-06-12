@@ -120,7 +120,7 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
     <div class="ftabs">
       <div class="ftab active" onclick="setTab(this,'all')">All</div>
       <div class="ftab" onclick="setTab(this,'unread')">Unread <span id="unreadCount" style="background:rgba(255,255,255,.3);border-radius:20px;padding:1px 6px;margin-left:2px;font-size:10px">3</span></div>
-      <div class="ftab" onclick="setTab(this,'job')">Jobs</div>
+      <div class="ftab" onclick="setTab(this,'job')">Contracting</div>
       <div class="ftab" onclick="setTab(this,'alert')">Alerts</div>
       <div class="ftab" onclick="setTab(this,'team')">Team</div>
     </div>
@@ -137,7 +137,7 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
     </button>
     <button class="nav-item" onclick="window.location.href='jobs-hub.html'">
       <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
-      <span class="nav-lbl">Jobs</span>
+      <span class="nav-lbl">Contracting</span>
     </button>
     <button class="nav-item" onclick="window.location.href='contracts-list.html'">
       <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
@@ -188,14 +188,14 @@ let notifications = [
    sub:'Sarah M. has started the spray job. Pre-start safety check passed.',
    time:'Now',badgeClass:'badge-green',badge:'In Progress',
    details:{Type:'Job Notification',Job:'Spray – Block A',Operator:'Sarah Mitchell',Time:'11:42 AM',Status:'In Progress'},
-   dest:'jobs-hub.html',destLabel:'View Jobs Hub'},
+   dest:'jobs-hub.html',destLabel:'View Contracting Hub'},
 
   {id:'N002',group:'Just now',cat:'alert',icon:'weather',color:'orange',unread:true,
    title:'<strong>High Wind Alert</strong> – Block A',
    sub:'Wind speed 28 km/h detected. Spray conditions marginal. Review before proceeding.',
    time:'11:38 AM',badgeClass:'badge-orange',badge:'Weather Alert',
    details:{Type:'Weather Alert',Location:'Block A',WindSpeed:'28 km/h',Condition:'Marginal',Action:'Review spray conditions'},
-   dest:'jobs-hub.html',destLabel:'View Jobs Hub'},
+   dest:'jobs-hub.html',destLabel:'View Contracting Hub'},
 
   {id:'N003',group:'Just now',cat:'team',icon:'team',color:'blue',unread:true,
    title:'<strong>Alex P.</strong> clocked in',
@@ -230,7 +230,7 @@ let notifications = [
    sub:'James R. completed the hay baling job. 142 round bales recorded.',
    time:'3:20 PM',badgeClass:'badge-green',badge:'Completed',
    details:{Type:'Job Notification',Job:'Hay – South Block',Operator:'James Russel',Bales:'142 Round Bales',CompletedAt:'3:20 PM'},
-   dest:'jobs-hub.html',destLabel:'View Jobs Hub'},
+   dest:'jobs-hub.html',destLabel:'View Contracting Hub'},
 
   {id:'N008',group:'Yesterday',cat:'team',icon:'team',color:'blue',unread:false,
    title:'<strong>Timesheet Pending Review</strong> – Alex P.',

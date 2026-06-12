@@ -367,33 +367,40 @@
           </div>
         </div>
 
-        <!-- Select Contract -->
+        <!-- Movement Type -->
         <div class="select-wrap">
-          <div class="select-lbl">Select Contract</div>
+          <div class="select-lbl">Movement Type</div>
           <select class="select-field">
-            <option>Contract 1: Customer</option>
-            <option>Contract 2: Wholesale</option>
-            <option>Contract 3: Export</option>
+            <option>Sale</option>
+            <option>Contracts</option>
+            <option>Internal Use</option>
+            <option>Others</option>
+            <option>Customizable</option>
           </select>
         </div>
 
         <!-- Storage Location -->
         <div class="section-lbl">Storage Location</div>
         <div class="card">
-          <div class="storage-grid">
-            <div class="storage-cell">
-              <div class="storage-key">Shed Number</div>
-              <div class="storage-val">Shed 04</div>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
+            <div>
+              <div class="storage-key" style="margin-bottom:6px;">Shed Number</div>
+              <select class="select-field" style="border-radius:12px; height:38px;">
+                <option>Shed 01</option>
+                <option>Shed 02</option>
+                <option>Shed 03</option>
+                <option selected>Shed 04</option>
+                <option>Shed 05</option>
+              </select>
             </div>
-            <div class="storage-cell">
-              <div class="storage-key">Bay / Location</div>
-              <div class="bay-pill">
-                <div class="bay-text">Bay 8-120</div>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#1b7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" stroke="#1b7239" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
+            <div>
+              <div class="storage-key" style="margin-bottom:6px;">Bay / Location</div>
+              <select class="select-field" style="border-radius:12px; height:38px;">
+                <option>Bay 1-050</option>
+                <option>Bay 2-010</option>
+                <option selected>Bay 8-120</option>
+                <option>Bay 9-014</option>
+              </select>
             </div>
           </div>
 
@@ -438,6 +445,15 @@
       </div>
 
       <div class="scroll-body">
+
+        <!-- Truck Details -->
+        <div class="verif-card">
+          <div class="verif-card-title">Truck Details</div>
+          <div style="margin-top:8px;">
+            <div style="font-size:11px; color:var(--muted); font-weight:600; margin-bottom:6px;">Registration Number</div>
+            <input type="text" class="select-field" placeholder="e.g. XY-123-Z" style="background-image:none; border-radius:12px; height:38px;">
+          </div>
+        </div>
 
         <!-- Truck Loaded Photo -->
         <div class="verif-card">
@@ -485,6 +501,15 @@
               </svg>
               Add Photo
             </button>
+          </div>
+        </div>
+
+        <!-- Optional Signature -->
+        <div class="verif-card">
+          <div class="verif-card-title">Driver / Operator Signature</div>
+          <div class="verif-card-sub">Optional</div>
+          <div style="border:2px dashed #c8d8c0; border-radius:12px; height:80px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="this.style.borderStyle='solid'; this.style.borderColor='var(--green-mid)'; this.style.background='#f0faf4'; this.innerHTML='<div style=\'font-family:cursive; font-size:24px; color:var(--green-dark);\'>Signed</div>';">
+            <span style="font-size:13px; color:var(--muted); font-weight:600;">Tap to sign</span>
           </div>
         </div>
 
