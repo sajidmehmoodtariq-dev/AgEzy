@@ -3,17 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Stock Movements</title>
+  <title>AgEzy — Stock Movements</title>
   <style>
     :root {
       --green-dark: #1a3d28;
       --green-mid: #1b7239;
-      --green: #00ab4f;
+      --green-accent: #00ab4f;
+      --blue: #4a6cf7;
+      --blue-light: #eef1fd;
+      --red: #d63031;
+      --red-light: #fdeef0;
+      --green-light: #edfaf2;
+      --purple: #7b1545;
+      --purple-light: #fde8f2;
       --transfer-blue: #2d5bd4;
+      --transfer-light: #edf1fd;
+      --orange: #e67e22;
+      --orange-light: #fdf2e9;
+      --grey: #95a5a6;
+      --grey-light: #f0f3f4;
       --text: #1a2a3a;
       --muted: #8898aa;
-      --border: #dde8e0;
-      --bg: #f4f6f4;
+      --border: #dde8dd;
+      --bg: #f2f4f2;
       --card: #fff;
     }
 
@@ -22,7 +34,7 @@
     html, body {
       width: 100%; height: 100%;
       background: #e0e0e0;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       overflow: hidden;
     }
 
@@ -41,95 +53,184 @@
       border-radius: 26px;
       overflow: hidden;
       box-shadow: 0 28px 80px rgba(0,0,0,0.22);
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ── HEADER ── */
+    /* ─── PANEL SYSTEM ─── */
+    .panel {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 340ms cubic-bezier(.4,0,.2,1);
+      background: var(--bg);
+      z-index: 10;
+    }
+    .panel.orig-active, .panel.active    { transform: translateX(0); z-index: 20; }
+    .panel.orig-exit-left, .panel.exit-left { transform: translateX(-100%); z-index: 10; }
+
+    /* ─── SHARED HEADER ─── */
     .top-header {
       flex: 0 0 auto;
       background: var(--green-dark);
       height: 60px;
       display: flex; align-items: center;
       padding: 0 16px; gap: 12px;
+      color: #fff;
     }
-    .th-back { cursor: pointer; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.12); }
+    .th-back { cursor: pointer; padding: 4px; margin-left: -4px; display: flex; align-items: center; }
     .th-title {
-      flex: 1; font-size: 18px; font-weight: 700;
-      color: #fff; letter-spacing: -0.02em; text-align: center; margin-right: 34px;
+      flex: 1; font-size: 17px; font-weight: 700;
+      letter-spacing: -0.01em; text-align: center;
+      margin-right: 28px; /* offset back icon */
     }
+    .th-icon { color: rgba(255,255,255,0.7); cursor: pointer; display: flex; align-items: center; }
 
-    /* ── SCROLLABLE BODY ── */
+    /* ─── SCROLLABLE BODY ─── */
     .scroll-body {
       flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
-      padding: 16px 14px 20px;
+      padding: 20px 16px;
       scrollbar-width: none;
     }
     .scroll-body::-webkit-scrollbar { display: none; }
 
-    /* ── FORMS & CARDS ── */
-    .card {
-      background: var(--card); border-radius: 14px;
-      padding: 16px; margin-bottom: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-    
-    .section-title {
-      font-size: 16px; font-weight: 800; color: var(--text);
-      margin-bottom: 12px;
+    /* ─── MENU ITEMS (Screen 1) ─── */
+    .menu-title {
+      font-size: 22px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.02em; margin-bottom: 24px; line-height: 1.2;
     }
 
-    .input-group { margin-bottom: 14px; }
-    .input-label {
-      font-size: 12px; font-weight: 600; color: var(--muted);
-      margin-bottom: 6px; display: block;
+    .menu-item {
+      background: var(--card); border-radius: 16px;
+      padding: 16px; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 16px;
+      cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      border: 1.5px solid transparent;
+      transition: all 0.15s;
     }
+    .menu-item:active { transform: scale(0.98); border-color: var(--border); }
     
-    .select-field, .text-field {
-      width: 100%; height: 42px;
+    .mi-icon-wrap {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .mi-icon-wrap.green { background: var(--green-light); }
+    .mi-icon-wrap.purple { background: var(--purple-light); }
+    .mi-icon-wrap.orange { background: var(--orange-light); }
+    .mi-icon-wrap.blue { background: var(--transfer-light); }
+    .mi-icon-wrap.grey { background: var(--grey-light); }
+
+    .mi-text { flex: 1; }
+    .mi-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .mi-desc { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.3; }
+
+    .mi-arrow { color: #c0cac0; display: flex; align-items: center; }
+
+    /* ─── DYNAMIC FORMS ─── */
+    .form-card {
+      background: var(--card); border-radius: 16px;
+      padding: 16px; margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+      border: 1px solid #f1f5f9;
+    }
+
+    .form-group { margin-bottom: 16px; position: relative; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-lbl { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; display: block; }
+    
+    .form-control {
+      width: 100%; height: 48px;
       border: 1.5px solid var(--border); border-radius: 12px;
       padding: 0 14px;
-      font-family: inherit; font-size: 14px; font-weight: 600;
-      color: var(--text); background: var(--bg);
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      color: var(--text); background: #fafcfa;
+      outline: none; transition: border-color 0.2s;
     }
-    
-    .select-field {
+    .form-control:focus { border-color: var(--green-mid); background: #fff; }
+    .form-control:disabled { background: #f0f4f0; color: #a0b0a0; opacity: 1; -webkit-text-fill-color: #a0b0a0; }
+
+    .form-select {
       appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 14px center;
     }
 
-    .text-area {
-      width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
-      padding: 12px 14px; font-family: inherit; font-size: 14px; font-weight: 600;
-      color: var(--text); background: var(--bg); resize: none; min-height: 80px;
+    /* Qty Input with Unit Select */
+    .qty-group { display: flex; gap: 8px; }
+    .qty-input { flex: 2; }
+    .unit-select { flex: 1; }
+
+    .form-checkbox-row {
+      display: flex; align-items: center; gap: 10px; margin-top: 10px; cursor: pointer;
     }
-
-    .form-section { display: none; }
-    .form-section.active { display: block; animation: fadeIn 0.3s ease; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    .fc-box {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid var(--green-mid);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
     }
+    .fc-box.checked { background: var(--green-mid); }
+    .fc-box svg { opacity: 0; transition: opacity 0.2s; }
+    .fc-box.checked svg { opacity: 1; }
+    .fc-lbl { font-size: 14px; font-weight: 600; color: var(--text); }
 
-    /* ── BUTTON ── */
-    .submit-btn {
-      width: 100%; height: 52px;
-      border: none; border-radius: 26px;
-      background: var(--transfer-blue);
-      color: #fff; font-size: 16px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      cursor: pointer; margin-top: 24px;
-      box-shadow: 0 8px 20px rgba(45,91,212,0.3);
-      transition: opacity 0.15s;
+    /* ─── BOTTOM BUTTON WRAP ─── */
+    .bottom-btn-wrap {
+      flex: 0 0 auto; padding: 16px; background: var(--bg); border-top: 1px solid var(--border);
     }
-    .submit-btn:active { opacity: 0.85; transform: scale(0.98); }
+    .primary-btn {
+      width: 100%; height: 52px; border-radius: 26px; border: none;
+      background: var(--green-mid); color: #fff;
+      font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: opacity 0.2s;
+      box-shadow: 0 8px 20px rgba(27,114,57,0.25);
+    }
+    .primary-btn:active { opacity: 0.85; }
 
-    .btn-green {
+    /* ─── CONFIRMATION SCREEN ─── */
+    .conf-panel {
+      background: #fff; text-align: center;
+    }
+    .conf-icon {
+      width: 64px; height: 64px; border-radius: 50%;
       background: var(--green-mid);
-      box-shadow: 0 8px 20px rgba(27,114,57,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 30px auto 16px;
     }
+    .conf-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 24px; line-height: 1.3; }
+
+    .conf-summary {
+      background: var(--bg); border-radius: 16px;
+      padding: 16px; text-align: left; margin-bottom: 24px;
+      border: 1px solid #dde8dd;
+    }
+    .conf-summary-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .cs-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .cs-row:last-child { margin-bottom: 0; }
+    .cs-lbl { font-size: 12px; font-weight: 600; color: var(--muted); }
+    .cs-val { font-size: 13px; font-weight: 700; color: var(--text); text-align: right; }
+    .cs-pill { background: #e4f4e4; color: var(--green-mid); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; display: inline-block; margin-left: 6px; vertical-align: middle; }
+
+    .conf-checklist { text-align: left; margin-bottom: 30px; }
+    .cc-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .cc-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--green-light); color: var(--green-mid);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .cc-text { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    .btn-outline {
+      width: 100%; height: 52px; border-radius: 26px; border: 2px solid var(--border);
+      background: transparent; color: var(--text);
+      font-size: 15px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s; margin-top: 12px;
+    }
+    .btn-outline:active { background: var(--bg); }
 
     @media (max-width: 767px) {
       .viewport { padding: 0; }
@@ -139,233 +240,552 @@
 </head>
 <body>
 <div class="viewport">
-  <main class="screen">
+  <main class="screen" id="screen">
 
-    <div class="top-header">
-      <div class="th-back" onclick="window.location.href='dashboard.html'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+    <!-- ═══════════════════════════════════
+         PANEL 1: STOCK MOVEMENTS MENU
+    ═══════════════════════════════════ -->
+    <div class="panel active" id="p-menu">
+      <div class="top-header">
+        <div class="th-back" onclick="window.location.href='dashboard.html'">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="th-title" style="margin-right: 0;">Stock Movements</div>
+        <div class="th-icon" style="margin-right: 0;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2"/>
+            <path d="M12 16v-4" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="8" r="1" fill="#fff"/>
+          </svg>
+        </div>
       </div>
-      <div class="th-title">Stock Movements</div>
+
+      <div class="scroll-body">
+        <div class="menu-title">What would you like to record?</div>
+
+        <!-- Sale -->
+        <div class="menu-item" onclick="openForm('sale', 'Create Sale')">
+          <div class="mi-icon-wrap green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="var(--green-mid)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mi-text">
+            <div class="mi-title">Sale</div>
+            <div class="mi-desc">Record a sale of stock to a customer</div>
+          </div>
+          <div class="mi-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Contract -->
+        <div class="menu-item" onclick="openForm('contract', 'Contract Movement')">
+          <div class="mi-icon-wrap purple">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="var(--purple)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="var(--purple)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mi-text">
+            <div class="mi-title">Contract</div>
+            <div class="mi-desc">Record against an existing contract</div>
+          </div>
+          <div class="mi-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Internal Use -->
+        <div class="menu-item" onclick="openForm('internal', 'Internal Use')">
+          <div class="mi-icon-wrap orange">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="7" cy="17" r="3" stroke="var(--orange)" stroke-width="2.2"/>
+              <circle cx="17" cy="17" r="3" stroke="var(--orange)" stroke-width="2.2"/>
+              <path d="M3 11v6h1M20 17h1v-6l-3-4H9L5 11" stroke="var(--orange)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M5 11h14M9 7v4" stroke="var(--orange)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mi-text">
+            <div class="mi-title">Internal Use</div>
+            <div class="mi-desc">Record stock used on farm</div>
+          </div>
+          <div class="mi-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Transfer -->
+        <div class="menu-item" onclick="openForm('transfer', 'Transfer Stock')">
+          <div class="mi-icon-wrap blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M7 16l-4-4 4-4" stroke="var(--transfer-blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17 8l4 4-4 4" stroke="var(--transfer-blue)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 12h18" stroke="var(--transfer-blue)" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mi-text">
+            <div class="mi-title">Transfer</div>
+            <div class="mi-desc">Move stock between locations</div>
+          </div>
+          <div class="mi-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Other -->
+        <div class="menu-item" onclick="openForm('other', 'Other Stock Movement')">
+          <div class="mi-icon-wrap grey">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="5" cy="12" r="2" fill="var(--grey)"/>
+              <circle cx="12" cy="12" r="2" fill="var(--grey)"/>
+              <circle cx="19" cy="12" r="2" fill="var(--grey)"/>
+            </svg>
+          </div>
+          <div class="mi-text">
+            <div class="mi-title">Other</div>
+            <div class="mi-desc">Record other stock movements</div>
+          </div>
+          <div class="mi-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <div class="scroll-body">
-      
-      <!-- Primary Selector -->
-      <div class="card">
-        <div class="input-group" style="margin-bottom:0;">
-          <label class="input-label">Movement Type</label>
-          <select class="select-field" id="movementTypeSelect" onchange="toggleForm()">
-            <option value="" disabled selected>Select movement type...</option>
-            <option value="sale">Sale</option>
-            <option value="contract">Contract</option>
-            <option value="internal">Internal Use</option>
-            <option value="transfer">Transfer</option>
-            <option value="other">Other</option>
-          </select>
+    <!-- ═══════════════════════════════════
+         PANEL 2: DYNAMIC FORM
+    ═══════════════════════════════════ -->
+    <div class="panel" id="p-form">
+      <div class="top-header">
+        <div class="th-back" onclick="closeForm()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
+        <div class="th-title" id="form-title">Form Title</div>
+        <div style="width:24px"></div> <!-- balance back icon -->
       </div>
 
-      <!-- SALE FORM -->
-      <div id="form-sale" class="form-section">
-        <div class="card">
-          <div class="section-title">Record Sale</div>
-          <div class="input-group">
-            <label class="input-label">Commodity</label>
-            <select class="select-field">
-              <option>Wheat (APW1)</option>
-              <option>Barley (Malt)</option>
-              <option>Canola</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Quantity (Tonnes)</label>
-            <input type="number" class="text-field" placeholder="e.g. 50">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Sale Price ($/t)</label>
-            <input type="number" class="text-field" placeholder="e.g. 320">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Buyer Name</label>
-            <input type="text" class="text-field" placeholder="Company or Individual">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Destination</label>
-            <input type="text" class="text-field" placeholder="Delivery address">
-          </div>
-          <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">Truck Registration</label>
-            <input type="text" class="text-field" placeholder="e.g. XY-123-Z">
-          </div>
-        </div>
-        <button class="submit-btn" onclick="submitForm()">Submit Sale Record</button>
+      <div class="scroll-body" id="form-body">
+        <!-- Dynamic content inserted here -->
       </div>
 
-      <!-- CONTRACT FORM -->
-      <div id="form-contract" class="form-section">
-        <div class="card">
-          <div class="section-title">Fulfill Contract</div>
-          <div class="input-group">
-            <label class="input-label">Select Contract</label>
-            <select class="select-field">
-              <option>CON-2024-001 (GrainCorp)</option>
-              <option>CON-2024-008 (CBH Group)</option>
-              <option>CON-2025-012 (Viterra)</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Commodity</label>
-            <select class="select-field">
-              <option>Wheat (APW1)</option>
-              <option>Barley (Malt)</option>
-              <option>Canola</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Quantity (Tonnes)</label>
-            <input type="number" class="text-field" placeholder="e.g. 100">
-          </div>
-          <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">Storage Location (Source)</label>
-            <select class="select-field">
-              <option>Shed 01 - Bay A</option>
-              <option>Shed 04 - Bay 8-120</option>
-              <option>Silo 3</option>
-            </select>
-          </div>
-        </div>
-        <button class="submit-btn" onclick="submitForm()">Submit Contract Fulfillment</button>
+      <div class="bottom-btn-wrap">
+        <button class="primary-btn" id="submit-btn" onclick="submitForm()">Record Movement</button>
       </div>
-
-      <!-- INTERNAL USE FORM -->
-      <div id="form-internal" class="form-section">
-        <div class="card">
-          <div class="section-title">Internal Use</div>
-          <div class="input-group">
-            <label class="input-label">Commodity / Resource</label>
-            <select class="select-field">
-              <option>Seed Wheat</option>
-              <option>Fertilizer (Urea)</option>
-              <option>Diesel Fuel</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Quantity</label>
-            <input type="number" class="text-field" placeholder="Amount used">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Purpose / Job</label>
-            <input type="text" class="text-field" placeholder="e.g. Seeding North Paddock">
-          </div>
-          <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">Location Used</label>
-            <select class="select-field">
-              <option>North Paddock</option>
-              <option>South Field</option>
-              <option>East Block</option>
-            </select>
-          </div>
-        </div>
-        <button class="submit-btn" onclick="submitForm()">Record Internal Use</button>
-      </div>
-
-      <!-- TRANSFER FORM -->
-      <div id="form-transfer" class="form-section">
-        <div class="card">
-          <div class="section-title">Stock Transfer</div>
-          <div class="input-group">
-            <label class="input-label">Commodity</label>
-            <select class="select-field">
-              <option>Wheat (APW1)</option>
-              <option>Barley (Malt)</option>
-              <option>Fertilizer</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Quantity (Tonnes)</label>
-            <input type="number" class="text-field" placeholder="e.g. 25">
-          </div>
-          <div class="input-group">
-            <label class="input-label">From Location</label>
-            <select class="select-field">
-              <option>Silo 1</option>
-              <option>Shed 4</option>
-              <option>Temporary Bunker</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">To Location</label>
-            <select class="select-field">
-              <option>Shed 4</option>
-              <option>Silo 2</option>
-              <option>Field Bin 1</option>
-            </select>
-          </div>
-          <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">Operator / Vehicle</label>
-            <input type="text" class="text-field" placeholder="e.g. John (Truck 2)">
-          </div>
-        </div>
-        <button class="submit-btn btn-green" onclick="submitForm()">Complete Transfer</button>
-      </div>
-
-      <!-- OTHER FORM -->
-      <div id="form-other" class="form-section">
-        <div class="card">
-          <div class="section-title">Other Movement</div>
-          <div class="input-group">
-            <label class="input-label">Commodity</label>
-            <select class="select-field">
-              <option>Wheat (APW1)</option>
-              <option>Barley (Malt)</option>
-              <option>Canola</option>
-            </select>
-          </div>
-          <div class="input-group">
-            <label class="input-label">Quantity</label>
-            <input type="number" class="text-field" placeholder="Amount">
-          </div>
-          <div class="input-group" style="margin-bottom:0;">
-            <label class="input-label">Reason / Description</label>
-            <textarea class="text-area" placeholder="Provide details (e.g. spoilage, quality adjustment, audit adjustment)"></textarea>
-          </div>
-        </div>
-        <button class="submit-btn" onclick="submitForm()">Save Movement</button>
-      </div>
-
-      <div style="height: 20px;"></div>
     </div>
+
+    <!-- ═══════════════════════════════════
+         PANEL 3: CONFIRMATION
+    ═══════════════════════════════════ -->
+    <div class="panel conf-panel" id="p-conf">
+      <div class="scroll-body" style="padding-top:40px;">
+        <div class="conf-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="conf-title" id="conf-title">Movement recorded<br>successfully</div>
+
+        <div class="conf-summary">
+          <div class="conf-summary-title">Summary</div>
+          <div id="conf-summary-content">
+            <!-- Dynamic summary inserted here -->
+          </div>
+        </div>
+
+        <div class="conf-checklist" id="conf-checklist">
+          <!-- Dynamic checklist inserted here -->
+        </div>
+
+        <button class="primary-btn" onclick="window.location.href='dashboard.html'">View Record</button>
+        <button class="btn-outline" onclick="window.location.href='stock-movements.html'">Back to Stock Movements</button>
+      </div>
+    </div>
+
   </main>
 </div>
 
 <script>
-  // ── Scale ──
+  // App scaling
   const baseW = 390, baseH = 844, pad = 32;
-  const updateScale = () => {
+  const scale = () => {
     const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
     document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
   };
-  updateScale();
-  window.addEventListener('resize', updateScale);
+  scale();
+  window.addEventListener('resize', scale);
 
-  function toggleForm() {
-    const type = document.getElementById('movementTypeSelect').value;
-    
-    // Hide all forms
-    const forms = document.querySelectorAll('.form-section');
-    forms.forEach(f => f.classList.remove('active'));
-    
-    // Show selected
-    if (type) {
-      document.getElementById('form-' + type).classList.add('active');
+  let currentFormType = '';
+
+  // Form templates (fixed template string escapes)
+  const forms = {
+    sale: `
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-lbl">Customer</label>
+          <select class="form-control form-select">
+            <option>ABC Feedlot</option>
+            <option>Smith Farms</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Commodity</label>
+          <select class="form-control form-select">
+            <option>Oaten Hay</option>
+            <option>Wheat</option>
+            <option>Barley</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Quantity</label>
+          <div class="qty-group">
+            <input type="number" class="form-control qty-input" value="6.0" />
+            <select class="form-control form-select unit-select">
+              <option>Tonne</option>
+              <option>Bales</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Source Location</label>
+          <select class="form-control form-select">
+            <option>Hay Shed North - Bay 3</option>
+            <option>Hay Shed South - Bay 1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Date</label>
+          <input type="date" class="form-control" value="2025-05-08" />
+        </div>
+        <div class="form-group" style="margin-top:20px;">
+          <div class="form-checkbox-row" onclick="toggleInvoice(this)">
+            <div class="fc-box checked">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="fc-lbl">Generate Invoice</div>
+          </div>
+        </div>
+      </div>
+    `,
+    contract: `
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-lbl">Contract</label>
+          <select class="form-control form-select">
+            <option>Contract #1234</option>
+            <option>Contract #1235</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Customer</label>
+          <input type="text" class="form-control" value="ABC Feedlot" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Commodity</label>
+          <input type="text" class="form-control" value="Oaten Hay" disabled />
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Quantity Delivered</label>
+          <div class="qty-group">
+            <input type="number" class="form-control qty-input" value="6.0" />
+            <select class="form-control form-select unit-select">
+              <option>Tonne</option>
+              <option>Bales</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Source Location</label>
+          <select class="form-control form-select">
+            <option>Hay Shed North - Bay 3</option>
+            <option>Silo 2</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Date</label>
+          <input type="date" class="form-control" value="2025-05-08" />
+        </div>
+      </div>
+    `,
+    internal: `
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-lbl">Commodity</label>
+          <select class="form-control form-select">
+            <option>Oaten Hay</option>
+            <option>Lupins</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Quantity</label>
+          <div class="qty-group">
+            <input type="number" class="form-control qty-input" value="2.5" />
+            <select class="form-control form-select unit-select">
+              <option>Tonne</option>
+              <option>Bales</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Used For</label>
+          <select class="form-control form-select">
+            <option>Sheep Enterprise</option>
+            <option>Cattle Feed</option>
+            <option>Seeding</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Location</label>
+          <select class="form-control form-select">
+            <option>Hay Shed North</option>
+            <option>Silo 4</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Date</label>
+          <input type="date" class="form-control" value="2025-05-08" />
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Notes (optional)</label>
+          <input type="text" class="form-control" placeholder="Add notes" />
+        </div>
+      </div>
+    `,
+    transfer: `
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-lbl">Commodity</label>
+          <select class="form-control form-select">
+            <option>Oaten Hay</option>
+            <option>Wheat</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Quantity</label>
+          <div class="qty-group">
+            <input type="number" class="form-control qty-input" value="6.0" />
+            <select class="form-control form-select unit-select">
+              <option>Tonne</option>
+              <option>Bales</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">From Location</label>
+          <select class="form-control form-select">
+            <option>Hay Shed North - Bay 3</option>
+            <option>Silo 1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">To Location</label>
+          <select class="form-control form-select">
+            <option>Hay Shed South - Bay 1</option>
+            <option>Silo 5</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Date</label>
+          <input type="date" class="form-control" value="2025-05-08" />
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Notes (optional)</label>
+          <input type="text" class="form-control" placeholder="Add notes" />
+        </div>
+      </div>
+    `,
+    other: `
+      <div class="form-card">
+        <div class="form-group">
+          <label class="form-lbl">Commodity</label>
+          <select class="form-control form-select">
+            <option>Wheat</option>
+            <option>Oaten Hay</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Adjustment Type</label>
+          <select class="form-control form-select">
+            <option>Stocktake Adjustment</option>
+            <option>Spoilage / Waste</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Quantity</label>
+          <div class="qty-group">
+            <input type="number" class="form-control qty-input" value="1.0" />
+            <select class="form-control form-select unit-select">
+              <option>Tonne</option>
+              <option>Bales</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Location</label>
+          <select class="form-control form-select">
+            <option>Silo 1</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Date</label>
+          <input type="date" class="form-control" value="2025-05-08" />
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Notes (optional)</label>
+          <input type="text" class="form-control" placeholder="Add notes" />
+        </div>
+      </div>
+    `
+  };
+
+  let isInvoiceChecked = true;
+
+  function toggleInvoice(el) {
+    const box = el.querySelector('.fc-box');
+    if (box.classList.contains('checked')) {
+      box.classList.remove('checked');
+      isInvoiceChecked = false;
+    } else {
+      box.classList.add('checked');
+      isInvoiceChecked = true;
     }
   }
 
+  function openForm(type, title) {
+    currentFormType = type;
+    document.getElementById('form-title').innerText = title;
+    
+    // Set button text based on type
+    let btnText = "Record Movement";
+    if(type === 'sale') btnText = "Record Sale";
+    if(type === 'contract') btnText = "Record Delivery";
+    if(type === 'internal') btnText = "Record Use";
+    if(type === 'transfer') btnText = "Record Transfer";
+    document.getElementById('submit-btn').innerText = btnText;
+
+    // Load form HTML
+    document.getElementById('form-body').innerHTML = forms[type];
+
+    // Transition
+    document.getElementById('p-menu').classList.add('exit-left');
+    document.getElementById('p-form').classList.add('active');
+    
+    // Reset invoice state
+    isInvoiceChecked = true;
+  }
+
+  function closeForm() {
+    document.getElementById('p-form').classList.remove('active');
+    document.getElementById('p-menu').classList.remove('exit-left');
+  }
+
   function submitForm() {
-    alert("Record submitted successfully!");
-    window.location.href = 'dashboard.html';
+    // Generate summary based on type
+    let title = "";
+    let summaryHtml = "";
+    let checklistHtml = "";
+
+    const checkIcon = `<div class="cc-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+
+    if(currentFormType === 'sale') {
+      title = "Sale recorded<br>successfully";
+      summaryHtml = `
+        <div class="cs-row"><div class="cs-lbl">Customer</div><div class="cs-val">ABC Feedlot</div></div>
+        <div class="cs-row"><div class="cs-lbl">Commodity</div><div class="cs-val">Oaten Hay</div></div>
+        <div class="cs-row"><div class="cs-lbl">Quantity</div><div class="cs-val">6.0 Tonne</div></div>
+        <div class="cs-row"><div class="cs-lbl">Location</div><div class="cs-val">Hay Shed North - Bay 3</div></div>
+        <div class="cs-row"><div class="cs-lbl">Date</div><div class="cs-val">8 May 2025</div></div>
+      `;
+      if(isInvoiceChecked) {
+        summaryHtml += `<div class="cs-row"><div class="cs-lbl">Invoice</div><div class="cs-val">INV-1056 <span class="cs-pill">Generated</span></div></div>`;
+      }
+      
+      checklistHtml = `
+        <div class="cc-item">${checkIcon}<div class="cc-text">Inventory updated</div></div>
+        <div class="cc-item">${checkIcon}<div class="cc-text">Customer updated</div></div>
+      `;
+      if(isInvoiceChecked) {
+        checklistHtml += `<div class="cc-item">${checkIcon}<div class="cc-text">Invoice generated</div></div>`;
+      }
+    } 
+    else if(currentFormType === 'contract') {
+      title = "Contract delivery<br>recorded successfully";
+      summaryHtml = `
+        <div class="cs-row"><div class="cs-lbl">Contract</div><div class="cs-val">Contract #1234</div></div>
+        <div class="cs-row"><div class="cs-lbl">Customer</div><div class="cs-val">ABC Feedlot</div></div>
+        <div class="cs-row"><div class="cs-lbl">Commodity</div><div class="cs-val">Oaten Hay</div></div>
+        <div class="cs-row"><div class="cs-lbl">Delivered</div><div class="cs-val">6.0 Tonne</div></div>
+        <div class="cs-row"><div class="cs-lbl">Date</div><div class="cs-val">8 May 2025</div></div>
+      `;
+      checklistHtml = `
+        <div class="cc-item">${checkIcon}<div class="cc-text">Inventory updated</div></div>
+        <div class="cc-item">${checkIcon}<div class="cc-text">Contract balance updated</div></div>
+      `;
+    }
+    else if(currentFormType === 'internal') {
+      title = "Internal use<br>recorded successfully";
+      summaryHtml = `
+        <div class="cs-row"><div class="cs-lbl">Commodity</div><div class="cs-val">Oaten Hay</div></div>
+        <div class="cs-row"><div class="cs-lbl">Quantity</div><div class="cs-val">2.5 Tonne</div></div>
+        <div class="cs-row"><div class="cs-lbl">Used For</div><div class="cs-val">Sheep Enterprise</div></div>
+        <div class="cs-row"><div class="cs-lbl">Location</div><div class="cs-val">Hay Shed North</div></div>
+        <div class="cs-row"><div class="cs-lbl">Date</div><div class="cs-val">8 May 2025</div></div>
+      `;
+      checklistHtml = `
+        <div class="cc-item">${checkIcon}<div class="cc-text">Inventory updated</div></div>
+        <div class="cc-item">${checkIcon}<div class="cc-text">Enterprise records updated</div></div>
+      `;
+    }
+    else if(currentFormType === 'transfer') {
+      title = "Transfer recorded<br>successfully";
+      summaryHtml = `
+        <div class="cs-row"><div class="cs-lbl">Commodity</div><div class="cs-val">Oaten Hay</div></div>
+        <div class="cs-row"><div class="cs-lbl">Quantity</div><div class="cs-val">6.0 Tonne</div></div>
+        <div class="cs-row"><div class="cs-lbl">From</div><div class="cs-val">Hay Shed North - Bay 3</div></div>
+        <div class="cs-row"><div class="cs-lbl">To</div><div class="cs-val">Hay Shed South - Bay 1</div></div>
+        <div class="cs-row"><div class="cs-lbl">Date</div><div class="cs-val">8 May 2025</div></div>
+      `;
+      checklistHtml = `
+        <div class="cc-item">${checkIcon}<div class="cc-text">Source inventory updated</div></div>
+        <div class="cc-item">${checkIcon}<div class="cc-text">Destination inventory updated</div></div>
+      `;
+    }
+    else {
+      title = "Movement recorded<br>successfully";
+      summaryHtml = `
+        <div class="cs-row"><div class="cs-lbl">Commodity</div><div class="cs-val">Wheat</div></div>
+        <div class="cs-row"><div class="cs-lbl">Quantity</div><div class="cs-val">1.0 Tonne</div></div>
+        <div class="cs-row"><div class="cs-lbl">Type</div><div class="cs-val">Stocktake Adjustment</div></div>
+        <div class="cs-row"><div class="cs-lbl">Location</div><div class="cs-val">Silo 1</div></div>
+        <div class="cs-row"><div class="cs-lbl">Date</div><div class="cs-val">8 May 2025</div></div>
+      `;
+      checklistHtml = `
+        <div class="cc-item">${checkIcon}<div class="cc-text">Inventory updated</div></div>
+      `;
+    }
+
+    document.getElementById('conf-title').innerHTML = title;
+    document.getElementById('conf-summary-content').innerHTML = summaryHtml;
+    document.getElementById('conf-checklist').innerHTML = checklistHtml;
+
+    // Transition to confirmation panel
+    document.getElementById('p-form').classList.add('exit-left');
+    document.getElementById('p-conf').classList.add('active');
   }
 </script>
 </body>

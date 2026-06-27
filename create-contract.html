@@ -3,107 +3,281 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Create Contract</title>
+  <title>AgEzy – Add Contract</title>
   <style>
-    :root{
-      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
-      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
-      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    :root {
+      --green-dark: #1a3d28;
+      --green-mid: #1b7239;
+      --green-accent: #00ab4f;
+      --blue: #1e70e3;
+      --orange: #f58220;
+      --green: #00ab4f;
+      --red: #d63031;
+      --text: #1a2a3a;
+      --muted: #8898aa;
+      --border: #eaeef2;
+      --bg: #f4f6f4;
+      --card: #fff;
     }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
-    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
-    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .screen {
+      width: 390px;
+      height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,.22);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
     /* HEADER */
-    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px;display:flex;align-items:center;gap:10px;}
-    .h-back{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;}
-    .h-title{flex:1;font-size:17px;font-weight:800;color:#fff;letter-spacing:-.02em;}
-    .h-step{font-size:12px;color:rgba(255,255,255,.55);font-weight:700;}
+    .header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .h-back {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .h-title {
+      flex: 1;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .h-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      border: none;
+    }
 
-    /* PROGRESS BAR */
-    .progress-bar-wrap{flex:0 0 auto;background:var(--green-dark);padding:0 16px 16px;}
-    .step-labels{display:flex;justify-content:space-between;margin-bottom:8px;}
-    .step-dot{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
-    .step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;transition:all .3s;}
-    .step-circle.done{background:var(--green);color:#fff;}
-    .step-circle.active{background:#fff;color:var(--green-dark);}
-    .step-circle.inactive{background:rgba(255,255,255,.15);color:rgba(255,255,255,.4);}
-    .step-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;transition:color .3s;}
-    .step-name.active{color:#fff;}
-    .step-name.done{color:var(--green);}
-    .step-name.inactive{color:rgba(255,255,255,.3);}
-    .step-line-row{display:flex;align-items:center;padding:0 12px;margin-top:-16px;margin-bottom:8px;}
-    .step-line{flex:1;height:2px;background:rgba(255,255,255,.15);border-radius:1px;transition:background .3s;}
-    .step-line.done{background:var(--green);}
+    /* BODY */
+    .body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 100px;
+      scrollbar-width: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .body::-webkit-scrollbar { display: none; }
 
-    /* PANELS */
-    .panels{flex:1;position:relative;overflow:hidden;}
-    .panel{position:absolute;inset:0;overflow-y:auto;padding:16px;scrollbar-width:none;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);}
-    .panel::-webkit-scrollbar{display:none;}
-    .panel.active{transform:translateX(0);}
-    .panel.exit-left{transform:translateX(-100%);}
+    /* FORM CARD */
+    .form-group-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .form-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-select-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .form-select {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      padding: 4px 20px 4px 0;
+      font-family: inherit;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right center;
+    }
+    .form-input {
+      width: 100%;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+      padding: 4px 0;
+      font-family: inherit;
+    }
+    .form-input::placeholder {
+      color: #b0bbc0;
+      font-weight: 500;
+    }
+    .form-row-split {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .form-suffix-badge {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      cursor: default;
+    }
 
-    /* FIELDS */
-    .sec-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 10px;}
-    .sec-title:first-child{margin-top:0;}
-    .field{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;}
-    .field-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
-    .field-row{display:flex;align-items:center;justify-content:space-between;}
-    .field-val{font-size:15px;font-weight:600;color:var(--text);}
-    .field-ph{color:var(--muted);font-weight:500;}
-    .chev{color:var(--muted);}
-    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-    .f-input{border:none;background:none;font-size:15px;font-weight:600;color:var(--text);width:100%;outline:none;font-family:inherit;}
-    .f-textarea{border:none;background:none;font-size:14px;color:var(--text);width:100%;outline:none;resize:none;height:72px;font-family:inherit;line-height:1.5;}
+    /* QUALITY TABLE */
+    .quality-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 4px;
+    }
+    .quality-row {
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .quality-row:last-child {
+      border-bottom: none;
+    }
+    .quality-cell-lbl {
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      text-align: left;
+    }
+    .quality-cell-val {
+      padding: 8px 0;
+      text-align: right;
+    }
+    .quality-inline-input {
+      width: 60px;
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: right;
+      outline: none;
+      font-family: inherit;
+    }
 
-    /* SERVICE TYPE GRID */
-    .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
-    .svc-item{background:var(--card);border-radius:14px;padding:14px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
-    .svc-item.active{border-color:var(--green-mid);background:#f0faf4;}
-    .svc-item:active{transform:scale(.95);}
-    .svc-ic{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-    .svc-lbl{font-size:11px;font-weight:700;color:var(--text);text-align:center;}
+    /* DATE FIELD WITH ICON */
+    .date-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .date-icon {
+      color: var(--green-mid);
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
 
-    /* OPERATOR / MACHINERY ROWS */
-    .op-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
-    .op-row:last-of-type{border-bottom:none;}
-    .op-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex:0 0 38px;}
-    .op-nm{font-size:14px;font-weight:700;color:var(--text);}
-    .op-rl{font-size:12px;color:var(--muted);}
-    .op-chk{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex:0 0 24px;}
-    .op-chk.on{background:var(--green-mid);border-color:var(--green-mid);}
-    .mach-ic{width:38px;height:38px;border-radius:10px;background:#f0f4f0;display:flex;align-items:center;justify-content:center;flex:0 0 38px;}
-    .add-row{display:flex;align-items:center;gap:8px;color:var(--green-mid);font-size:14px;font-weight:600;cursor:pointer;padding:10px 0;}
-    .avail-badge{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#e4f8ee;color:var(--green-mid);white-space:nowrap;}
+    /* SAVE BUTTON */
+    .save-btn-container {
+      position: absolute;
+      bottom: 70px;
+      left: 0; right: 0;
+      padding: 12px 16px;
+      background: rgba(244, 246, 244, 0.9);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    .save-btn {
+      width: 100%;
+      height: 48px;
+      border-radius: 24px;
+      background: var(--green-dark);
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .save-btn:active {
+      background: var(--green-mid);
+    }
 
-    /* DATE/TIME PICKER VISUAL */
-    .date-strip{display:flex;gap:4px;padding:4px 0 8px;}
-    .date-pill{flex:1;background:#f4f6f4;border-radius:10px;padding:8px 4px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .15s;}
-    .date-pill.active{background:var(--green-mid);border-color:var(--green-mid);}
-    .date-pill-day{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;}
-    .date-pill.active .date-pill-day{color:rgba(255,255,255,.7);}
-    .date-pill-num{font-size:15px;font-weight:800;color:var(--text);}
-    .date-pill.active .date-pill-num{color:#fff;}
+    /* BOTTOM NAV */
+    .bottom-nav {
+      flex: 0 0 auto;
+      height: 70px;
+      background: #fff;
+      border-top: 1px solid #e8ede8;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      margin-top: auto;
+      z-index: 20;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-ic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-ic.active { background: var(--green-dark); }
+    .nav-lbl { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .nav-lbl.active { color: var(--green-dark); }
 
-    /* DOCUMENTS CHECKLIST */
-    .doc-ck{display:flex;align-items:flex-start;gap:12px;background:var(--card);border-radius:14px;padding:14px;margin-bottom:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;}
-    .doc-ck.checked{border-color:var(--green);}
-    .doc-ck-box{width:24px;height:24px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex:0 0 24px;transition:all .15s;}
-    .doc-ck.checked .doc-ck-box{background:var(--green-mid);border-color:var(--green-mid);}
-    .doc-ck-title{font-size:14px;font-weight:700;color:var(--text);}
-    .doc-ck-sub{font-size:12px;color:var(--muted);margin-top:2px;}
-    .doc-required{margin-left:auto;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#fdedf0;color:var(--red);white-space:nowrap;flex:0 0 auto;}
-
-    /* BOTTOM NAV STRIP */
-    .step-nav{flex:0 0 auto;background:var(--card);border-top:1px solid var(--border);padding:12px 16px;display:flex;gap:10px;align-items:center;}
-    .back-btn{padding:14px 20px;border-radius:14px;border:1.5px solid var(--border);background:transparent;font-size:14px;font-weight:700;color:var(--text);cursor:pointer;}
-    .next-btn{flex:1;padding:14px;border-radius:14px;background:var(--green-mid);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
-    .next-btn:active{opacity:.85;}
-    .save-btn{flex:1;padding:14px;border-radius:14px;background:var(--blue);color:#fff;font-size:15px;font-weight:800;border:none;cursor:pointer;transition:opacity .15s;}
-    .save-btn:active{opacity:.85;}
-
-    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+    @media(max-width:767px) {
+      .viewport { padding: 0; }
+      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+    }
   </style>
 </head>
 <body>
@@ -111,395 +285,420 @@
 
   <!-- HEADER -->
   <header class="header">
-    <button class="h-back" id="backBtn" onclick="handleBack()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <button class="h-back" onclick="window.location.href='contracts-list.html'" title="Back">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
     </button>
-    <div class="h-title" id="headerTitle">Create Contract</div>
-    <div class="h-step" id="headerStep">Step 1 of 4</div>
+    <div class="h-title" id="formHeaderTitle">Add Contract</div>
+    <button class="h-btn" title="Fullscreen" style="width:30px; height:30px; background:transparent;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
   </header>
 
-  <!-- PROGRESS STEPPER -->
-  <div class="progress-bar-wrap">
-    <div style="display:flex;align-items:center;padding:0 4px;">
-      <div class="step-dot">
-        <div class="step-circle active" id="sc1">1</div>
-        <div class="step-name active" id="sn1">Basics</div>
-      </div>
-      <div class="step-line" id="sl1" style="margin-bottom:14px"></div>
-      <div class="step-dot">
-        <div class="step-circle inactive" id="sc2">2</div>
-        <div class="step-name inactive" id="sn2">Resources</div>
-      </div>
-      <div class="step-line" id="sl2" style="margin-bottom:14px"></div>
-      <div class="step-dot">
-        <div class="step-circle inactive" id="sc3">3</div>
-        <div class="step-name inactive" id="sn3">Schedule</div>
-      </div>
-      <div class="step-line" id="sl3" style="margin-bottom:14px"></div>
-      <div class="step-dot">
-        <div class="step-circle inactive" id="sc4">4</div>
-        <div class="step-name inactive" id="sn4">Documents</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PANELS CONTAINER -->
-  <div class="panels">
-
-    <!-- STEP 1: BASICS -->
-    <div class="panel active" id="step1">
-      <div class="sec-title">Customer Details</div>
-      <div class="field" onclick="tapField(this,'Green Valley Farms')">
-        <div class="field-label">Customer</div>
-        <div class="field-row"><span class="field-val field-ph" id="fCustomer">Select customer…</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span></div>
-      </div>
-      <div class="field" onclick="tapField(this,'Green Acres Farm – Block C')">
-        <div class="field-label">Property / Farm</div>
-        <div class="field-row"><span class="field-val field-ph" id="fProperty">Select property…</span><span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span></div>
-      </div>
-
-      <div class="sec-title">Service Type</div>
-      <div class="svc-grid">
-        <div class="svc-item" data-type="spray">
-          <div class="svc-ic" style="background:#e4ecfd"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h12M15 8l4 4-4 4" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="12" r="2" fill="#2d5bd4"/></svg></div>
-          <div class="svc-lbl">Spraying</div>
-        </div>
-        <div class="svc-item active" data-type="hay">
-          <div class="svc-ic" style="background:#fef3e2"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="18" height="7" rx="2" stroke="#f5a623" stroke-width="2"/><path d="M7 13V9a5 5 0 0 1 10 0v4" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <div class="svc-lbl">Haymaking</div>
-        </div>
-        <div class="svc-item" data-type="harvest">
-          <div class="svc-ic" style="background:#fdedf0"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 10h5v11h6V10h5L12 2z" stroke="#d63031" stroke-width="2" stroke-linejoin="round"/></svg></div>
-          <div class="svc-lbl">Harvesting</div>
-        </div>
-        <div class="svc-item" data-type="spread">
-          <div class="svc-ic" style="background:#e8f5e9"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#1b7239"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <div class="svc-lbl">Spreading</div>
-        </div>
-        <div class="svc-item" data-type="other">
-          <div class="svc-ic" style="background:#f3f4f6"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2" fill="#8898aa"/><circle cx="5" cy="12" r="2" fill="#8898aa"/><circle cx="19" cy="12" r="2" fill="#8898aa"/></svg></div>
-          <div class="svc-lbl">Others</div>
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-label">Contract Value</div>
-        <div class="field-row">
-          <span style="font-size:15px;font-weight:600;color:var(--muted)">$</span>
-          <input class="f-input" type="number" placeholder="0.00" style="text-align:right" />
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-label">Description / Scope of Work</div>
-        <textarea class="f-textarea" placeholder="Describe the work to be done…"></textarea>
+  <!-- BODY FORM -->
+  <div class="body">
+    
+    <!-- Commodity Select -->
+    <div class="form-group-card">
+      <span class="form-lbl">Commodity</span>
+      <div class="form-select-wrap">
+        <select class="form-select" id="cCommodity" onchange="onCommodityChange()">
+          <option value="Wheat">Wheat</option>
+          <option value="Barley">Barley</option>
+          <option value="Oaten Hay">Oaten Hay</option>
+          <option value="Canola">Canola</option>
+        </select>
       </div>
     </div>
 
-    <!-- STEP 2: RESOURCES -->
-    <div class="panel" id="step2">
-      <div class="sec-title">Assign Operators</div>
-      <div class="field">
-        <div class="op-row">
-          <div class="op-av" style="background:#1b7239">JG</div>
-          <div style="flex:1"><div class="op-nm">John G.</div><div class="op-rl">Lead Operator</div></div>
-          <div class="op-chk on" onclick="toggleChk(this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        </div>
-        <div class="op-row">
-          <div class="op-av" style="background:#2d5bd4">SM</div>
-          <div style="flex:1"><div class="op-nm">Sarah M.</div><div class="op-rl">Operator</div></div>
-          <div class="op-chk" onclick="toggleChk(this)"></div>
-        </div>
-        <div class="op-row">
-          <div class="op-av" style="background:#f5a623">MF</div>
-          <div style="flex:1"><div class="op-nm">Miles F.</div><div class="op-rl">Operator</div></div>
-          <div class="op-chk" onclick="toggleChk(this)"></div>
-        </div>
-        <div class="op-row">
-          <div class="op-av" style="background:#d63031">JR</div>
-          <div style="flex:1"><div class="op-nm">James R.</div><div class="op-rl">Trainee</div></div>
-          <div class="op-chk" onclick="toggleChk(this)"></div>
-        </div>
-        <div class="add-row">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
-          Add Operator
-        </div>
-      </div>
-
-      <div class="sec-title">Machinery Resources</div>
-      <div class="field">
-        <div class="op-row">
-          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="11" width="20" height="9" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M6 11V7a6 6 0 0 1 12 0v4" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
-          <div style="flex:1"><div class="op-nm">Big Red Harvester</div><div class="op-rl">Header 40ft · ABC-123</div></div>
-          <div class="avail-badge">Available</div>
-        </div>
-        <div class="op-row">
-          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#8898aa" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#8898aa" stroke-width="2"/></svg></div>
-          <div style="flex:1"><div class="op-nm">John's Deere 8R</div><div class="op-rl">Tractor · XYZ-456</div></div>
-          <div class="avail-badge">Available</div>
-        </div>
-        <div class="op-row">
-          <div class="mach-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14l4 4v2a2 2 0 0 1-2 2h-1" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="17" r="2" stroke="#8898aa" stroke-width="2"/><circle cx="17" cy="17" r="2" stroke="#8898aa" stroke-width="2"/></svg></div>
-          <div style="flex:1"><div class="op-nm">Boom Spray Rig #2</div><div class="op-rl">24m boom · Tank 2000L</div></div>
-          <div style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;background:#fef3e2;color:var(--orange)">In Use</div>
-        </div>
-        <div class="add-row">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
-          Add Machinery
-        </div>
+    <!-- Grade Select -->
+    <div class="form-group-card">
+      <span class="form-lbl">Grade</span>
+      <div class="form-select-wrap">
+        <select class="form-select" id="cGrade">
+          <option value="APW">APW</option>
+          <option value="Feed">Feed</option>
+          <option value="Premium">Premium</option>
+          <option value="GM-Free">GM-Free</option>
+        </select>
       </div>
     </div>
 
-    <!-- STEP 3: SCHEDULE -->
-    <div class="panel" id="step3">
-      <div class="sec-title">Start Date</div>
-      <div class="field">
-        <div class="field-label">Select Week</div>
-        <div class="date-strip" id="dateStrip">
-          <div class="date-pill" onclick="selectDate(this,'23')"><div class="date-pill-day">Mon</div><div class="date-pill-num">23</div></div>
-          <div class="date-pill active" onclick="selectDate(this,'24')"><div class="date-pill-day">Tue</div><div class="date-pill-num">24</div></div>
-          <div class="date-pill" onclick="selectDate(this,'25')"><div class="date-pill-day">Wed</div><div class="date-pill-num">25</div></div>
-          <div class="date-pill" onclick="selectDate(this,'26')"><div class="date-pill-day">Thu</div><div class="date-pill-num">26</div></div>
-          <div class="date-pill" onclick="selectDate(this,'27')"><div class="date-pill-day">Fri</div><div class="date-pill-num">27</div></div>
-          <div class="date-pill" onclick="selectDate(this,'28')"><div class="date-pill-day">Sat</div><div class="date-pill-num">28</div></div>
-        </div>
-        <div style="display:flex;gap:8px">
-          <div style="flex:1">
-            <div class="field-label">Month / Year</div>
-            <div class="field-val">October 2023</div>
-          </div>
-          <div style="flex:1">
-            <div class="field-label">Start Time</div>
-            <div class="field-val" style="cursor:pointer" onclick="cycleTime(this)">07:30 AM</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="sec-title">End Date</div>
-      <div class="field">
-        <div class="field-label">Estimated Completion</div>
-        <div class="field-row">
-          <span class="field-val">November 30, 2023</span>
-          <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span>
-        </div>
-      </div>
-
-      <div class="sec-title">Duration &amp; Notes</div>
-      <div class="two-col">
-        <div class="field" onclick="tapField(this,'6 Weeks')">
-          <div class="field-label">Duration</div>
-          <div class="field-val" id="fDuration">4 Weeks</div>
-        </div>
-        <div class="field" onclick="tapField(this,'Daily')">
-          <div class="field-label">Frequency</div>
-          <div class="field-val" id="fFrequency">As Needed</div>
-        </div>
-      </div>
-
-      <div class="field">
-        <div class="field-label">Schedule Notes</div>
-        <textarea class="f-textarea" placeholder="Any scheduling constraints or preferences…"></textarea>
+    <!-- Customer Select -->
+    <div class="form-group-card">
+      <span class="form-lbl">Customer</span>
+      <div class="form-select-wrap">
+        <select class="form-select" id="cCustomer">
+          <option value="Green Valley Grain">Green Valley Grain</option>
+          <option value="CBH Grain">CBH Grain</option>
+          <option value="Hay Traders Co">Hay Traders Co</option>
+          <option value="Oilseeds Direct">Oilseeds Direct</option>
+          <option value="GrainCorp Dalby">GrainCorp Dalby</option>
+        </select>
       </div>
     </div>
 
-    <!-- STEP 4: DOCUMENTS -->
-    <div class="panel" id="step4">
-      <div class="sec-title">Required Documents</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;">
-        Confirm that the following documents are ready or will be provided before work begins.
+    <!-- Quantity on Contract -->
+    <div class="form-group-card">
+      <span class="form-lbl">Quantity on Contract</span>
+      <div class="form-row-split">
+        <input class="form-input" type="number" id="cQuantity" placeholder="Enter quantity" value="250" oninput="calculateTotal()" />
+        <span class="form-suffix-badge">tonnes</span>
       </div>
+    </div>
 
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Contract Agreement</div>
-          <div class="doc-ck-sub">Signed by both parties</div>
+    <!-- Quality Section -->
+    <div class="form-group-card">
+      <span class="form-lbl">Quality</span>
+      <table class="quality-table">
+        <tr class="quality-row">
+          <td class="quality-cell-lbl">Moisture</td>
+          <td class="quality-cell-val">
+            <input class="quality-inline-input" type="text" id="cMoisture" value="8.5%" />
+          </td>
+        </tr>
+        <tr class="quality-row">
+          <td class="quality-cell-lbl">Protein</td>
+          <td class="quality-cell-val">
+            <input class="quality-inline-input" type="text" id="cProtein" value="12.4%" />
+          </td>
+        </tr>
+        <tr class="quality-row">
+          <td class="quality-cell-lbl">Screening</td>
+          <td class="quality-cell-val">
+            <input class="quality-inline-input" type="text" id="cScreening" value="3.0%" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Location Select -->
+    <div class="form-group-card">
+      <span class="form-lbl">Location</span>
+      <div class="form-select-wrap">
+        <select class="form-select" id="cLocation">
+          <option value="Green Valley Farm - Hay Shed North">Green Valley Farm - Hay Shed North</option>
+          <option value="The South">The South</option>
+          <option value="License">License</option>
+          <option value="Spring">Spring</option>
+          <option value="Bay 3B">Bay 3B</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Price per tonne -->
+    <div class="form-group-card">
+      <span class="form-lbl">$/tonne</span>
+      <div class="form-row-split">
+        <span style="font-weight: 700; color: var(--text); padding-right: 4px;">$</span>
+        <input class="form-input" type="number" id="cPrice" placeholder="Enter price" value="385" oninput="calculateTotal()" />
+      </div>
+    </div>
+
+    <!-- Total Value of Contract -->
+    <div class="form-group-card" style="background: #fafcfa;">
+      <span class="form-lbl">Total Value of Contract</span>
+      <input class="form-input" type="text" id="cTotalValue" value="$96,250" readonly style="color: var(--green-mid); font-size: 16px;" />
+    </div>
+
+    <!-- Delivery Date -->
+    <div class="form-group-card">
+      <span class="form-lbl">Delivery Date</span>
+      <div class="date-row">
+        <input class="form-input" type="date" id="cDeliveryDate" value="2026-11-28" onchange="onDateChange()" />
+        <div class="date-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
-        <div class="doc-required">Required</div>
       </div>
-
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Work Order</div>
-          <div class="doc-ck-sub">Detailed scope of work</div>
-        </div>
-        <div class="doc-required">Required</div>
-      </div>
-
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Public Liability Insurance</div>
-          <div class="doc-ck-sub">Valid certificate of currency</div>
-        </div>
-        <div class="doc-required">Required</div>
-      </div>
-
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Chemical Use Permit</div>
-          <div class="doc-ck-sub">If spraying operations included</div>
-        </div>
-        <div style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e4ecfd;color:var(--blue);white-space:nowrap;flex:0 0 auto;">Optional</div>
-      </div>
-
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Safety Management Plan</div>
-          <div class="doc-ck-sub">Site-specific safety plan</div>
-        </div>
-        <div class="doc-required">Required</div>
-      </div>
-
-      <div class="doc-ck" onclick="toggleDoc(this)">
-        <div class="doc-ck-box"></div>
-        <div style="flex:1">
-          <div class="doc-ck-title">Farm Property Map</div>
-          <div class="doc-ck-sub">Paddock layout and access points</div>
-        </div>
-        <div style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e4ecfd;color:var(--blue);white-space:nowrap;flex:0 0 auto;">Optional</div>
-      </div>
-
-      <div style="margin-top:4px;background:var(--card);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.04)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
-        <div style="font-size:14px;font-weight:700;color:var(--green-mid)">Add Custom Document</div>
-      </div>
-
     </div>
 
   </div>
 
-  <!-- STEP NAVIGATION -->
-  <div class="step-nav">
-    <button class="back-btn" id="navBack" onclick="handleBack()">Back</button>
-    <button class="next-btn" id="navNext" onclick="handleNext()">Continue →</button>
+  <!-- SAVE BUTTON -->
+  <div class="save-btn-container">
+    <button class="save-btn" id="saveContractBtn" onclick="saveContract()">Save Contract</button>
   </div>
+
+  <!-- BOTTOM NAV -->
+                      <style id="unified-nav-style">
+      #unified-nav.bottom-nav {
+        flex: 0 0 auto;
+        height: 70px;
+        background: #fff;
+        border-top: 1px solid #e8ede8;
+        display: flex; align-items: center; justify-content: space-around;
+        padding: 0 10px; gap: 5px;
+        margin-top: auto; z-index: 100;
+        position: relative;
+      }
+      #unified-nav .nav-item {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 4px;
+        cursor: pointer; padding: 6px 4px; border: none; background: transparent; text-decoration: none;
+      }
+      #unified-nav .nav-icon {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+      }
+      #unified-nav .nav-icon.active { background: var(--green-dark, #1b7239); }
+      #unified-nav .nav-icon img, #unified-nav .nav-icon svg { width: 22px; height: 22px; opacity: 0.8; }
+      #unified-nav .nav-icon.active img { filter: brightness(0) invert(1) !important; opacity: 1; }
+      #unified-nav .nav-icon.active svg { stroke: #fff !important; opacity: 1; }
+      #unified-nav .nav-label { font-size: 9px; font-weight: 600; color: var(--muted, #8898aa); text-align: center; line-height: 1.1; white-space: nowrap; margin: 0; }
+      #unified-nav .nav-item.active .nav-label { color: var(--green-dark, #1b7239); }
+    </style>
+    <nav id="unified-nav" class="bottom-nav">
+      <!-- Home -->
+      <div class="nav-item " onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon "><img src="images/nav-home.png" alt="Home" /></div>
+        <div class="nav-label">Home</div>
+      </div>
+      <!-- Contracting -->
+      <div class="nav-item active" onclick="window.location.href='jobs-hub.html'">
+        <div class="nav-icon active"><img src="images/nav-contract-work.png" alt="Contracting" /></div>
+        <div class="nav-label">Contracting</div>
+      </div>
+      <!-- Inventory -->
+      <div class="nav-item " onclick="window.location.href='commodity-catalog.html'">
+        <div class="nav-icon ">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="nav-label">Inventory</div>
+      </div>
+      <!-- Timesheets -->
+      <div class="nav-item " onclick="window.location.href='timesheets-list.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="nav-label">Timesheets</div>
+      </div>
+      <!-- Map -->
+      <div class="nav-item " onclick="window.location.href='farm-map.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+        <div class="nav-label">Map</div>
+      </div>
+    </nav>
 
 </main></div>
+
 <script>
-  const baseW=390,baseH=844,pad=32;
-  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
-  scale();addEventListener('resize',scale);
+  // App scaling
+  const baseW = 390, baseH = 844, pad = 32;
+  const scale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  scale();
+  window.addEventListener('resize', scale);
 
-  const stepTitles=['Basics','Assign Resources','Schedule','Documents'];
-  let currentStep=1;
+  // Check URL params for Edit mode
+  const urlParams = new URLSearchParams(window.location.search);
+  const editId = urlParams.get('edit');
 
-  function goToStep(next){
-    const prev=currentStep;
-    const fromPanel=document.getElementById('step'+prev);
-    const toPanel=document.getElementById('step'+next);
-
-    if(next>prev){
-      toPanel.classList.remove('exit-left');
-      toPanel.style.transform='translateX(100%)';
-      requestAnimationFrame(()=>{
-        fromPanel.classList.remove('active');
-        fromPanel.classList.add('exit-left');
-        toPanel.classList.add('active');
-        toPanel.style.transform='';
-      });
-    } else {
-      fromPanel.style.transform='';
-      fromPanel.classList.remove('active');
-      fromPanel.classList.remove('exit-left');
-      fromPanel.style.transform='translateX(100%)';
-      toPanel.classList.remove('exit-left');
-      toPanel.classList.add('active');
-    }
-
-    currentStep=next;
-    updateStepper();
-  }
-
-  function updateStepper(){
-    for(let i=1;i<=4;i++){
-      const circle=document.getElementById('sc'+i);
-      const name=document.getElementById('sn'+i);
-      if(i<currentStep){
-        circle.className='step-circle done';
-        circle.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        name.className='step-name done';
-      } else if(i===currentStep){
-        circle.className='step-circle active';
-        circle.textContent=i;
-        name.className='step-name active';
-      } else {
-        circle.className='step-circle inactive';
-        circle.textContent=i;
-        name.className='step-name inactive';
-      }
-      if(i<4){
-        const line=document.getElementById('sl'+i);
-        line.className='step-line'+(i<currentStep?' done':'');
-      }
-    }
-    document.getElementById('headerStep').textContent='Step '+currentStep+' of 4';
-    document.getElementById('headerTitle').textContent=stepTitles[currentStep-1];
-    if(currentStep===4){
-      document.getElementById('navNext').className='save-btn';
-      document.getElementById('navNext').textContent='Save Contract →';
-    } else {
-      document.getElementById('navNext').className='next-btn';
-      document.getElementById('navNext').textContent='Continue →';
+  // Load contracts
+  function getContracts() {
+    try {
+      return JSON.parse(localStorage.getItem('contracts')) || [];
+    } catch(e) {
+      return [];
     }
   }
 
-  function handleNext(){
-    if(currentStep<4){goToStep(currentStep+1);}
-    else{saveContract();}
-  }
+  // Pre-fill default grades for commodities
+  const commodityGrades = {
+    'Wheat': ['APW', 'H2', 'ASW', 'FED1'],
+    'Barley': ['Feed', 'Malt1', 'Malt2'],
+    'Oaten Hay': ['Premium', 'Grade A', 'Grade B'],
+    'Canola': ['GM-Free', 'Non-GM', 'GM-Grade']
+  };
 
-  function handleBack(){
-    if(currentStep>1){goToStep(currentStep-1);}
-    else{window.location.href='contracts-list.html';}
-  }
-
-  function saveContract(){
-    sessionStorage.setItem('newContractSaved','true');
-    window.location.href='contract-saved.html';
-  }
-
-  // Field interactions
-  function tapField(el,val){
-    const span=el.querySelector('.field-val,.field-ph');
-    if(span){span.textContent=val;span.classList.remove('field-ph');}
-  }
-
-  const timeOpts=['06:00 AM','06:30 AM','07:00 AM','07:30 AM','08:00 AM','08:30 AM','09:00 AM'];
-  let timeIdx=3;
-  function cycleTime(el){
-    timeIdx=(timeIdx+1)%timeOpts.length;
-    el.textContent=timeOpts[timeIdx];
-  }
-
-  function selectDate(el){
-    document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
-    el.classList.add('active');
-  }
-
-  function toggleChk(btn){
-    const on=btn.classList.toggle('on');
-    btn.innerHTML=on?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
-  }
-
-  function toggleDoc(item){
-    item.classList.toggle('checked');
-    const box=item.querySelector('.doc-ck-box');
-    if(item.classList.contains('checked')){
-      box.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    }else{box.innerHTML='';}
-  }
-
-  document.querySelectorAll('.svc-item').forEach(item=>{
-    item.addEventListener('click',()=>{
-      document.querySelectorAll('#step1 .svc-item').forEach(x=>x.classList.remove('active'));
-      item.classList.add('active');
+  function onCommodityChange() {
+    const comm = document.getElementById('cCommodity').value;
+    const gradeSelect = document.getElementById('cGrade');
+    gradeSelect.innerHTML = '';
+    
+    const grades = commodityGrades[comm] || ['Standard'];
+    grades.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = g;
+      gradeSelect.appendChild(opt);
     });
-  });
+  }
 
-  updateStepper();
+  function calculateTotal() {
+    const qty = parseFloat(document.getElementById('cQuantity').value) || 0;
+    const price = parseFloat(document.getElementById('cPrice').value) || 0;
+    const total = qty * price;
+    
+    // Format currency
+    document.getElementById('cTotalValue').value = '$' + total.toLocaleString('en-US', {
+      maximumFractionDigits: 0
+    });
+  }
+
+  function onDateChange() {
+    // Optional date format sync if needed
+  }
+
+  // Initialize form
+  window.onload = () => {
+    onCommodityChange();
+    
+    if (editId) {
+      document.getElementById('formHeaderTitle').textContent = 'Edit Contract';
+      document.getElementById('saveContractBtn').textContent = 'Update Contract';
+      
+      const contracts = getContracts();
+      const contract = contracts.find(c => c.id === editId);
+      if (contract) {
+        document.getElementById('cCommodity').value = contract.commodity;
+        onCommodityChange();
+        document.getElementById('cGrade').value = contract.grade;
+        document.getElementById('cCustomer').value = contract.customer;
+        document.getElementById('cQuantity').value = contract.quantity;
+        document.getElementById('cMoisture').value = contract.moisture || '8.5%';
+        document.getElementById('cProtein').value = contract.protein || '12.4%';
+        document.getElementById('cScreening').value = contract.screening || '3.0%';
+        document.getElementById('cLocation').value = contract.location;
+        document.getElementById('cPrice').value = contract.price;
+        document.getElementById('cDeliveryDate').value = contract.deliveryDate;
+        calculateTotal();
+      }
+    } else {
+      calculateTotal();
+    }
+  };
+
+  // Helper to format date label
+  function formatDateLabel(dateStr) {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return 'Oct 24';
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months[d.getMonth()] + ' ' + d.getDate();
+  }
+
+  // Save/Update function
+  function saveContract() {
+    const commodity = document.getElementById('cCommodity').value;
+    const grade = document.getElementById('cGrade').value;
+    const customer = document.getElementById('cCustomer').value;
+    const quantity = parseFloat(document.getElementById('cQuantity').value) || 0;
+    const moisture = document.getElementById('cMoisture').value;
+    const protein = document.getElementById('cProtein').value;
+    const screening = document.getElementById('cScreening').value;
+    const location = document.getElementById('cLocation').value;
+    const price = parseFloat(document.getElementById('cPrice').value) || 0;
+    const deliveryDate = document.getElementById('cDeliveryDate').value;
+    
+    let contracts = getContracts();
+    
+    if (editId) {
+      // Find and update
+      const idx = contracts.findIndex(c => c.id === editId);
+      if (idx !== -1) {
+        contracts[idx] = {
+          ...contracts[idx],
+          commodity,
+          grade,
+          customer,
+          quantity,
+          moisture,
+          protein,
+          screening,
+          location,
+          price,
+          deliveryDate,
+          dueDateLabel: 'Due ' + formatDateLabel(deliveryDate)
+        };
+      }
+    } else {
+      // Create new
+      // Generate ID prefix
+      const prefixMap = {
+        'Wheat': 'WHT',
+        'Barley': 'BAR',
+        'Oaten Hay': 'OAT',
+        'Canola': 'CAN'
+      };
+      const prefix = prefixMap[commodity] || 'CON';
+      
+      // Determine sequence number
+      const existingPrefixes = contracts.filter(c => c.id.startsWith(prefix));
+      let num = 1;
+      if (existingPrefixes.length > 0) {
+        const numbers = existingPrefixes.map(c => {
+          const parts = c.id.split('-');
+          return parts.length > 1 ? parseInt(parts[1]) || 0 : 0;
+        });
+        num = Math.max(...numbers) + 1;
+      }
+      
+      const newId = prefix + '-' + String(num).padStart(3, '0');
+      
+      // Select operator details
+      const operators = [
+        { name: 'John C.', initials: 'JC', bg: '#10b981' },
+        { name: 'Sarah M.', initials: 'SM', bg: '#1b7239' },
+        { name: 'Mites F.', initials: 'MF', bg: '#3b82f6' },
+        { name: 'James R.', initials: 'JR', bg: '#eab308' }
+      ];
+      const op = operators[Math.floor(Math.random() * operators.length)];
+
+      // Format current timestamp
+      const now = new Date();
+      const formatTime = (date) => {
+        let hrs = date.getHours();
+        let mins = date.getMinutes();
+        const ampm = hrs >= 12 ? 'PM' : 'AM';
+        hrs = hrs % 12;
+        hrs = hrs ? hrs : 12;
+        mins = mins < 10 ? '0' + mins : mins;
+        return String(hrs).padStart(2, '0') + ':' + mins + ' ' + ampm;
+      };
+
+      const newContract = {
+        id: newId,
+        commodity,
+        title: commodity + ' Contract',
+        grade,
+        customer,
+        quantity,
+        unit: 'tonnes',
+        price,
+        moisture,
+        protein,
+        screening,
+        location,
+        deliveryDate,
+        status: 'scheduled',
+        operator: op.name,
+        operatorInitials: op.initials,
+        operatorBg: op.bg,
+        dateLabel: formatDateLabel(now),
+        timeLabel: formatTime(now),
+        dueDateLabel: 'Due ' + formatDateLabel(deliveryDate)
+      };
+      
+      contracts.push(newContract);
+    }
+
+    localStorage.setItem('contracts', JSON.stringify(contracts));
+    
+    // Redirect back to list
+    window.location.href = 'contracts-list.html';
+  }
 </script>
-</body></html>
+</body>
+</html>

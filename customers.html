@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Customers – AgEzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+  --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+  --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+  --app-scale:1;
+}
+html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:center;justify-content:center}
+.screen{
+  width:390px;height:844px;background:var(--bg);border-radius:40px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  transform:scale(var(--app-scale));transform-origin:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+/* Header */
+.hdr{background:var(--green-dark);padding:52px 20px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-title{color:#fff;font:700 18px/1 system-ui;flex:1}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:7px 14px;color:#fff;font:600 13px system-ui;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+/* Search bar */
+.search-bar{background:var(--green-dark);padding:0 20px 16px;flex-shrink:0}
+.search-input{width:100%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 14px 10px 38px;color:#fff;font:400 14px system-ui;outline:none}
+.search-input::placeholder{color:rgba(255,255,255,.5)}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.6}
+
+/* Stats strip */
+.stats-strip{background:var(--green-mid);padding:12px 20px;display:flex;gap:0;flex-shrink:0}
+.stat-item{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
+.stat-item:last-child{border-right:none}
+.stat-num{color:#fff;font:700 18px system-ui}
+.stat-lbl{color:rgba(255,255,255,.7);font:400 10px system-ui;margin-top:2px}
+
+/* Body */
+.body{flex:1;overflow-y:auto;padding:16px 20px 24px}
+.body::-webkit-scrollbar{display:none}
+
+/* Section label */
+.sec-lbl{font:600 11px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px}
+
+/* Customer card */
+.cust-card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .1s}
+.cust-card:active{transform:scale(.98)}
+.cust-av{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 16px system-ui;color:#fff;flex-shrink:0;position:relative}
+.cust-info{flex:1;min-width:0}
+.cust-name{font:600 14px system-ui;color:var(--text)}
+.cust-meta{font:400 12px system-ui;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cust-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.status-pill{padding:3px 9px;border-radius:20px;font:600 11px system-ui}
+.status-active{background:#e8f7ed;color:var(--green-mid)}
+.status-inactive{background:#f1f5f9;color:var(--muted)}
+.job-count{font:700 12px system-ui;color:var(--blue)}
+
+/* Backdrop + Sheet */
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.show{opacity:1;pointer-events:all}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:201;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:82%}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.sheet-title{font:700 16px system-ui;color:var(--text)}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 20px 24px;overflow-y:auto;max-height:calc(82vh - 80px)}
+.sheet-body::-webkit-scrollbar{display:none}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field label{font:600 12px system-ui;color:var(--muted);display:block;margin-bottom:5px}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:400 14px system-ui;color:var(--text);background:#fff;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--green)}
+
+.btn-primary{width:100%;padding:15px;border-radius:14px;background:var(--green);border:none;color:#fff;font:700 15px system-ui;cursor:pointer;margin-top:8px}
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,61,40,.95);color:#fff;padding:10px 20px;border-radius:24px;font:500 13px system-ui;white-space:nowrap;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="hdr-back" onclick="window.location.href='dashboard.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="hdr-title">Customers</span>
+    <button class="hdr-btn" onclick="openAddSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Add
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search customers…" oninput="filterCustomers(this.value)">
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num" id="s-total">4</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-lbl">Active Jobs</div></div>
+    <div class="stat-item"><div class="stat-num">3</div><div class="stat-lbl">Properties</div></div>
+    <div class="stat-item"><div class="stat-num">$148k</div><div class="stat-lbl">Total Value</div></div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" id="body">
+    <div class="sec-lbl">Customer List</div>
+    <div id="customers-list"></div>
+  </div>
+
+  <!-- Bottom Nav (Unified) -->
+                          <style id="unified-nav-style">
+      #unified-nav.bottom-nav {
+        flex: 0 0 auto;
+        height: 70px;
+        background: #fff;
+        border-top: 1px solid #e8ede8;
+        display: flex; align-items: center; justify-content: space-around;
+        padding: 0 10px; gap: 5px;
+        margin-top: auto; z-index: 100;
+        position: relative;
+      }
+      #unified-nav .nav-item {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 4px;
+        cursor: pointer; padding: 6px 4px; border: none; background: transparent; text-decoration: none;
+      }
+      #unified-nav .nav-icon {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+      }
+      #unified-nav .nav-icon.active { background: var(--green-dark, #1b7239); }
+      #unified-nav .nav-icon img, #unified-nav .nav-icon svg { width: 22px; height: 22px; opacity: 0.8; }
+      #unified-nav .nav-icon.active img { filter: brightness(0) invert(1) !important; opacity: 1; }
+      #unified-nav .nav-icon.active svg { stroke: #fff !important; opacity: 1; }
+      #unified-nav .nav-label { font-size: 9px; font-weight: 600; color: var(--muted, #8898aa); text-align: center; line-height: 1.1; white-space: nowrap; margin: 0; }
+      #unified-nav .nav-item.active .nav-label { color: var(--green-dark, #1b7239); }
+    </style>
+    <nav id="unified-nav" class="bottom-nav">
+      <!-- Home -->
+      <div class="nav-item active" onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon active"><img src="images/nav-home.png" alt="Home" /></div>
+        <div class="nav-label">Home</div>
+      </div>
+      <!-- Contracting -->
+      <div class="nav-item " onclick="window.location.href='jobs-hub.html'">
+        <div class="nav-icon "><img src="images/nav-contract-work.png" alt="Contracting" /></div>
+        <div class="nav-label">Contracting</div>
+      </div>
+      <!-- Inventory -->
+      <div class="nav-item " onclick="window.location.href='commodity-catalog.html'">
+        <div class="nav-icon ">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="nav-label">Inventory</div>
+      </div>
+      <!-- Timesheets -->
+      <div class="nav-item " onclick="window.location.href='timesheets-list.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="nav-label">Timesheets</div>
+      </div>
+      <!-- Map -->
+      <div class="nav-item " onclick="window.location.href='farm-map.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+        <div class="nav-label">Map</div>
+      </div>
+    </nav>
+
+  <!-- Add Customer Sheet -->
+  <div class="backdrop" id="addBackdrop" onclick="closeSheet('addBackdrop','addSheet')"></div>
+  <div class="sheet" id="addSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Add Customer</span>
+      <button class="sheet-close" onclick="closeSheet('addBackdrop','addSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Customer Name</label>
+        <input type="text" id="cust-name" placeholder="e.g. Acme Agriculture">
+      </div>
+      <div class="field">
+        <label>Primary Contact</label>
+        <input type="text" id="cust-contact" placeholder="e.g. Robert Chen">
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="cust-email" placeholder="contact@acmeag.com">
+      </div>
+      <div class="field">
+        <label>Property Name</label>
+        <input type="text" id="cust-prop" placeholder="e.g. North Valley Farm">
+      </div>
+      <button class="btn-primary" onclick="saveCustomer()">Save Customer →</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const customers = [
+  {id:'CUST001',name:'Green Valley Farms',contact:'John Doe',email:'john@greenfarm.com',prop:'Green Acres',jobs:2,status:'active',color:'#1a3d28',initials:'GV'},
+  {id:'CUST002',name:'Top Hill Station',contact:'Sarah Mitchell',email:'sarah@tophill.com',prop:'Top Hill Farm',jobs:1,status:'active',color:'#1b7239',initials:'TH'},
+  {id:'CUST003',name:'Highfield Organic',contact:'James Russel',email:'james@highfield.com',prop:'Highfield Organic',jobs:0,status:'inactive',color:'#ea580c',initials:'HO'},
+  {id:'CUST004',name:'Eastside Cattle Co',contact:'Alex Parker',email:'alex@eastside.com',prop:'Eastside Ranch',jobs:1,status:'active',color:'#2d5bd4',initials:'EC'},
+];
+
+function filterCustomers(q) {
+  renderCustomers(q.toLowerCase());
+}
+
+function renderCustomers(q='') {
+  const list = document.getElementById('customers-list');
+  const filtered = customers.filter(c=>{
+    return !q || c.name.toLowerCase().includes(q) || c.contact.toLowerCase().includes(q) || c.prop.toLowerCase().includes(q);
+  });
+  document.getElementById('s-total').textContent = filtered.length;
+
+  list.innerHTML = filtered.map(c=>`
+    <div class="cust-card" onclick="showToast('${c.name} details coming soon')">
+      <div class="cust-av" style="background:${c.color}">
+        ${c.initials}
+      </div>
+      <div class="cust-info">
+        <div class="cust-name">${c.name}</div>
+        <div class="cust-meta">${c.contact} · ${c.email}</div>
+        <div class="cust-meta" style="margin-top:2px">Property: ${c.prop}</div>
+      </div>
+      <div class="cust-right">
+        <span class="status-pill ${c.status==='active'?'status-active':'status-inactive'}">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span>
+        <span class="job-count">${c.jobs} ${c.jobs===1?'job':'jobs'}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAddSheet() {
+  document.getElementById('addBackdrop').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('addSheet').classList.add('open'));
+}
+
+function closeSheet(bId, sId) {
+  document.getElementById(sId).classList.remove('open');
+  setTimeout(()=>document.getElementById(bId).classList.remove('show'), 300);
+}
+
+function saveCustomer() {
+  const name = document.getElementById('cust-name').value.trim();
+  const contact = document.getElementById('cust-contact').value.trim();
+  const email = document.getElementById('cust-email').value.trim();
+  const prop = document.getElementById('cust-prop').value.trim();
+  if(!name || !contact || !email || !prop) { showToast('Please fill all fields'); return; }
+  
+  const initials = name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const color = '#7c3aed';
+  
+  customers.push({
+    id: 'CUST' + (customers.length + 1).toString().padStart(3, '0'),
+    name, contact, email, prop, jobs: 0, status: 'active', color, initials
+  });
+  
+  closeSheet('addBackdrop', 'addSheet');
+  renderCustomers();
+  showToast(name + ' added successfully');
+  
+  // clear form
+  ['cust-name','cust-contact','cust-email','cust-prop'].forEach(id=>document.getElementById(id).value='');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+function resize(){
+  const s=Math.min((innerWidth-24)/390,(innerHeight-24)/844,1);
+  document.documentElement.style.setProperty('--app-scale',s);
+}
+window.addEventListener('resize',resize); resize();
+
+renderCustomers();
+</script>
+</body>
+</html>

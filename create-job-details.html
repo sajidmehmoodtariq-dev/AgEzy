@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Start New Job</title>
+  <title>AgEzy – Enter Details</title>
   <style>
     :root {
       --green-dark:#1a3d28; --green-mid:#1b7239; --green:#00ab4f;
@@ -90,55 +90,83 @@
     <button class="h-back" onclick="history.back()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 5l-7 7 7 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
-    <div class="h-title">Start New Job</div>
+    <div class="h-title">Enter Details</div>
   </header>
-  <div class="progress-bar"><div class="fill" style="width: 33%;"></div></div>
+  <div class="progress-bar"><div class="fill" style="width: 66%;"></div></div>
 
   <div class="body">
-    <div class="sec-title">Step 1: Select Service Type</div>
 
-    <div class="service-grid">
-      <div class="svc-item" data-type="spray">
-        <div class="svc-ic spray">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12h12" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round"/><path d="M15 8l4 4-4 4" stroke="#2d5bd4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="5" cy="12" r="2" fill="#2d5bd4"/></svg>
-        </div>
-        <div class="svc-lbl">Spraying</div>
-      </div>
-      <div class="svc-item active" data-type="hay">
-        <div class="svc-ic hay">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="18" height="7" rx="2" stroke="#f5a623" stroke-width="2"/><path d="M7 13V9a5 5 0 0 1 10 0v4" stroke="#f5a623" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="svc-lbl">Haymaking</div>
-      </div>
-      <div class="svc-item" data-type="harvest">
-        <div class="svc-ic harvest">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 10h5v11h6V10h5L12 2z" stroke="#d63031" stroke-width="2" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="svc-lbl">Harvesting</div>
-      </div>
-      <div class="svc-item" data-type="spread">
-        <div class="svc-ic spread">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="#1b7239"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
-        </div>
-        <div class="svc-lbl">Spreading</div>
-      </div>
-      <div class="svc-item" data-type="other">
-        <div class="svc-ic other">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="2" fill="#8898aa"/><circle cx="5" cy="12" r="2" fill="#8898aa"/><circle cx="19" cy="12" r="2" fill="#8898aa"/></svg>
-        </div>
-        <div class="svc-lbl">Others</div>
-      </div>
-    </div>
+    <div class="sec-title">Step 2: Customer & Schedule</div>
 
-    <div class="field" onclick="cycleSubType(this)">
-      <div class="field-label">Sub-Type</div>
+    <div class="field" onclick="tapField(this,'Green Valley Farms')">
+      <div class="field-label">Customer</div>
       <div class="field-row">
-        <span class="field-val" id="fSubType">Cutting</span>
+        <span class="field-val field-ph" id="fCustomer">Select customer…</span>
         <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span>
       </div>
     </div>
 
-    <button class="submit-btn" onclick="nextStep()">Next: Enter Details &rarr;</button>
+    <div class="field" onclick="tapField(this,'Green Acres Farm')">
+      <div class="field-label">Property</div>
+      <div class="field-row">
+        <span class="field-val field-ph" id="fProperty">Select property…</span>
+        <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+      </div>
+    </div>
+
+    <div class="field" onclick="tapField(this,'Block C')">
+      <div class="field-label">Farm / Field</div>
+      <div class="field-row">
+        <span class="field-val field-ph" id="fFarm">Select farm / field…</span>
+        <span class="chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="#8898aa" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="field" onclick="tapField(this,'Oct 25, 2023')">
+        <div class="field-label">Start Date</div>
+        <div class="field-val" style="font-size:14px">Oct 24, 2023</div>
+      </div>
+      <div class="field" onclick="tapField(this,'08:00 AM')">
+        <div class="field-label">Start Time</div>
+        <div class="field-val" style="font-size:14px">07:30 AM</div>
+      </div>
+    </div>
+    
+    <div class="sec-title">Resources</div>
+
+    <div class="field">
+      <div class="mach-row">
+        <div class="mach-ic">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="11" width="20" height="9" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M6 11V7a6 6 0 0 1 12 0v4" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="20" r="1.5" fill="#8898aa"/><circle cx="17" cy="20" r="1.5" fill="#8898aa"/></svg>
+        </div>
+        <div style="flex:1">
+          <div class="mach-nm">Big Red Harvester</div>
+          <div class="mach-sb">Header 40ft · Reg: ABC-123</div>
+        </div>
+        <div class="avail-badge">Available</div>
+      </div>
+      <div class="add-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Machinery
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="op-row">
+        <div class="op-av" style="background:#1b7239">JG</div>
+        <div style="flex:1"><div class="op-nm">John G.</div><div class="op-rl">Lead Operator</div></div>
+        <div class="op-chk on" data-op="0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="add-row">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#1b7239" stroke-width="2"/><path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/></svg>
+        Add Operator
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="nextStep()">Next: Review & Confirm &rarr;</button>
   </div>
           <!-- BOTTOM NAV (Solid Bar Style) -->
                                             <style id="unified-nav-style">
@@ -208,30 +236,25 @@
   scale();addEventListener('resize',scale);
 </script>
 <script>
-  const subTypes={spray:['Boom Spray','Aerial Spray','Strip Spray'],hay:['Cutting','Raking','Baling','Wrapping'],harvest:['Header Harvest','Strip Till','Direct Drill'],spread:['Broadcast','Band','Foliar'],other:['Custom']};
-  let selectedType='hay'; let subIdx=0;
+  function tapField(el,val){
+    const span=el.querySelector('.field-val,.field-ph');
+    if(span){span.textContent=val;span.classList.remove('field-ph');}
+  }
 
-  document.querySelectorAll('.svc-item').forEach(item=>{
-    item.addEventListener('click',()=>{
-      document.querySelectorAll('.svc-item').forEach(x=>x.classList.remove('active'));
-      item.classList.add('active');
-      selectedType=item.dataset.type;
-      subIdx=0;
-      document.getElementById('fSubType').textContent=subTypes[selectedType][0];
+  document.querySelectorAll('.op-chk').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const on=btn.classList.toggle('on');
+      btn.innerHTML=on?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>':'';
     });
   });
-
-  function cycleSubType(){
-    const list=subTypes[selectedType]||['Custom'];
-    subIdx=(subIdx+1)%list.length;
-    document.getElementById('fSubType').textContent=list[subIdx];
-  }
   
   function nextStep() {
-    sessionStorage.setItem('jobType', selectedType);
-    sessionStorage.setItem('jobSubType', document.getElementById('fSubType').textContent);
-    sessionStorage.setItem('jobTitle', document.querySelector('.svc-item.active .svc-lbl').textContent);
-    window.location.href = 'create-job-details.html';
+    sessionStorage.setItem('jobCustomer', document.getElementById('fCustomer').textContent);
+    const prop = document.getElementById('fProperty').textContent;
+    const farm = document.getElementById('fFarm').textContent;
+    const fullLoc = (prop !== 'Select property…' && farm !== 'Select farm / field…') ? (prop + ' – ' + farm) : 'Green Acres Farm – Block C';
+    sessionStorage.setItem('jobLocation', fullLoc);
+    window.location.href = 'create-job-review.html';
   }
 </script>
 </body></html>

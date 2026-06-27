@@ -3,13 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Load Out</title>
+  <title>AgEzy – Stock Out</title>
   <style>
     :root {
       --green: #00ab4f;
       --green-dark: #1a3d28;
       --green-mid: #1b7239;
-      --green-btn: #178a38;
+      --green-light: #edf7f0;
+      --green-border: #bce3c4;
+      --orange: #f58220;
+      --red-dark: #8a1a00;
+      --red-mid: #c43100;
+      --red-light: #fff1f0;
+      --red-border: #ffa39e;
+      --yellow-bg: #fffbe6;
+      --yellow-border: #ffe58f;
       --text: #1a2a3a;
       --muted: #8898aa;
       --border: #dde8e0;
@@ -22,7 +30,7 @@
     html, body {
       width: 100%; height: 100%;
       background: #e0e0e0;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       overflow: hidden;
     }
 
@@ -41,283 +49,517 @@
       border-radius: 26px;
       overflow: hidden;
       box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ─── PANEL SYSTEM ─── */
-    .panel {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 340ms cubic-bezier(.4,0,.2,1);
-    }
-    .panel.active    { transform: translateX(0); }
-    .panel.exit-left { transform: translateX(-100%); }
-
-    /* ─── SHARED HEADER ─── */
-    .top-header {
+    /* TOP HEADER BAR */
+    .hdr {
       flex: 0 0 auto;
-      background: var(--green-dark);
-      height: 56px;
-      display: flex; align-items: center;
-      padding: 0 16px; gap: 12px;
+      background: #fff;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #eaeaea;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
     }
-    .th-back { cursor: pointer; }
-    .th-title {
-      flex: 1; font-size: 16px; font-weight: 700;
-      color: #fff; letter-spacing: -0.02em;
+    .hdr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .th-icon { color: rgba(255,255,255,0.7); cursor: pointer; }
-
-    /* ─── PROGRESS BAR ─── */
-    .progress-bar-wrap {
-      flex: 0 0 auto;
-      background: var(--green-dark);
-      padding: 0 16px 12px;
-    }
-    .pb-label {
-      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55);
-      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px;
-    }
-    .pb-track {
-      width: 100%; height: 5px; border-radius: 3px;
-      background: rgba(255,255,255,0.2);
-    }
-    .pb-fill {
-      height: 100%; border-radius: 3px; background: #fff;
-      transition: width 0.4s ease;
-    }
-
-    /* ─── SCROLLABLE BODY ─── */
-    .scroll-body {
-      flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
-      padding: 14px 14px 0;
-      scrollbar-width: none;
-    }
-    .scroll-body::-webkit-scrollbar { display: none; }
-
-    /* ─── SECTION LABEL ─── */
-    .section-lbl {
-      font-size: 10px; font-weight: 800; color: var(--muted);
-      letter-spacing: 0.1em; text-transform: uppercase;
-      margin: 14px 0 8px;
-    }
-
-    /* ─── CARD ─── */
-    .card {
-      background: var(--card); border-radius: 14px;
-      padding: 14px; margin-bottom: 12px;
-    }
-
-    /* ─── INFO ROW (two col) ─── */
-    .info-row {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 12px;
-    }
-    .info-cell { display: flex; flex-direction: column; gap: 3px; }
-    .info-key { font-size: 11px; color: var(--muted); font-weight: 500; }
-    .info-val { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
-    .info-sub { font-size: 11px; color: var(--muted); font-weight: 500; }
-
-    /* ─── SELECT ─── */
-    .select-wrap {
-      background: var(--card); border-radius: 14px;
-      padding: 14px; margin-bottom: 12px;
-      display: flex; flex-direction: column; gap: 6px;
-    }
-    .select-lbl { font-size: 12px; color: var(--muted); font-weight: 600; }
-    .select-field {
-      width: 100%; height: 42px;
-      border: 1.5px solid var(--border); border-radius: 22px;
-      padding: 0 14px;
-      font-family: inherit; font-size: 14px; font-weight: 600;
-      color: var(--text); background: var(--bg);
-      appearance: none; cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 14px center;
-    }
-
-    /* ─── STORAGE LOCATION ─── */
-    .storage-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 10px; margin-bottom: 12px;
-    }
-    .storage-cell { display: flex; flex-direction: column; gap: 4px; }
-    .storage-key { font-size: 11px; color: var(--muted); font-weight: 600; }
-    .storage-val { font-size: 14px; font-weight: 700; color: var(--text); }
-    .bay-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      border: 1.8px solid var(--green-mid); border-radius: 20px;
-      padding: 5px 12px; width: fit-content; cursor: pointer;
-    }
-    .bay-text { font-size: 14px; font-weight: 700; color: var(--green-mid); }
-
-    /* ─── SHED PHOTO ─── */
-    .shed-photo {
-      border-radius: 12px; overflow: hidden;
-      position: relative; height: 130px;
-      background: #1a2a1a;
-    }
-    .shed-photo svg { width: 100%; height: 100%; }
-    .shed-caption {
-      position: absolute; bottom: 6px; left: 8px;
-      font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 500;
-    }
-
-    /* ─── NEXT BUTTON ─── */
-    .bottom-btn-wrap { padding: 14px 14px 14px; flex: 0 0 auto; }
-    .green-btn {
-      width: 100%; height: 52px;
-      border: none; border-radius: 26px;
-      background: var(--green-mid);
-      color: #fff; font-size: 16px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(27,114,57,0.30);
-      transition: opacity 0.15s;
-    }
-    .green-btn:active { opacity: 0.85; }
-    .green-btn.outline {
+    .hdr-back {
       background: transparent;
-      border: 2px solid var(--green-mid);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: var(--green-mid);
-      box-shadow: none;
+      padding: 4px;
     }
-
-    /* ════════════════════════════════
-       SCREEN 2: VERIFICATION
-    ════════════════════════════════ */
-    #s2 { background: var(--bg); }
-
-    .verif-card {
-      background: var(--card); border-radius: 14px;
-      padding: 14px; margin-bottom: 12px;
+    .hdr-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
     }
-    .verif-card-title {
-      font-size: 14px; font-weight: 800; color: var(--text);
-      margin-bottom: 3px;
+    .hdr-toggle {
+      display: flex;
+      background: #e8ece8;
+      border-radius: 20px;
+      padding: 3px;
     }
-    .verif-card-sub {
-      font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 12px;
-    }
-
-    /* no photo placeholder */
-    .no-photo {
-      background: #f0f4f0; border-radius: 12px;
-      height: 110px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 6px; margin-bottom: 10px;
-    }
-    .no-photo-text { font-size: 12px; color: var(--muted); font-weight: 500; }
-    .no-photo-sub  { font-size: 10px; color: #b0bbc0; font-weight: 400; }
-
-    .capture-btn {
-      width: 100%; height: 42px;
-      border: none; border-radius: 22px;
-      background: var(--green-mid);
-      color: #fff; font-size: 14px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      cursor: pointer;
-    }
-    .capture-btn:active { opacity: 0.85; }
-
-    /* add photo dashed */
-    .add-photo-btn {
-      width: 100%; height: 50px;
-      border: 2px dashed #c8d8c0; border-radius: 12px;
+    .toggle-pill {
+      border: none;
       background: transparent;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      font-size: 14px; font-weight: 700; color: var(--green-mid);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
       cursor: pointer;
+      transition: all 0.2s;
     }
-    .add-photo-btn:active { background: #f0f8f0; }
-
-    /* checkbox row */
-    .confirm-row {
-      display: flex; align-items: flex-start; gap: 10px;
-      margin-bottom: 14px;
-    }
-    .confirm-checkbox {
-      width: 20px; height: 20px; flex: 0 0 20px;
-      border: 2px solid var(--green-mid); border-radius: 5px;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      margin-top: 1px;
-      transition: background 0.15s;
-    }
-    .confirm-checkbox.checked { background: var(--green-mid); }
-    .confirm-text {
-      font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.5;
+    .toggle-pill.active-out {
+      background: var(--red-dark);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* ════════════════════════════════
-       SCREEN 3: SUCCESS
-    ════════════════════════════════ */
-    #s3 {
-      background: var(--green-dark);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 32px 28px;
-    }
-
-    .success-ring {
-      width: 100px; height: 100px; border-radius: 50%;
-      border: 3px solid rgba(255,255,255,0.25);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 24px;
-    }
-    .success-ring-inner {
-      width: 74px; height: 74px; border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .success-title {
-      font-size: 28px; font-weight: 900; color: #fff;
-      letter-spacing: -0.03em; margin-bottom: 8px; text-align: center;
-    }
-    .success-sub {
-      font-size: 14px; color: rgba(255,255,255,0.7);
-      font-weight: 500; margin-bottom: 24px; text-align: center;
-    }
-
-    .success-detail-card {
+    /* STEPPER BARS (6 BARS) */
+    .stepper-bars {
+      display: flex;
+      gap: 5px;
       width: 100%;
-      background: rgba(255,255,255,0.12); border-radius: 16px;
-      padding: 14px 16px; margin-bottom: 24px;
     }
-    .sdrow {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+    .step-bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #e0e6e0;
+      transition: all 0.3s ease;
     }
-    .sdrow:last-child { border-bottom: none; }
-    .sdrk { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; }
-    .sdrv { font-size: 13px; color: #fff; font-weight: 700; }
-    .badge-out {
-      background: var(--red, #d63031); color: #fff;
-      font-size: 11px; font-weight: 700;
-      padding: 3px 10px; border-radius: 6px;
+    .step-bar.completed {
+      background: var(--green-mid);
+    }
+    .step-bar.active {
+      background: var(--orange);
     }
 
-    .success-btns-v { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+    .step-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
-    .sbtn {
-      width: 100%; height: 50px; border-radius: 25px;
-      font-size: 15px; font-weight: 700; cursor: pointer;
+    /* STEP BODY CONTAINER */
+    .body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      scrollbar-width: none;
+      position: relative;
     }
-    .sbtn-solid {
-      background: rgba(255,255,255,0.18);
-      border: 2px solid rgba(255,255,255,0.4);
-      color: #fff;
+    .body::-webkit-scrollbar { display: none; }
+
+    .step-panel {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.25s ease;
     }
-    .sbtn-outline {
+    .step-panel.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: -6px;
+    }
+
+    /* STEP 1: LOCATION */
+    .prop-card {
+      background: var(--green-light);
+      border: 1.5px solid var(--green-mid);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .prop-icon { font-size: 24px; }
+    .prop-name { font-size: 15px; font-weight: 800; color: var(--green-dark); }
+    .prop-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+    .select-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 4px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .custom-select {
+      width: 100%;
+      height: 44px;
+      border: none;
       background: transparent;
-      border: 2px solid rgba(255,255,255,0.5);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .loc-summary-badge {
+      background: #eaf5ec;
+      border: 1.5px solid var(--green-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .loc-sum-top { font-size: 13px; font-weight: 700; color: var(--green-mid); }
+    .loc-sum-val { font-size: 14px; font-weight: 800; color: var(--text); }
+
+    /* STEP 2: COMMODITY & VARIETY */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .cat-btn {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn.active {
+      background: var(--green-light);
+      border-color: var(--green-mid);
+      box-shadow: 0 4px 12px rgba(27,114,57,0.1);
+    }
+    .cat-icon { font-size: 26px; }
+    .cat-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .cat-btn.active .cat-name { color: var(--green-dark); }
+
+    .variety-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .var-pill {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .var-pill.active {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
       color: #fff;
     }
+
+    .com-summary-card {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
+
+    .truck-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .truck-input {
+      width: 100%;
+      height: 40px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+    }
+    .truck-input::placeholder { color: var(--muted); font-weight: 500; }
+    .input-divider { height: 1px; background: #f0f4f0; width: 100%; }
+
+    /* STEP 3: MOVEMENT TYPE */
+    .mov-header-bar {
+      display: flex; justify-content: space-between;
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .mov-header-bar strong {
+      display: block; font-size: 13px; color: var(--text); font-weight: 800; margin-top: 2px;
+    }
+
+    .mov-type-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mov-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .mov-btn {
+      background: #fff;
+      border: 1.5px solid #eaeaea;
+      border-radius: 14px;
+      padding: 14px 10px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      gap: 4px; cursor: pointer; transition: all 0.2s;
+    }
+    .mov-btn.active {
+      background: var(--green-light);
+      border-color: var(--green-mid);
+      box-shadow: 0 4px 12px rgba(27,114,57,0.1);
+    }
+    .mov-icon { font-size: 24px; margin-bottom: 2px; }
+    .mov-name { font-size: 14px; font-weight: 800; color: var(--text); }
+    .mov-desc { font-size: 11px; color: var(--muted); font-weight: 500; line-height: 1.2; }
+
+    /* SUB-SECTION FOR CONTRACTS */
+    .contracts-list {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .contract-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      cursor: pointer; transition: all 0.2s;
+      position: relative;
+    }
+    .contract-card.selected {
+      border-color: var(--green-mid);
+      background: var(--green-light);
+    }
+    .contract-card.fully-shipped {
+      border-color: #ffa39e;
+      background: #fff1f0;
+      opacity: 0.85;
+    }
+    .c-top {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; font-weight: 800; color: var(--green-mid);
+    }
+    .contract-card.fully-shipped .c-top { color: #cf1322; }
+    .c-radio {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
+    }
+    .contract-card.selected .c-radio {
+      border-color: var(--green-mid); background: var(--green-mid); color: #fff;
+    }
+    .contract-card.selected .c-radio::after { content: '✓'; font-size: 12px; font-weight: 900; }
+
+    .c-title { font-size: 16px; font-weight: 800; color: var(--text); }
+    .c-badge {
+      align-self: flex-start;
+      background: #eaf5ec; color: var(--green-dark);
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 8px;
+    }
+    .c-prog-wrap { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+    .c-prog-row {
+      display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--muted);
+    }
+    .c-prog-row strong { color: var(--green-mid); }
+    .contract-card.fully-shipped .c-prog-row strong { color: #cf1322; }
+    .c-bar-bg { width: 100%; height: 6px; background: #e0e6e0; border-radius: 3px; overflow: hidden; }
+    .c-bar-fill { height: 100%; background: var(--green-mid); border-radius: 3px; }
+    .contract-card.fully-shipped .c-bar-fill { background: #cf1322; }
+
+    /* SUB-SECTION FOR SALE FORM */
+    .sale-form-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .sf-row { display: flex; gap: 10px; }
+    .sf-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .sf-lbl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; }
+    .sf-inp {
+      width: 100%; height: 40px;
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 0 12px; font-size: 14px; font-weight: 600; color: var(--text);
+      background: #fff; outline: none;
+    }
+    .sf-readonly { background: #f4f6f4; color: var(--muted); font-weight: 700; }
+    textarea.sf-inp { height: 70px; padding: 10px 12px; resize: none; font-family: inherit; }
+
+    /* STEP 4: QUANTITY KEYPAD */
+    .large-qty-display {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #eaeaea;
+    }
+    .lqd-num { font-size: 56px; font-weight: 900; color: var(--text); line-height: 1; }
+    .lqd-unit { font-size: 20px; font-weight: 700; color: var(--muted); text-transform: lowercase; }
+
+    .quick-add-row { display: flex; gap: 6px; justify-content: center; }
+    .quick-pill {
+      flex: 1; background: #fff; border: 1.5px solid var(--green-border);
+      border-radius: 18px; padding: 8px 0; font-size: 13px; font-weight: 800;
+      color: var(--green-mid); cursor: pointer; transition: background 0.1s;
+    }
+    .quick-pill:active { background: var(--green-light); }
+
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .kp-key {
+      height: 52px; background: #fff; border: 1px solid #eaeaea; border-radius: 14px;
+      font-size: 24px; font-weight: 700; color: var(--text); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.03); user-select: none;
+    }
+    .kp-key:active { background: #f0f4f0; }
+    .kp-key.active-key { border: 2px solid var(--text); }
+    .kp-del { font-size: 20px; }
+
+    .sec-inputs-row {
+      display: flex; gap: 12px; background: #fff; border-radius: 14px; padding: 12px; border: 1px solid #eaeaea;
+    }
+    .sec-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .sec-lbl { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .sec-inp {
+      width: 100%; height: 36px; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0 10px; font-size: 14px; font-weight: 700; color: var(--text); outline: none;
+    }
+    .text-center { text-align: center; }
+    .sec-sub { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+    /* STEP 5: PHOTOS */
+    .photos-inst { font-size: 14px; color: var(--text); font-weight: 600; line-height: 1.4; }
+    .photos-grid { display: flex; flex-direction: column; gap: 10px; }
+    .photo-card {
+      background: #f4f3ed; border: 2px dashed #d8d6cc; border-radius: 16px;
+      padding: 18px 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: all 0.2s;
+    }
+    .photo-card.attached { background: var(--green-light); border: 2px solid var(--green-mid); }
+    .photo-cam-icon {
+      width: 44px; height: 44px; border-radius: 12px; background: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .photo-card-info { flex: 1; }
+    .photo-card-title { font-size: 15px; font-weight: 800; color: var(--text); }
+    .photo-card-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .photo-check {
+      width: 28px; height: 28px; border-radius: 50%; background: #d8d6cc; color: #fff;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800;
+    }
+    .photo-card.attached .photo-check { background: var(--green-mid); }
+
+    /* STEP 6: REVIEW */
+    .review-stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+      background: #fff; border-radius: 16px; padding: 16px 8px; border: 1px solid #eaeaea; text-align: center;
+    }
+    .rev-stat-num { font-size: 24px; font-weight: 900; color: var(--text); }
+    .rev-stat-unit { font-size: 10px; font-weight: 700; color: var(--muted); margin-top: 2px; text-transform: uppercase; }
+
+    .review-details-card {
+      background: #fff; border-radius: 16px; padding: 14px 16px; border: 1px solid #eaeaea;
+      display: flex; flex-direction: column;
+    }
+    .rev-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 0; border-bottom: 1px solid #f0f4f0;
+    }
+    .rev-row:last-child { border-bottom: none; }
+    .rev-key { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .rev-val { font-size: 14px; color: var(--text); font-weight: 800; text-align: right; max-width: 220px; }
+    .rev-badge-out {
+      background: var(--red-mid); color: #fff; font-size: 11px; font-weight: 800;
+      padding: 3px 10px; border-radius: 6px; text-transform: uppercase;
+    }
+
+    .offline-sync-notice {
+      background: var(--yellow-bg); border: 1px solid var(--yellow-border); border-radius: 12px;
+      padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+    }
+    .notice-dot { color: #f5a623; font-size: 16px; line-height: 1; }
+    .notice-txt { font-size: 12px; font-weight: 700; color: #b07d20; }
+
+    /* SUCCESS SCREEN */
+    .success-screen {
+      background: var(--green-mid); height: 100%; padding: 32px 24px;
+      align-items: center; justify-content: center; color: #fff;
+    }
+    .succ-circle {
+      width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.22);
+      display: flex; align-items: center; justify-content: center; font-size: 38px; font-weight: 900; color: #fff;
+      margin: 0 auto 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    .succ-title { font-size: 30px; font-weight: 900; text-align: center; letter-spacing: -0.03em; }
+    .succ-subtitle { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; margin-top: 6px; margin-bottom: 28px; }
+
+    .succ-details-box {
+      width: 100%; background: rgba(0,0,0,0.18); border-radius: 16px; padding: 16px;
+      display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1);
+    }
+    .succ-det-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+    .succ-det-row span { color: rgba(255,255,255,0.75); font-weight: 500; }
+    .succ-det-row strong { color: #fff; font-weight: 800; }
+
+    .succ-upload-wrap { width: 100%; margin-bottom: 32px; display: flex; flex-direction: column; gap: 8px; }
+    .succ-upload-bar { width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.25); overflow: hidden; }
+    .succ-upload-fill { height: 100%; background: #fff; width: 0%; transition: width 2s cubic-bezier(0.1, 0.8, 0.3, 1); }
+    .succ-upload-txt { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; }
+
+    .succ-actions { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .succ-btn-another {
+      width: 100%; height: 50px; border-radius: 25px; background: rgba(0,0,0,0.22); border: 1.5px solid rgba(255,255,255,0.4);
+      color: #fff; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+    }
+    .succ-btn-another:active { background: rgba(0,0,0,0.35); }
+    .succ-btn-dash {
+      width: 100%; height: 50px; border-radius: 25px; background: #fff; border: none;
+      color: var(--green-mid); font-size: 16px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* FOOTER BUTTON */
+    .step-footer {
+      flex: 0 0 auto; background: rgba(244, 246, 244, 0.95); backdrop-filter: blur(8px);
+      padding: 12px 16px 16px; border-top: 1px solid var(--border); display: flex; z-index: 10;
+    }
+    .footer-next-btn {
+      width: 100%; height: 52px; border-radius: 16px; background: var(--green-mid);
+      color: #fff; font-size: 16px; font-weight: 800; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 20px rgba(27,114,57,0.25); transition: all 0.2s;
+    }
+    .footer-next-btn:active { transform: scale(0.98); background: var(--green-dark); }
 
     @media (max-width: 767px) {
       .viewport { padding: 0; }
-      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+      .screen { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
     }
   </style>
 </head>
@@ -325,271 +567,433 @@
 <div class="viewport">
   <main class="screen">
 
-    <!-- ═══════════════════════════════════
-         SCREEN 1 — RECORD LOAD OUT
-    ═══════════════════════════════════ -->
-    <div class="panel active" id="s1">
-
-      <div class="top-header">
-        <div class="th-back" onclick="window.location.href='dashboard.html'">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M11 6l-6 6 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="th-title">Record Load Out</div>
-        <div class="th-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M18 4a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM6 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM18 14a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" stroke="rgba(255,255,255,0.65)" stroke-width="1.8"/>
-            <path d="M8.7 10.7l6.6-3.4M8.7 13.3l6.6 3.4" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+    <!-- HEADER BAR -->
+    <header class="hdr" id="mainHeader">
+      <div class="hdr-row">
+        <button class="hdr-back" id="backBtn" onclick="handleBack()" title="Back">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="hdr-title" id="hdrTitle">Location</div>
+        <div class="hdr-toggle">
+          <button class="toggle-pill" onclick="window.location.href='stock-in.html'">IN</button>
+          <button class="toggle-pill active-out" onclick="window.location.href='load-out.html'">OUT</button>
         </div>
       </div>
-
-      <div class="progress-bar-wrap">
-        <div class="pb-label">Step 1 of 3 &mdash; Details</div>
-        <div class="pb-track"><div class="pb-fill" style="width:33%"></div></div>
+      <div class="stepper-bars">
+        <div class="step-bar active" id="bar1"></div>
+        <div class="step-bar" id="bar2"></div>
+        <div class="step-bar" id="bar3"></div>
+        <div class="step-bar" id="bar4"></div>
+        <div class="step-bar" id="bar5"></div>
+        <div class="step-bar" id="bar6"></div>
       </div>
+      <div class="step-subtitle" id="stepSubtitle">STEP 1 OF 6 — LOCATION</div>
+    </header>
 
-      <div class="scroll-body">
+    <!-- STEP BODY -->
+    <div class="body">
 
-        <!-- Movement Number + Operator -->
-        <div class="card">
-          <div class="info-row">
-            <div class="info-cell">
-              <div class="info-key">Movement Number</div>
-              <div class="info-val">MOV-2025-001</div>
-            </div>
-            <div class="info-cell" style="align-items:flex-end;text-align:right">
-              <div class="info-key">Operator</div>
-              <div class="info-val" style="font-size:13px">John Doe</div>
-              <div class="info-sub">(You)</div>
-            </div>
+      <!-- STEP 1: LOCATION -->
+      <div class="step-panel active" id="step1">
+        <div class="card-label">PROPERTY</div>
+        <div class="prop-card" onclick="alert('Green Valley Farm is currently your active property.')">
+          <div class="prop-icon">🏡</div>
+          <div class="prop-info">
+            <div class="prop-name">Green Valley Farm</div>
+            <div class="prop-sub">Tap to change property</div>
           </div>
         </div>
 
-        <!-- Movement Type -->
-        <div class="select-wrap">
-          <div class="select-lbl">Movement Type</div>
-          <select class="select-field">
-            <option>Sale</option>
-            <option>Contracts</option>
-            <option>Internal Use</option>
-            <option>Others</option>
-            <option>Customizable</option>
+        <div class="card-label">SHED</div>
+        <div class="select-card">
+          <select class="custom-select" id="shedSelect" onchange="updateLocationSummary()">
+            <option value="Hay Shed North (4 bays)" selected>Hay Shed North (4 bays)</option>
+            <option value="Hay Shed South (2 bays)">Hay Shed South (2 bays)</option>
+            <option value="Grain Store A (3 bays)">Grain Store A (3 bays)</option>
+            <option value="Main Silo Hub">Main Silo Hub</option>
           </select>
         </div>
 
-        <!-- Storage Location -->
-        <div class="section-lbl">Storage Location</div>
-        <div class="card">
-          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;">
-            <div>
-              <div class="storage-key" style="margin-bottom:6px;">Shed Number</div>
-              <select class="select-field" style="border-radius:12px; height:38px;">
-                <option>Shed 01</option>
-                <option>Shed 02</option>
-                <option>Shed 03</option>
-                <option selected>Shed 04</option>
-                <option>Shed 05</option>
-              </select>
-            </div>
-            <div>
-              <div class="storage-key" style="margin-bottom:6px;">Bay / Location</div>
-              <select class="select-field" style="border-radius:12px; height:38px;">
-                <option>Bay 1-050</option>
-                <option>Bay 2-010</option>
-                <option selected>Bay 8-120</option>
-                <option>Bay 9-014</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Shed photo -->
-          <div class="shed-photo">
-            <img src="images/stuff.png" alt="Shed 04 Bay 8-120" style="width:100%;height:100%;object-fit:cover;display:block;" />
-            <div class="shed-caption">Shed 04 &mdash; Bay 8-120</div>
-          </div>
+        <div class="card-label">BAY / BIN</div>
+        <div class="select-card">
+          <select class="custom-select" id="baySelect" onchange="updateLocationSummary()">
+            <option value="Bay 1">Bay 1</option>
+            <option value="Bay 2">Bay 2</option>
+            <option value="Bay 3" selected>Bay 3</option>
+            <option value="Bay 4">Bay 4</option>
+            <option value="Bin A">Bin A</option>
+          </select>
         </div>
 
-        <div style="height:4px"></div>
-      </div>
-
-      <div class="bottom-btn-wrap">
-        <button class="green-btn" id="nextBtn1">
-          Next: Verification
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════
-         SCREEN 2 — LOAD OUT VERIFICATION
-    ═══════════════════════════════════ -->
-    <div class="panel" id="s2">
-
-      <div class="top-header">
-        <div class="th-back" id="backToS1">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M11 6l-6 6 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <div class="loc-summary-badge">
+          <div class="loc-sum-top">✓ Selected location</div>
+          <div class="loc-sum-val" id="locSummaryText">Green Valley Farm › Hay Shed North › Bay 3</div>
         </div>
-        <div class="th-title">Load Out Verification</div>
-        <div style="width:22px"></div>
       </div>
 
-      <div class="progress-bar-wrap">
-        <div class="pb-label">Step 2 of 3 &mdash; Verification</div>
-        <div class="pb-track"><div class="pb-fill" style="width:66%"></div></div>
-      </div>
-
-      <div class="scroll-body">
-
-        <!-- Truck Details -->
-        <div class="verif-card">
-          <div class="verif-card-title">Truck Details</div>
-          <div style="margin-top:8px;">
-            <div style="font-size:11px; color:var(--muted); font-weight:600; margin-bottom:6px;">Registration Number</div>
-            <input type="text" class="select-field" placeholder="e.g. XY-123-Z" style="background-image:none; border-radius:12px; height:38px;">
-          </div>
-        </div>
-
-        <!-- Truck Loaded Photo -->
-        <div class="verif-card">
-          <div class="verif-card-title">Truck Loaded Photo</div>
-          <div class="verif-card-sub">Include Registration Number</div>
-          <div class="no-photo" id="truckPhotoPlaceholder">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#c0cac0" stroke-width="1.6" stroke-linejoin="round"/>
-              <line x1="3" y1="3" x2="21" y2="21" stroke="#c0cac0" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-            <div class="no-photo-text">No photo captured</div>
-            <div class="no-photo-sub">Tap button below to open camera</div>
-          </div>
-          <button class="capture-btn" onclick="simulateCapture('truck')">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
-              <circle cx="12" cy="13" r="4" stroke="#fff" stroke-width="1.8"/>
-            </svg>
-            Capture Photo
+      <!-- STEP 2: COMMODITY -->
+      <div class="step-panel" id="step2">
+        <div class="card-label">COMMODITY & VARIETY</div>
+        <div class="cat-grid">
+          <button class="cat-btn" data-cat="Hay" onclick="selectCategory('Hay', this)">
+            <div class="cat-icon">🌾</div>
+            <div class="cat-name">Hay</div>
+          </button>
+          <button class="cat-btn active" data-cat="Grain" onclick="selectCategory('Grain', this)">
+            <div class="cat-icon">🌽</div>
+            <div class="cat-name">Grain</div>
+          </button>
+          <button class="cat-btn" data-cat="Water" onclick="selectCategory('Water', this)">
+            <div class="cat-icon">💧</div>
+            <div class="cat-name">Water</div>
           </button>
         </div>
 
-        <!-- Shed BEFORE -->
-        <div class="verif-card">
-          <div class="verif-card-title">Shed: BEFORE Movement</div>
-          <div id="beforePlaceholder">
-            <button class="add-photo-btn" onclick="simulateCapture('before')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
-                <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Add Photo
+        <div class="card-label" id="varietyLabel">GRAIN VARIETY</div>
+        <div class="variety-pills" id="varietyPills">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="com-summary-card">
+          <span id="comSummaryText">🌽 Grain — Wheat</span>
+        </div>
+
+        <div class="card-label">CARRIER / TRUCK</div>
+        <div class="truck-card">
+          <input type="text" class="truck-input" id="truckRego" placeholder="Truck rego (e.g. 1AB 2CD)" />
+          <div class="input-divider"></div>
+          <input type="text" class="truck-input" id="carrierName" placeholder="Carrier name (optional)" />
+        </div>
+      </div>
+
+      <!-- STEP 3: MOVEMENT -->
+      <div class="step-panel" id="step3">
+        <div class="mov-header-bar">
+          <div>MOVEMENT NO. <strong>MOV-2025-843</strong></div>
+          <div style="text-align: right;">OPERATOR <strong>John Doe (You)</strong></div>
+        </div>
+
+        <div class="mov-type-card">
+          <div class="card-label">MOVEMENT TYPE</div>
+          <div class="mov-grid">
+            <button class="mov-btn active" id="btnContract" onclick="selectMovType('Contract', this)">
+              <div class="mov-icon">📄</div>
+              <div class="mov-name">Contract</div>
+              <div class="mov-desc">Move stock against a contract</div>
+            </button>
+            <button class="mov-btn" id="btnSale" onclick="selectMovType('Sale', this)">
+              <div class="mov-icon">💰</div>
+              <div class="mov-name">Sale</div>
+              <div class="mov-desc">Direct sale of stock</div>
+            </button>
+            <button class="mov-btn" id="btnOwn" onclick="selectMovType('Own use', this)">
+              <div class="mov-icon">🚜</div>
+              <div class="mov-name">Own use</div>
+              <div class="mov-desc">Internal use on-farm</div>
+            </button>
+            <button class="mov-btn" id="btnOther" onclick="selectMovType('Other', this)">
+              <div class="mov-icon">📦</div>
+              <div class="mov-name">Other</div>
+              <div class="mov-desc">Other movement reason</div>
             </button>
           </div>
         </div>
 
-        <!-- Shed AFTER -->
-        <div class="verif-card">
-          <div class="verif-card-title">Shed: AFTER Movement</div>
-          <div id="afterPlaceholder">
-            <button class="add-photo-btn" onclick="simulateCapture('after')">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
-                <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Add Photo
-            </button>
+        <!-- DYNAMIC SUB-PANEL: CONTRACTS LIST -->
+        <div id="subPanelContract" style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="card-label">SELECT CONTRACT</div>
+          <p style="font-size: 12px; color: var(--muted); font-weight: 500; margin-top: -6px;">
+            3 contracts available. Pick the one this load is going against.
+          </p>
+          <div class="contracts-list" id="contractsListContainer">
+            <!-- Dynamically populated -->
           </div>
         </div>
 
-        <!-- Optional Signature -->
-        <div class="verif-card">
-          <div class="verif-card-title">Driver / Operator Signature</div>
-          <div class="verif-card-sub">Optional</div>
-          <div style="border:2px dashed #c8d8c0; border-radius:12px; height:80px; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="this.style.borderStyle='solid'; this.style.borderColor='var(--green-mid)'; this.style.background='#f0faf4'; this.innerHTML='<div style=\'font-family:cursive; font-size:24px; color:var(--green-dark);\'>Signed</div>';">
-            <span style="font-size:13px; color:var(--muted); font-weight:600;">Tap to sign</span>
+        <!-- DYNAMIC SUB-PANEL: SALE FORM -->
+        <div id="subPanelSale" style="display: none; flex-direction: column; gap: 10px;">
+          <div class="card-label">RECORD DETAILS OF THE SALE</div>
+          <div class="sale-form-card">
+            <div class="sf-col">
+              <label class="sf-lbl">SALE TYPE</label>
+              <select class="sf-inp" id="saleTypeSelect">
+                <option value="Spot Sale">Spot Sale</option>
+                <option value="Forward Agreement">Forward Agreement</option>
+                <option value="Barn Door Cash">Barn Door Cash</option>
+              </select>
+            </div>
+
+            <div class="sf-row">
+              <div class="sf-col">
+                <label class="sf-lbl">CUSTOMER TYPE</label>
+                <select class="sf-inp" id="custTypeSelect">
+                  <option value="Commercial Buyer">Commercial Buyer</option>
+                  <option value="Local Merchant">Local Merchant</option>
+                  <option value="Neighboring Farm">Neighboring Farm</option>
+                </select>
+              </div>
+              <div class="sf-col">
+                <label class="sf-lbl">CUSTOMER</label>
+                <select class="sf-inp" id="custNameSelect">
+                  <option value="GrainCorp">GrainCorp</option>
+                  <option value="Allied Mills">Allied Mills</option>
+                  <option value="Cargill Australia">Cargill Australia</option>
+                  <option value="Local Dairy Co">Local Dairy Co</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sf-col">
+              <label class="sf-lbl">PRODUCT</label>
+              <input type="text" class="sf-inp sf-readonly" id="saleProductPrefill" readonly value="Wheat" />
+            </div>
+
+            <div class="sf-row">
+              <div class="sf-col">
+                <label class="sf-lbl">QUANTITY (T)</label>
+                <input type="number" class="sf-inp" id="saleQtyInp" value="4.00" step="0.5" oninput="calcSaleTotal()" />
+              </div>
+              <div class="sf-col">
+                <label class="sf-lbl">PRICE PER TONNE</label>
+                <input type="number" class="sf-inp" id="salePriceInp" value="320" placeholder="$ 0.00" oninput="calcSaleTotal()" />
+              </div>
+            </div>
+
+            <div class="sf-col">
+              <label class="sf-lbl">TOTAL ($ AUD)</label>
+              <input type="text" class="sf-inp sf-readonly" id="saleTotalReadonly" readonly value="$ 1,280.00" />
+            </div>
+
+            <div class="sf-row">
+              <div class="sf-col">
+                <label class="sf-lbl">PAYMENT STATUS</label>
+                <select class="sf-inp" id="salePayStatus">
+                  <option value="Paid — Cash/EFT">Paid — Cash/EFT</option>
+                  <option value="Invoice 30 Days">Invoice 30 Days</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </div>
+              <div class="sf-col">
+                <label class="sf-lbl">PICKUP METHOD</label>
+                <select class="sf-inp" id="salePickupMethod">
+                  <option value="Ex-Farm / Buyer Collects">Ex-Farm / Buyer Collects</option>
+                  <option value="Delivered by Seller">Delivered by Seller</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sf-col">
+              <label class="sf-lbl">SALE DATE</label>
+              <input type="date" class="sf-inp" id="saleDateInp" />
+            </div>
+
+            <div class="sf-col">
+              <label class="sf-lbl">NOTES</label>
+              <textarea class="sf-inp" id="saleNotesInp" placeholder="Any additional notes..."></textarea>
+            </div>
           </div>
         </div>
 
-        <!-- Confirm checkbox -->
-        <div class="confirm-row" style="margin-bottom:0">
-          <div class="confirm-checkbox" id="confirmBox" onclick="toggleConfirm()">
-            <svg class="check-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:none">
-              <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div class="confirm-text">
-            I confirm the load satisfies the contract specifications and all safety protocols were followed.
+        <!-- DYNAMIC SUB-PANEL: OWN USE / OTHER -->
+        <div id="subPanelOwn" style="display: none; flex-direction: column; gap: 10px;">
+          <div class="card-label">INTERNAL MOVEMENT REASON</div>
+          <div class="sale-form-card">
+            <div class="sf-col">
+              <label class="sf-lbl">DESTINATION PADDOCK / FEEDER</label>
+              <input type="text" class="sf-inp" id="ownDest" placeholder="e.g. North Paddock Weaners" />
+            </div>
+            <div class="sf-col">
+              <label class="sf-lbl">NOTES</label>
+              <textarea class="sf-inp" id="ownNotes" placeholder="Context for internal farm consumption..."></textarea>
+            </div>
           </div>
         </div>
 
-        <div style="height:4px"></div>
       </div>
 
-      <div class="bottom-btn-wrap">
-        <button class="green-btn" id="completeBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M21 8l-9-5-9 5v8l9 5 9-5V8z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M9 16l6-4M15 16V12h-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Complete Load OUT
-        </button>
+      <!-- STEP 4: QUANTITY -->
+      <div class="step-panel" id="step4">
+        <div class="large-qty-display">
+          <span class="lqd-num" id="lqdNum">4</span>
+          <span class="lqd-unit" id="lqdUnit">bales</span>
+        </div>
+
+        <div class="quick-add-row">
+          <button class="quick-pill" onclick="addQty(10)">+10</button>
+          <button class="quick-pill" onclick="addQty(20)">+20</button>
+          <button class="quick-pill" onclick="addQty(50)">+50</button>
+          <button class="quick-pill" onclick="addQty(100)">+100</button>
+          <button class="quick-pill" onclick="addQty(200)">+200</button>
+        </div>
+
+        <div class="keypad-grid">
+          <button class="kp-key" onclick="kpPress('1')">1</button>
+          <button class="kp-key" onclick="kpPress('2')">2</button>
+          <button class="kp-key" onclick="kpPress('3')">3</button>
+          <button class="kp-key active-key" onclick="kpPress('4')">4</button>
+          <button class="kp-key" onclick="kpPress('5')">5</button>
+          <button class="kp-key" onclick="kpPress('6')">6</button>
+          <button class="kp-key" onclick="kpPress('7')">7</button>
+          <button class="kp-key" onclick="kpPress('8')">8</button>
+          <button class="kp-key" onclick="kpPress('9')">9</button>
+          <button class="kp-key" onclick="kpPress('.')">.</button>
+          <button class="kp-key" onclick="kpPress('0')">0</button>
+          <button class="kp-key kp-del" onclick="kpPress('del')">⌫</button>
+        </div>
+
+        <div class="sec-inputs-row">
+          <div class="sec-col">
+            <label class="sec-lbl">GROSS (KG)</label>
+            <input type="number" class="sec-inp" id="grossKg" value="0" oninput="updateEstWeight()" />
+            <span class="sec-sub" id="estWeightSub">Est. ~1,280 kg</span>
+          </div>
+          <div class="sec-col">
+            <label class="sec-lbl">MOISTURE %</label>
+            <input type="text" class="sec-inp text-center" id="moisturePct" placeholder="—" />
+            <span class="sec-sub">&nbsp;</span>
+          </div>
+        </div>
       </div>
+
+      <!-- STEP 5: PHOTOS -->
+      <div class="step-panel" id="step5">
+        <p class="photos-inst">Optionally attach photos. Photos sync when you're back online.</p>
+        <div class="photos-grid">
+          <div class="photo-card attached" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Load on truck</div>
+              <div class="photo-card-sub">Before unloading</div>
+            </div>
+            <div class="photo-check">✓</div>
+          </div>
+          <div class="photo-card" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Bale stack</div>
+              <div class="photo-card-sub">After placement</div>
+            </div>
+            <div class="photo-check">✓</div>
+          </div>
+          <div class="photo-card" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Delivery docket</div>
+              <div class="photo-card-sub">Optional</div>
+            </div>
+            <div class="photo-check">✓</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 6: REVIEW -->
+      <div class="step-panel" id="step6">
+        <div class="review-stats-row">
+          <div>
+            <div class="rev-stat-num" id="revStatNum">4</div>
+            <div class="rev-stat-unit" id="revStatUnit">BALES</div>
+          </div>
+          <div>
+            <div class="rev-stat-num" id="revStatGross">—</div>
+            <div class="rev-stat-unit">GROSS WT</div>
+          </div>
+          <div>
+            <div class="rev-stat-num" id="revStatMoisture">—</div>
+            <div class="rev-stat-unit">MOISTURE</div>
+          </div>
+        </div>
+
+        <div class="review-details-card">
+          <div class="rev-row">
+            <span class="rev-key">Action</span>
+            <span class="rev-badge-out">OUT</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Location</span>
+            <span class="rev-val" id="revLocation">Hay Shed North › Bay 3</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Commodity</span>
+            <span class="rev-val" id="revCommodity">🌽 Grain — Wheat</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Movement</span>
+            <span class="rev-val" id="revMovement">📄 Contract</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key" id="revContractKey">Contract</span>
+            <span class="rev-val" id="revContractVal">WHT-001 · GrainCorp Bundaberg</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Truck</span>
+            <span class="rev-val" id="revTruck">—</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Carrier</span>
+            <span class="rev-val" id="revCarrier">—</span>
+          </div>
+        </div>
+
+        <div class="offline-sync-notice">
+          <span class="notice-dot">●</span>
+          <span class="notice-txt">2 unsynced records — will upload when back online</span>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="step-panel success-screen" id="stepSuccess">
+        <div style="width: 100%; max-width: 340px; margin: auto;">
+          <div class="succ-circle">✓</div>
+          <h1 class="succ-title">Load Recorded</h1>
+          <div class="succ-subtitle" id="succSub">OUT 4 bales → Hay Shed North › Bay 3</div>
+
+          <div class="succ-details-box">
+            <div class="succ-det-row">
+              <span>Commodity</span>
+              <strong id="succCommodity">Grain — Wheat</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Gross weight</span>
+              <strong id="succGross">Not weighed</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Moisture</span>
+              <strong id="succMoisture">Not recorded</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Truck</span>
+              <strong id="succTruck">—</strong>
+            </div>
+          </div>
+
+          <div class="succ-upload-wrap">
+            <div class="succ-upload-bar">
+              <div class="succ-upload-fill" id="succUploadFill"></div>
+            </div>
+            <div class="succ-upload-txt" id="succUploadTxt">Uploading photos... 0%</div>
+          </div>
+
+          <div class="succ-actions">
+            <button class="succ-btn-another" onclick="resetWizard()">Record another load</button>
+            <button class="succ-btn-dash" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ═══════════════════════════════════
-         SCREEN 3 — SUCCESS
-    ═══════════════════════════════════ -->
-    <div class="panel" id="s3" style="background:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px">
-
-      <div class="success-ring">
-        <div class="success-ring-inner">
-          <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
-            <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="success-title">Load Out Complete!</div>
-      <div class="success-sub">Movement MOV-2025-001 recorded</div>
-
-      <div class="success-detail-card">
-        <div class="sdrow">
-          <div class="sdrk">Action</div>
-          <div class="sdrv"><span class="badge-out">OUT</span></div>
-        </div>
-        <div class="sdrow">
-          <div class="sdrk">Location</div>
-          <div class="sdrv">Shed 04 — Bay 8-120</div>
-        </div>
-        <div class="sdrow">
-          <div class="sdrk">Contract</div>
-          <div class="sdrv">Contract 1: Customer</div>
-        </div>
-        <div class="sdrow">
-          <div class="sdrk">Operator</div>
-          <div class="sdrv">John Doe</div>
-        </div>
-        <div class="sdrow">
-          <div class="sdrk">Status</div>
-          <div class="sdrv" style="color:#6dffaa">Synced ✓</div>
-        </div>
-      </div>
-
-      <div class="success-btns-v">
-        <button class="sbtn sbtn-solid" onclick="resetFlow()">Record Another</button>
-        <button class="sbtn sbtn-outline" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-      </div>
-
-    </div>
+    <!-- WIZARD FOOTER -->
+    <footer class="step-footer" id="mainFooter">
+      <button class="footer-next-btn" id="footerNextBtn" onclick="handleNext()">
+        Next — Commodity →
+      </button>
+    </footer>
 
   </main>
 </div>
 
 <script>
-  // ── Scale ──
+  // Scale
   const baseW = 390, baseH = 844, pad = 32;
   const updateScale = () => {
     const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
@@ -598,116 +1002,368 @@
   updateScale();
   window.addEventListener('resize', updateScale);
 
-  // ── Panel transitions ──
-  function goTo(from, to) {
-    document.getElementById(from).classList.add('exit-left');
-    document.getElementById(from).classList.remove('active');
-    document.getElementById(to).classList.add('active');
-    document.getElementById(to).classList.remove('exit-left');
-  }
+  // State
+  let currentStep = 1;
+  let selectedCategory = 'Grain';
+  let selectedVariety = 'Wheat';
+  let catIcon = '🌽';
+  let selectedMovType = 'Contract';
+  let selectedContractId = 'WHT-001';
+  let selectedContractTitle = 'GrainCorp Bundaberg';
+  let qtyStr = '4';
 
-  function goBack(from, to) {
-    const fEl = document.getElementById(from);
-    const tEl = document.getElementById(to);
-    fEl.classList.remove('active');
-    fEl.style.transform = 'translateX(100%)';
-    setTimeout(() => { fEl.style.transform = ''; }, 340);
-    tEl.classList.remove('exit-left');
-    tEl.classList.add('active');
-  }
-
-  document.getElementById('nextBtn1').addEventListener('click', () => goTo('s1', 's2'));
-  document.getElementById('backToS1').addEventListener('click', () => goBack('s2', 's1'));
-  document.getElementById('completeBtn').addEventListener('click', () => goTo('s2', 's3'));
-
-  function resetFlow() {
-    const s3 = document.getElementById('s3');
-    const s1 = document.getElementById('s1');
-    s3.classList.remove('active');
-    s3.style.transform = 'translateX(100%)';
-    setTimeout(() => { s3.style.transform = ''; }, 340);
-    s1.classList.remove('exit-left');
-    s1.classList.add('active');
-    // reset verification state
-    resetCapture('truck');
-    resetCapture('before');
-    resetCapture('after');
-    confirmed = false;
-    document.getElementById('confirmBox').classList.remove('checked');
-    document.querySelector('.check-icon').style.display = 'none';
-  }
-
-  // ── Simulate photo capture ──
-  const photoColors = {
-    truck:  { bg: '#e8c040', label: 'Truck Photo ✓' },
-    before: { bg: '#8aad6a', label: 'Before Photo ✓' },
-    after:  { bg: '#6a9aad', label: 'After Photo ✓' }
+  const varietiesMap = {
+    Hay: ['Oaten', 'Wheaten', 'Rhodes', 'Lucerne', 'Pasture Mix'],
+    Grain: ['Wheat', 'Barley', 'Canola', 'Oats', 'Lupins'],
+    Water: ['Bore Water', 'River Water', 'Dam Water']
   };
 
-  const placeholderIds = {
-    truck:  'truckPhotoPlaceholder',
-    before: 'beforePlaceholder',
-    after:  'afterPlaceholder'
-  };
+  const iconsMap = { Hay: '🌾', Grain: '🌽', Water: '💧' };
+  const unitsMap = { Hay: 'bales', Grain: 't', Water: 'L' };
 
-  function simulateCapture(type) {
-    const el = document.getElementById(placeholderIds[type]);
-    const { bg, label } = photoColors[type];
-    el.innerHTML = `
-      <div style="height:80px;background:${bg};border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div style="font-size:12px;color:#1b7239;font-weight:700;text-align:center;margin-bottom:8px">${label}</div>
-      <button onclick="resetCapture('${type}')" style="width:100%;padding:7px;border:1.5px solid #dde8d8;border-radius:10px;background:#f8faf8;font-size:12px;color:#8898aa;font-weight:600;cursor:pointer">
-        Retake Photo
-      </button>
-    `;
+  // Sample Contracts Pool
+  const allContracts = [
+    { id: 'WHT-001', cat: 'Grain', var: 'Wheat', due: 'Due Nov 15', buyer: 'GrainCorp Bundaberg', grade: 'APW1 — Premium White', moved: 120, total: 400 },
+    { id: 'WHT-002', cat: 'Grain', var: 'Wheat', due: 'Due Nov 30', buyer: 'Greenwood Grains', grade: 'ASW — Standard White', moved: 250, total: 250 },
+    { id: 'WHT-003', cat: 'Grain', var: 'Wheat', due: 'Due Dec 5', buyer: 'ABC Foods Direct', grade: 'AGP — General Purpose', moved: 40, total: 100 },
+    { id: 'BAR-001', cat: 'Grain', var: 'Barley', due: 'Due Nov 22', buyer: 'Lion Nathan Maltings', grade: 'MAL1 — Malting Barley', moved: 80, total: 200 },
+    { id: 'HAY-001', cat: 'Hay', var: 'Oaten', due: 'Due Nov 18', buyer: 'Northern Stockfeed Co', grade: 'Prime Export Oaten', moved: 40, total: 150 },
+    { id: 'HAY-002', cat: 'Hay', var: 'Lucerne', due: 'Due Dec 1', buyer: 'Equine Elite Hub', grade: 'A1 Leaf Lucerne', moved: 20, total: 50 }
+  ];
+
+  // Step 1 Location
+  function updateLocationSummary() {
+    const shed = document.getElementById('shedSelect').value || 'Shed';
+    const bay = document.getElementById('baySelect').value || 'Bin';
+    const cleanShed = shed.split(' (')[0];
+    document.getElementById('locSummaryText').textContent = `Green Valley Farm › ${cleanShed} › ${bay}`;
   }
 
-  function resetCapture(type) {
-    const el = document.getElementById(placeholderIds[type]);
-    if (type === 'truck') {
-      el.innerHTML = `
-        <div class="no-photo" id="truckPhotoPlaceholder">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#c0cac0" stroke-width="1.6" stroke-linejoin="round"/>
-            <line x1="3" y1="3" x2="21" y2="21" stroke="#c0cac0" stroke-width="1.6" stroke-linecap="round"/>
-          </svg>
-          <div class="no-photo-text">No photo captured</div>
-          <div class="no-photo-sub">Tap button below to open camera</div>
+  // Step 2 Commodity
+  function renderVarietyPills() {
+    const container = document.getElementById('varietyPills');
+    container.innerHTML = '';
+    const list = varietiesMap[selectedCategory] || [];
+    list.forEach((v) => {
+      const pill = document.createElement('button');
+      pill.className = `var-pill ${v === selectedVariety ? 'active' : ''}`;
+      pill.textContent = v;
+      pill.onclick = () => {
+        selectedVariety = v;
+        renderVarietyPills();
+        updateComSummary();
+      };
+      container.appendChild(pill);
+    });
+  }
+
+  function selectCategory(cat, btnEl) {
+    selectedCategory = cat;
+    catIcon = iconsMap[cat] || '🌽';
+    selectedVariety = varietiesMap[cat][0];
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    document.getElementById('varietyLabel').textContent = `${cat.toUpperCase()} VARIETY`;
+    renderVarietyPills();
+    updateComSummary();
+    updateQtyUnit();
+    renderContractsList();
+  }
+
+  function updateComSummary() {
+    document.getElementById('comSummaryText').textContent = `${catIcon} ${selectedCategory} — ${selectedVariety}`;
+    document.getElementById('saleProductPrefill').value = `${selectedCategory} - ${selectedVariety}`;
+  }
+
+  // Step 3 Movement
+  function selectMovType(type, btnEl) {
+    selectedMovType = type;
+    document.querySelectorAll('.mov-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+
+    document.getElementById('subPanelContract').style.display = type === 'Contract' ? 'flex' : 'none';
+    document.getElementById('subPanelSale').style.display = type === 'Sale' ? 'flex' : 'none';
+    document.getElementById('subPanelOwn').style.display = (type === 'Own use' || type === 'Other') ? 'flex' : 'none';
+
+    if (type === 'Contract') renderContractsList();
+  }
+
+  function renderContractsList() {
+    const cont = document.getElementById('contractsListContainer');
+    cont.innerHTML = '';
+
+    // Filter matching commodity category
+    const list = allContracts.filter(c => c.cat === selectedCategory);
+    if (list.length === 0) {
+      cont.innerHTML = `<div style="padding:14px; background:#fff; border-radius:12px; text-align:center; color:var(--muted); font-size:13px;">No active contracts found for ${selectedCategory}.</div>`;
+      return;
+    }
+
+    list.forEach((c, i) => {
+      const isShipped = c.moved >= c.total;
+      const isSelected = c.id === selectedContractId && !isShipped;
+
+      const card = document.createElement('div');
+      card.className = `contract-card ${isSelected ? 'selected' : ''} ${isShipped ? 'fully-shipped' : ''}`;
+      card.onclick = () => {
+        if (isShipped) { alert('This contract has been fully shipped.'); return; }
+        selectedContractId = c.id;
+        selectedContractTitle = c.buyer;
+        renderContractsList();
+      };
+
+      const rem = c.total - c.moved;
+      const remText = isShipped ? 'Fully shipped' : `${rem} t remaining`;
+
+      card.innerHTML = `
+        <div class="c-top">
+          <span>${c.id} ${c.due}</span>
+          <div class="c-radio"></div>
         </div>
-        <button class="capture-btn" onclick="simulateCapture('truck')">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
-            <circle cx="12" cy="13" r="4" stroke="#fff" stroke-width="1.8"/>
-          </svg>
-          Capture Photo
-        </button>
+        <div class="c-title">${c.buyer}</div>
+        <span class="c-badge">${iconsMap[c.cat] || '🌾'} ${c.grade}</span>
+        <div class="c-prog-wrap">
+          <div class="c-prog-row">
+            <span>${c.moved} t moved of ${c.total} t</span>
+            <strong>${remText}</strong>
+          </div>
+          <div class="c-bar-bg">
+            <div class="c-bar-fill" style="width: ${Math.min(100, Math.round((c.moved/c.total)*100))}%;"></div>
+          </div>
+        </div>
       `;
+      cont.appendChild(card);
+    });
+  }
+
+  function calcSaleTotal() {
+    const q = parseFloat(document.getElementById('saleQtyInp').value || '0');
+    const p = parseFloat(document.getElementById('salePriceInp').value || '0');
+    document.getElementById('saleTotalReadonly').value = `$ ${(q * p).toLocaleString('en-AU', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    qtyStr = String(q);
+    updateEstWeight();
+  }
+
+  // Step 4 Quantity
+  function updateQtyUnit() {
+    const u = unitsMap[selectedCategory] || 'units';
+    document.getElementById('lqdUnit').textContent = u;
+    updateEstWeight();
+  }
+
+  function updateEstWeight() {
+    document.getElementById('lqdNum').textContent = qtyStr || '0';
+    const n = parseFloat(qtyStr || '0');
+    const sub = document.getElementById('estWeightSub');
+    if (selectedCategory === 'Hay') {
+      sub.textContent = `Est. ~${Math.round(n * 320)} kg`;
+    } else if (selectedCategory === 'Grain') {
+      sub.textContent = `Est. ~${Math.round(n * 1000)} kg`;
     } else {
-      el.innerHTML = `
-        <button class="add-photo-btn" onclick="simulateCapture('${type}')">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
-            <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          Add Photo
-        </button>
-      `;
+      sub.textContent = `~${n} kg total`;
     }
   }
 
-  // ── Confirm checkbox ──
-  let confirmed = false;
-  function toggleConfirm() {
-    confirmed = !confirmed;
-    const box = document.getElementById('confirmBox');
-    const icon = box.querySelector('.check-icon');
-    box.classList.toggle('checked', confirmed);
-    icon.style.display = confirmed ? 'block' : 'none';
+  function addQty(amt) {
+    const curr = parseFloat(qtyStr || '0');
+    qtyStr = String(curr + amt);
+    updateEstWeight();
   }
+
+  function kpPress(val) {
+    if (val === 'del') {
+      qtyStr = qtyStr.slice(0, -1);
+      if (!qtyStr) qtyStr = '0';
+    } else if (val === '.') {
+      if (!qtyStr.includes('.')) qtyStr += '.';
+    } else {
+      if (qtyStr === '0') qtyStr = val;
+      else qtyStr += val;
+    }
+    updateEstWeight();
+  }
+
+  // Step 5 Photos
+  function togglePhoto(cardEl) { cardEl.classList.toggle('attached'); }
+
+  // Navigation
+  const stepTitles = ['', 'Location', 'Commodity', 'Movement', 'Quantity', 'Photos', 'Review'];
+  const stepSubtitles = ['', 'STEP 1 OF 6 — LOCATION', 'STEP 2 OF 6 — COMMODITY', 'STEP 3 OF 6 — MOVEMENT', 'STEP 4 OF 6 — QUANTITY', 'STEP 5 OF 6 — PHOTOS', 'STEP 6 OF 6 — REVIEW'];
+
+  function goToStep(idx) {
+    currentStep = idx;
+
+    // Handle Success Screen
+    if (idx === 7) {
+      document.getElementById('mainHeader').style.display = 'none';
+      document.getElementById('mainFooter').style.display = 'none';
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('stepSuccess').classList.add('active');
+      triggerUploadAnim();
+      return;
+    }
+
+    document.getElementById('mainHeader').style.display = 'flex';
+    document.getElementById('mainFooter').style.display = 'flex';
+
+    // Update Header
+    document.getElementById('hdrTitle').textContent = stepTitles[idx];
+    document.getElementById('stepSubtitle').textContent = stepSubtitles[idx];
+
+    // Stepper bars (6 bars)
+    for (let i = 1; i <= 6; i++) {
+      const bar = document.getElementById(`bar${i}`);
+      bar.className = 'step-bar';
+      if (i < idx) bar.classList.add('completed');
+      else if (i === idx) bar.classList.add('active');
+    }
+
+    // Panels
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`step${idx}`).classList.add('active');
+
+    // Footer button text
+    const btn = document.getElementById('footerNextBtn');
+    if (idx === 1) btn.textContent = 'Next — Commodity →';
+    else if (idx === 2) btn.textContent = 'Next — Movement →';
+    else if (idx === 3) btn.textContent = 'Next — Quantity →';
+    else if (idx === 4) btn.textContent = 'Next — Photos →';
+    else if (idx === 5) btn.textContent = 'Next — Review →';
+    else if (idx === 6) {
+      btn.textContent = 'Submit Load ✓';
+      populateReview();
+    }
+  }
+
+  function handleNext() {
+    if (currentStep === 6) {
+      submitStockOutRecord();
+      goToStep(7);
+      return;
+    }
+    goToStep(currentStep + 1);
+  }
+
+  function handleBack() {
+    if (currentStep === 1) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    goToStep(currentStep - 1);
+  }
+
+  function populateReview() {
+    const u = unitsMap[selectedCategory] || '';
+    document.getElementById('revStatNum').textContent = qtyStr || '0';
+    document.getElementById('revStatUnit').textContent = u.toUpperCase();
+
+    const gross = document.getElementById('grossKg').value;
+    document.getElementById('revStatGross').textContent = gross && gross != '0' ? gross : '—';
+
+    const moist = document.getElementById('moisturePct').value;
+    document.getElementById('revStatMoisture').textContent = moist && moist.trim() ? moist : '—';
+
+    const shed = document.getElementById('shedSelect').value.split(' (')[0];
+    const bay = document.getElementById('baySelect').value;
+    document.getElementById('revLocation').textContent = `${shed} › ${bay}`;
+
+    document.getElementById('revCommodity').textContent = `${catIcon} ${selectedCategory} — ${selectedVariety}`;
+
+    // Movement details
+    const movIcons = { 'Contract': '📄 Contract', 'Sale': '💰 Sale', 'Own use': '🚜 Own use', 'Other': '📦 Other' };
+    document.getElementById('revMovement').textContent = movIcons[selectedMovType] || selectedMovType;
+
+    if (selectedMovType === 'Contract') {
+      document.getElementById('revContractKey').textContent = 'Contract';
+      document.getElementById('revContractVal').textContent = `${selectedContractId} · ${selectedContractTitle}`;
+    } else if (selectedMovType === 'Sale') {
+      const buyer = document.getElementById('custNameSelect').value;
+      const total = document.getElementById('saleTotalReadonly').value;
+      document.getElementById('revContractKey').textContent = 'Direct Sale';
+      document.getElementById('revContractVal').textContent = `${buyer} · ${total}`;
+    } else {
+      document.getElementById('revContractKey').textContent = 'Reason';
+      document.getElementById('revContractVal').textContent = document.getElementById('ownDest').value || 'On-farm consumption';
+    }
+
+    const truck = document.getElementById('truckRego').value;
+    document.getElementById('revTruck').textContent = truck ? truck : '—';
+
+    const carrier = document.getElementById('carrierName').value;
+    document.getElementById('revCarrier').textContent = carrier ? carrier : '—';
+  }
+
+  function submitStockOutRecord() {
+    const u = unitsMap[selectedCategory] || '';
+    const shed = document.getElementById('shedSelect').value.split(' (')[0];
+    const bay = document.getElementById('baySelect').value;
+    const truck = document.getElementById('truckRego').value || '—';
+    const gross = document.getElementById('grossKg').value;
+    const moist = document.getElementById('moisturePct').value;
+
+    const record = {
+      id: 'SOU-' + Math.floor(1000 + Math.random() * 9000),
+      action: 'OUT',
+      category: selectedCategory,
+      variety: selectedVariety,
+      commodity: `${selectedCategory} - ${selectedVariety}`,
+      movementType: selectedMovType,
+      contractOrBuyer: selectedMovType === 'Contract' ? `${selectedContractId} (${selectedContractTitle})` : document.getElementById('custNameSelect').value,
+      quantity: parseFloat(qtyStr || '0'),
+      unit: u,
+      location: `${shed} › ${bay}`,
+      truck: truck,
+      grossKg: gross && gross != '0' ? gross : null,
+      moisturePct: moist && moist.trim() ? moist : null,
+      date: new Date().toISOString()
+    };
+
+    let history = JSON.parse(localStorage.getItem('stock_out_history') || '[]');
+    history.unshift(record);
+    localStorage.setItem('stock_out_history', JSON.stringify(history));
+
+    // Populate Success Screen
+    document.getElementById('succSub').textContent = `OUT ${qtyStr} ${u} → ${shed} › ${bay}`;
+    document.getElementById('succCommodity').textContent = `${selectedCategory} — ${selectedVariety}`;
+    document.getElementById('succGross').textContent = gross && gross != '0' ? gross + ' kg' : 'Not weighed';
+    document.getElementById('succMoisture').textContent = moist && moist.trim() ? moist + (moist.includes('%') ? '' : '%') : 'Not recorded';
+    document.getElementById('succTruck').textContent = truck;
+  }
+
+  function triggerUploadAnim() {
+    const fill = document.getElementById('succUploadFill');
+    const txt = document.getElementById('succUploadTxt');
+    fill.style.width = '0%';
+    txt.textContent = 'Uploading photos... 0%';
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      if (progress <= 100) {
+        fill.style.width = progress + '%';
+        txt.textContent = `Uploading photos... ${progress}%`;
+      } else {
+        clearInterval(interval);
+        txt.textContent = 'Photos uploaded ✓';
+      }
+    }, 80);
+  }
+
+  function resetWizard() {
+    qtyStr = '4';
+    document.getElementById('grossKg').value = '0';
+    document.getElementById('moisturePct').value = '';
+    document.getElementById('truckRego').value = '';
+    document.getElementById('carrierName').value = '';
+    goToStep(1);
+  }
+
+  // Init
+  document.getElementById('saleDateInp').valueAsDate = new Date();
+  renderVarietyPills();
+  updateLocationSummary();
+  updateEstWeight();
+  renderContractsList();
 </script>
 </body>
 </html>

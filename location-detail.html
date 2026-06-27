@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Silo Breakdown – AgEzy</title>
+<title>Location Details – AgEzy</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -29,37 +29,35 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
 .body{flex:1;overflow-y:auto;padding:16px 20px 100px}
 .body::-webkit-scrollbar{display:none}
 
-/* Top Banner */
-.banner{background:var(--card);padding:24px 20px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:20px;}
-.banner-label{font:600 13px system-ui;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
-.banner-val{font:800 28px system-ui;color:var(--green);}
+/* Map Preview Header */
+.map-preview{height:160px;border-radius:16px;overflow:hidden;margin-bottom:16px;position:relative;background:#d8ead8;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.map-img{width:100%;height:100%;object-fit:cover;}
+.map-pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:var(--blue);border:3px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,.2);}
+.map-pin svg{width:20px;height:20px;stroke:#fff;}
 
-/* Silo List */
-.silo-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
-.silo-card{background:var(--card);border-radius:16px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);cursor:pointer;display:flex;align-items:center;gap:16px;border:2px solid transparent;transition:all 0.2s;}
-.silo-card:hover{border-color:var(--green-mid);}
-.silo-card.active{border-color:var(--red);} /* Like the mockup red outline */
+/* Location Info */
+.loc-title{font:700 22px system-ui;color:var(--text);margin-bottom:4px;}
+.loc-type{font:600 14px system-ui;color:var(--muted);margin-bottom:12px;}
 
-.silo-icon{width:48px;height:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.detail-list{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.04);margin-bottom:20px;}
+.detail-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-label{font:500 13px system-ui;color:var(--muted);}
+.detail-val{font:600 13px system-ui;color:var(--text);}
+
+/* View Map Button */
+.btn-primary{display:flex;align-items:center;justify-content:space-between;width:100%;padding:16px 20px;border-radius:12px;background:var(--green-mid);border:none;color:#fff;font:700 16px system-ui;cursor:pointer;margin-bottom:24px;}
+.btn-primary svg{stroke:#fff;}
+
+/* Silos Section */
+.sec-title{font:700 12px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;}
+
+.silo-list{display:flex;flex-direction:column;gap:12px;}
+.silo-card{background:var(--card);border-radius:16px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;align-items:center;gap:16px;}
+.silo-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .silo-info{flex:1;}
-.silo-name{font:700 15px system-ui;color:var(--text);margin-bottom:4px;}
-.silo-stock{font:600 14px system-ui;color:var(--text);margin-bottom:8px;}
-
-/* Progress Bar */
-.prog-wrap{width:100%;height:6px;background:var(--border);border-radius:3px;position:relative;overflow:hidden;}
-.prog-bar{position:absolute;left:0;top:0;bottom:0;background:var(--blue);border-radius:3px;}
-
-.silo-pct{font:600 13px system-ui;color:var(--muted);text-align:right;}
-.silo-arrow{margin-left:8px;opacity:0.5;}
-
-.silo-card:nth-child(1) .prog-bar{width:44%;}
-.silo-card:nth-child(2) .prog-bar{width:33%;}
-.silo-card:nth-child(3) .prog-bar{width:22%;}
-
-/* Total Row */
-.total-row{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--card);border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.04);}
-.total-lbl{font:700 16px system-ui;color:var(--text);}
-.total-val{font:700 16px system-ui;color:var(--green);}
+.silo-name{font:700 14px system-ui;color:var(--text);}
+.silo-qty{font:700 14px system-ui;color:var(--green);}
 
 </style>
 </head>
@@ -71,90 +69,83 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
     <button class="hdr-back" onclick="window.history.back()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div class="hdr-title">Silo Breakdown</div>
+    <div class="hdr-title">Location Details</div>
     <button class="hdr-btn-icon">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
     </button>
   </div>
 
   <div class="body" id="body">
     
-    <div class="banner">
-      <div class="banner-label">Total Current Stock</div>
-      <div class="banner-val">450 Tonne</div>
+    <div class="map-preview" onclick="window.location.href='farm-map.html'" style="cursor:pointer;">
+      <div style="width:100%;height:100%;background:url('https://maps.googleapis.com/maps/api/staticmap?center=-27.123456,152.654321&zoom=15&size=400x200&maptype=satellite') center/cover;"></div>
+      <div class="map-pin">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
     </div>
 
+    <div class="loc-title">North Farm</div>
+    <div class="loc-type">Storage Area</div>
+
+    <div class="detail-list">
+      <div class="detail-row">
+        <div class="detail-label">Latitude</div>
+        <div class="detail-val">-27.123456</div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Longitude</div>
+        <div class="detail-val">152.654321</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="window.location.href='farm-map.html'">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/></svg>
+        View Map
+      </div>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+
+    <div class="sec-title">SILOS AT THIS LOCATION</div>
     <div class="silo-list">
-      
-      <!-- Silo 1 -->
-      <div class="silo-card active" onclick="window.location.href='silo-detail.html'">
+      <div class="silo-card">
         <div class="silo-icon">
-          <!-- Silo icon SVG placeholder -->
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
             <path d="M4 22V6c0-2.5 4-4 8-4s8 1.5 8 4v16"/>
             <path d="M4 6c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 12c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 18c0 2.5 4 4 8 4s8-1.5 8-4"/>
           </svg>
         </div>
         <div class="silo-info">
           <div class="silo-name">Silo 1 - North</div>
-          <div class="silo-stock">200 Tonne</div>
-          <div class="prog-wrap"><div class="prog-bar"></div></div>
         </div>
-        <div class="silo-pct">44%</div>
-        <div class="silo-arrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
+        <div class="silo-qty">200 Tonne</div>
       </div>
 
-      <!-- Silo 2 -->
-      <div class="silo-card" onclick="window.location.href='silo-detail.html'">
+      <div class="silo-card">
         <div class="silo-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
             <path d="M4 22V6c0-2.5 4-4 8-4s8 1.5 8 4v16"/>
             <path d="M4 6c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 12c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 18c0 2.5 4 4 8 4s8-1.5 8-4"/>
           </svg>
         </div>
         <div class="silo-info">
           <div class="silo-name">Silo 2 - East</div>
-          <div class="silo-stock">150 Tonne</div>
-          <div class="prog-wrap"><div class="prog-bar"></div></div>
         </div>
-        <div class="silo-pct">33%</div>
-        <div class="silo-arrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
+        <div class="silo-qty">150 Tonne</div>
       </div>
 
-      <!-- Silo 3 -->
-      <div class="silo-card" onclick="window.location.href='silo-detail.html'">
+      <div class="silo-card">
         <div class="silo-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="1.5">
             <path d="M4 22V6c0-2.5 4-4 8-4s8 1.5 8 4v16"/>
             <path d="M4 6c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 12c0 2.5 4 4 8 4s8-1.5 8-4"/>
-            <path d="M4 18c0 2.5 4 4 8 4s8-1.5 8-4"/>
           </svg>
         </div>
         <div class="silo-info">
           <div class="silo-name">Silo 3 - West</div>
-          <div class="silo-stock">100 Tonne</div>
-          <div class="prog-wrap"><div class="prog-bar"></div></div>
         </div>
-        <div class="silo-pct">22%</div>
-        <div class="silo-arrow">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
+        <div class="silo-qty">100 Tonne</div>
       </div>
-
-    </div>
-
-    <div class="total-row">
-      <div class="total-lbl">Total</div>
-      <div class="total-val">450 Tonne</div>
     </div>
 
   </div>

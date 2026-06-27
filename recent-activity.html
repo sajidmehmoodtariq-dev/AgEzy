@@ -89,9 +89,9 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
 .nav-item.active .nav-lbl{color:var(--green-dark);font-weight:700}
 
 /* Backdrop + Sheet */
-.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:50;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
 .backdrop.show{opacity:1;pointer-events:all}
-.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:51;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:80%}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:201;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:80%}
 .sheet.open{transform:translateY(0)}
 .sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
 .sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -150,7 +150,7 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
       <div class="ftab" onclick="setTab(this,'job')">Contracting</div>
       <div class="ftab" onclick="setTab(this,'stock')">Stock</div>
       <div class="ftab" onclick="setTab(this,'timesheet')">Timesheets</div>
-      <div class="ftab" onclick="setTab(this,'contract')">Contracts</div>
+      <div class="ftab" onclick="setTab(this,'contract')">Inventory</div>
       <div class="ftab" onclick="setTab(this,'team')">Team</div>
     </div>
   </div>
@@ -176,9 +176,9 @@ html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:cen
       <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
       <span class="nav-lbl">Contracting</span>
     </button>
-    <button class="nav-item" onclick="window.location.href='contracts-list.html'">
+    <button class="nav-item" onclick="window.location.href='commodity-catalog.html'">
       <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <span class="nav-lbl">Contracts</span>
+      <span class="nav-lbl">Inventory</span>
     </button>
     <button class="nav-item" onclick="window.location.href='farm-map.html'">
       <div class="nav-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
@@ -212,7 +212,7 @@ const activities = [
   // TODAY
   {id:'A001',group:'Today',time:'11:42 AM',cat:'job',icon:'green',iconSvg:'job',
    name:'Spray Job Started',sub:'Block A · Glyphosate 450',badge:'In Progress',badgeClass:'badge-green',
-   dest:'jobs-hub.html',destLabel:'View Contracting Hub',
+   dest:'jobs-hub.html',destLabel:'View Jobs Hub',
    details:{Type:'Spray Job',Location:'Block A – 45 ha',Operator:'Sarah M.',Chemical:'Glyphosate 450',Rate:'2.4 L/ha',Status:'In Progress',Notes:'High wind advisory active. GPS weather auto-filled.'}},
 
   {id:'A002',group:'Today',time:'11:15 AM',cat:'timesheet',icon:'blue',iconSvg:'clock',
@@ -237,7 +237,7 @@ const activities = [
 
   {id:'A006',group:'Today',time:'08:30 AM',cat:'job',icon:'orange',iconSvg:'harvest',
    name:'Harvest Job: 42 Loads',sub:'Home Paddock · 1.2k Tonnes',badge:'Active',badgeClass:'badge-orange',
-   dest:'jobs-hub.html',destLabel:'View Contracting Hub',
+   dest:'jobs-hub.html',destLabel:'View Jobs Hub',
    details:{Type:'Harvest Job',Location:'Home Paddock – 120 ha',Commodity:'Wheat',Loads:'42',Tonnes:'1,204',Operator:'Alex P.',Trucks:'3 active',Status:'In Progress'}},
 
   // YESTERDAY
@@ -248,7 +248,7 @@ const activities = [
 
   {id:'A008',group:'Yesterday',time:'3:20 PM',cat:'job',icon:'green',iconSvg:'job',
    name:'Hay Job Completed',sub:'South Block · 142 Round Bales',badge:'Completed',badgeClass:'badge-green',
-   dest:'jobs-hub.html',destLabel:'View Contracting Hub',
+   dest:'jobs-hub.html',destLabel:'View Jobs Hub',
    details:{Type:'Hay Job',Location:'South Block – 95 ha',Bales:'142 Round Bales',Moisture:'16.2%',Operator:'James R.',CompletedAt:'3:20 PM',Status:'Completed',Notes:'Bales stacked and wrapped. Ready for transport.'}},
 
   {id:'A009',group:'Yesterday',time:'1:08 PM',cat:'timesheet',icon:'blue',iconSvg:'clock',
@@ -258,7 +258,7 @@ const activities = [
 
   {id:'A010',group:'Yesterday',time:'8:00 AM',cat:'team',icon:'teal',iconSvg:'team',
    name:'Safety Check Completed',sub:'John G. · Pre-start · Home Paddock',badge:'Passed',badgeClass:'badge-green',
-   dest:'jobs-hub.html',destLabel:'View Contracting Hub',
+   dest:'jobs-hub.html',destLabel:'View Jobs Hub',
    details:{Employee:'John Doe',Role:'Farm Manager',CheckType:'Pre-Start Safety',Location:'Home Paddock',ItemsChecked:'10 / 10',Signed:'Yes',Status:'Passed',Notes:'All PPE, machine checks, and site conditions verified.'}},
 
   // OCT 23
@@ -280,7 +280,7 @@ const activities = [
   // OCT 22
   {id:'A014',group:'Oct 22',time:'5:10 PM',cat:'job',icon:'blue',iconSvg:'job',
    name:'Spray Job Completed',sub:'Block C · Chemical Usage 420 L',badge:'Completed',badgeClass:'badge-green',
-   dest:'jobs-hub.html',destLabel:'View Contracting Hub',
+   dest:'jobs-hub.html',destLabel:'View Jobs Hub',
    details:{Type:'Spray Job',Location:'Block C – 58 ha',Chemical:'Glyphosate 450 + Urea',VolumeUsed:'420 L',Operator:'Sarah M.',CompletedAt:'5:10 PM',Status:'Completed',Notes:'PDF report generated and synced.'}},
 
   {id:'A015',group:'Oct 22',time:'10:40 AM',cat:'contract',icon:'purple',iconSvg:'contract',

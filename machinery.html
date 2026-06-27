@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Machinery Management – AgEzy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
+  --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;--purple:#7c3aed;
+  --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+  --app-scale:1;
+}
+html,body{width:100%;height:100%;background:#e0e0e0;display:flex;align-items:center;justify-content:center}
+.screen{
+  width:390px;height:844px;background:var(--bg);border-radius:40px;
+  overflow:hidden;position:relative;display:flex;flex-direction:column;
+  transform:scale(var(--app-scale));transform-origin:center;
+  box-shadow:0 32px 80px rgba(0,0,0,.5);
+}
+
+/* Header */
+.hdr{background:var(--green-dark);padding:52px 20px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.hdr-back{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-title{color:#fff;font:700 18px/1 system-ui;flex:1}
+.hdr-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:7px 14px;color:#fff;font:600 13px system-ui;cursor:pointer;display:flex;align-items:center;gap:6px}
+
+/* Search bar */
+.search-bar{background:var(--green-dark);padding:0 20px 16px;flex-shrink:0}
+.search-wrap{position:relative}
+.search-input{width:100%;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 14px 10px 38px;color:#fff;font:400 14px system-ui;outline:none}
+.search-input::placeholder{color:rgba(255,255,255,.5)}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);opacity:.6}
+
+/* Filter tabs - scrollable */
+.ftab-wrap{background:var(--green-dark);padding:0 20px 16px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0}
+.ftab-wrap::-webkit-scrollbar{display:none}
+.ftab{padding:7px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.25);background:transparent;font:500 12px system-ui;color:rgba(255,255,255,.7);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.ftab.active{border-color:#fff;color:#fff;background:rgba(255,255,255,.2)}
+
+/* Stats strip */
+.stats-strip{background:var(--green-mid);padding:10px 20px;display:flex;gap:0;flex-shrink:0}
+.stat-item{flex:1;text-align:center;border-right:1px solid rgba(255,255,255,.15)}
+.stat-item:last-child{border-right:none}
+.stat-num{color:#fff;font:700 17px system-ui}
+.stat-lbl{color:rgba(255,255,255,.7);font:400 10px system-ui;margin-top:1px}
+
+/* Body */
+.body{flex:1;overflow-y:auto;padding:16px 20px 100px}
+.body::-webkit-scrollbar{display:none}
+
+/* Section label */
+.sec-lbl{font:600 11px system-ui;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:4px 0 10px}
+
+/* Machine card */
+.mach-card{background:#fff;border-radius:16px;margin-bottom:10px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.03);transition:transform .12s}
+.mach-card:active { transform: scale(0.995); }
+.mach-summary{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}
+.mach-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mach-info{flex:1;min-width:0}
+.mach-name{font:700 14px system-ui;color:var(--text)}
+.mach-meta{font:400 12px system-ui;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mach-tags{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap}
+.mach-tag{padding:2px 8px;border-radius:20px;font:500 10px system-ui}
+.tag-tractor{background:#fff5e6;color:#ea580c}
+.tag-harvester{background:#fef3e2;color:#d97706}
+.tag-spray{background:#e6f9f9;color:#0d9488}
+.tag-implement{background:#e8f3ff;color:var(--blue)}
+.tag-other{background:#f0f0f0;color:#555}
+
+.mach-right{text-align:right;flex-shrink:0}
+.mach-hours{font:700 14px system-ui;color:var(--text)}
+.mach-hours-lbl{font:400 10px system-ui;color:var(--muted);margin-top:2px}
+.mach-status{font:600 11px system-ui;margin-top:4px}
+.status-active{color:var(--green)}
+.status-service{color:var(--orange)}
+.status-down{color:var(--red)}
+
+/* Expand chevron */
+.chev{transition:transform .2s;color:#bbb}
+.chev.open{transform:rotate(180deg)}
+
+/* Detail expand panel */
+.mach-detail{display:none;padding:14px;border-top:1px solid var(--border);background:#fafafa}
+.mach-detail.show{display:block}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;margin-bottom:14px}
+.detail-item{display:flex;flex-direction:column;gap:3px}
+.detail-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+.detail-val{font-size:13px;font-weight:600;color:var(--text)}
+.detail-val.active{color:var(--green-mid)}
+.detail-val.service{color:var(--orange)}
+.detail-val.down{color:var(--red)}
+
+.fuel-bar-wrap{display:flex;align-items:center;gap:8px;margin-top:2px}
+.fuel-bar{flex:1;height:6px;background:#e8ede8;border-radius:3px;overflow:hidden}
+.fuel-bar-fill{height:100%;background:var(--green);border-radius:3px}
+.fuel-bar-fill.low{background:var(--orange)}
+.fuel-bar-fill.empty{background:var(--red)}
+
+.detail-actions{display:flex;gap:8px}
+.det-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font:700 12px system-ui;color:var(--text);cursor:pointer;text-align:center;transition:all .1s}
+.det-btn:active{background:#f4f6f4}
+.det-btn.primary{background:var(--green-mid);border-color:var(--green-mid);color:#fff}
+.det-btn.primary:active{opacity:0.9}
+
+/* Fab */
+.fab{position:absolute;bottom:88px;right:20px;width:52px;height:52px;border-radius:50%;background:var(--green);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,171,79,.4);z-index:20}
+
+/* Bottom nav */
+.nav{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:10}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;border:none;background:none}
+.nav-ic{width:40px;height:28px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+.nav-ic.active{background:var(--green-dark)}
+.nav-lbl{font:500 10px system-ui;color:var(--muted)}
+.nav-item.active .nav-lbl{color:var(--green-dark);font-weight:700}
+
+/* Backdrop + Sheet */
+.backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:200;opacity:0;pointer-events:none;transition:opacity .25s}
+.backdrop.show{opacity:1;pointer-events:all}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:24px 24px 0 0;z-index:201;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:85%}
+.sheet.open{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px}
+.sheet-title{font:700 16px system-ui;color:var(--text)}
+.sheet-close{width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{padding:0 20px 24px;overflow-y:auto;max-height:72vh}
+.sheet-body::-webkit-scrollbar{display:none}
+
+/* Form fields */
+.field{margin-bottom:14px}
+.field label{font:600 12px system-ui;color:var(--muted);display:block;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:400 14px system-ui;color:var(--text);background:#fff;outline:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green)}
+.field textarea{resize:none;height:72px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-primary{width:100%;padding:15px;border-radius:14px;background:var(--green);border:none;color:#fff;font:700 15px system-ui;cursor:pointer;margin-top:6px}
+
+/* Category chips */
+.cat-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.cat-chip{padding:8px 14px;border-radius:12px;border:1.5px solid var(--border);font:500 12px system-ui;color:var(--text);cursor:pointer;background:#fff}
+.cat-chip.sel{border-color:var(--green);background:#e8f7ed;color:var(--green-mid)}
+
+/* Toast */
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(26,61,40,.95);color:#fff;padding:10px 20px;border-radius:24px;font:500 13px system-ui;white-space:nowrap;opacity:0;transition:all .3s;z-index:200;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="screen" id="screen">
+
+  <!-- Header -->
+  <div class="hdr">
+    <button class="hdr-back" onclick="window.location.href='dashboard.html'">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="hdr-title">Machinery List</span>
+    <button class="hdr-btn" onclick="openAddSheet()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search machinery…" oninput="filterMachinery(this.value)">
+    </div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="ftab-wrap">
+    <div class="ftab active" onclick="setTab(this,'all')">All</div>
+    <div class="ftab" onclick="setTab(this,'tractor')">Tractors</div>
+    <div class="ftab" onclick="setTab(this,'harvester')">Harvesters</div>
+    <div class="ftab" onclick="setTab(this,'spray')">Spray Rigs</div>
+    <div class="ftab" onclick="setTab(this,'implement')">Implements</div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num" id="st-total">7</div><div class="stat-lbl">Machines</div></div>
+    <div class="stat-item"><div class="stat-num" id="st-active">5</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-item"><div class="stat-num" id="st-service">2</div><div class="stat-lbl">In Service</div></div>
+    <div class="stat-item"><div class="stat-num">$1.6M</div><div class="stat-lbl">Est. Value</div></div>
+  </div>
+
+  <!-- Body -->
+  <div class="body" id="body">
+    <div class="sec-lbl" id="sec-label">All Machinery</div>
+    <div id="mach-list"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="openAddSheet()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- BOTTOM NAV (Solid Bar Style) -->
+                              <style id="unified-nav-style">
+      #unified-nav.bottom-nav {
+        flex: 0 0 auto;
+        height: 70px;
+        background: #fff;
+        border-top: 1px solid #e8ede8;
+        display: flex; align-items: center; justify-content: space-around;
+        padding: 0 10px; gap: 5px;
+        margin-top: auto; z-index: 100;
+        position: relative;
+      }
+      #unified-nav .nav-item {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 4px;
+        cursor: pointer; padding: 6px 4px; border: none; background: transparent; text-decoration: none;
+      }
+      #unified-nav .nav-icon {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+      }
+      #unified-nav .nav-icon.active { background: var(--green-dark, #1b7239); }
+      #unified-nav .nav-icon img, #unified-nav .nav-icon svg { width: 22px; height: 22px; opacity: 0.8; }
+      #unified-nav .nav-icon.active img { filter: brightness(0) invert(1) !important; opacity: 1; }
+      #unified-nav .nav-icon.active svg { stroke: #fff !important; opacity: 1; }
+      #unified-nav .nav-label { font-size: 9px; font-weight: 600; color: var(--muted, #8898aa); text-align: center; line-height: 1.1; white-space: nowrap; margin: 0; }
+      #unified-nav .nav-item.active .nav-label { color: var(--green-dark, #1b7239); }
+    </style>
+    <nav id="unified-nav" class="bottom-nav">
+      <!-- Home -->
+      <div class="nav-item " onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon "><img src="images/nav-home.png" alt="Home" /></div>
+        <div class="nav-label">Home</div>
+      </div>
+      <!-- Contracting -->
+      <div class="nav-item " onclick="window.location.href='jobs-hub.html'">
+        <div class="nav-icon "><img src="images/nav-contract-work.png" alt="Contracting" /></div>
+        <div class="nav-label">Contracting</div>
+      </div>
+      <!-- Inventory -->
+      <div class="nav-item " onclick="window.location.href='commodity-catalog.html'">
+        <div class="nav-icon ">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="nav-label">Inventory</div>
+      </div>
+      <!-- Timesheets -->
+      <div class="nav-item " onclick="window.location.href='timesheets-list.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="nav-label">Timesheets</div>
+      </div>
+      <!-- Map -->
+      <div class="nav-item " onclick="window.location.href='farm-map.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+        <div class="nav-label">Map</div>
+      </div>
+    </nav>
+
+  <!-- Add Machinery Sheet -->
+  <div class="backdrop" id="addBackdrop" onclick="closeSheet('addBackdrop','addSheet')"></div>
+  <div class="sheet" id="addSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <span class="sheet-title">Add Machinery</span>
+      <button class="sheet-close" onclick="closeSheet('addBackdrop','addSheet')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="field">
+        <label>Machine Model / Name</label>
+        <input type="text" id="add-name" placeholder="e.g. John Deere 8370R, Claas Lexion 8700…">
+      </div>
+      <div class="field">
+        <label>Type / Category</label>
+        <div class="cat-chips" id="cat-chips">
+          <div class="cat-chip sel" onclick="selectCat(this,'tractor')">Tractor</div>
+          <div class="cat-chip" onclick="selectCat(this,'harvester')">Harvester</div>
+          <div class="cat-chip" onclick="selectCat(this,'spray')">Spray Rig</div>
+          <div class="cat-chip" onclick="selectCat(this,'implement')">Implement</div>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Status</label>
+          <select id="add-status">
+            <option value="active">Active / Operational</option>
+            <option value="service">In Service / Maintenance</option>
+            <option value="down">Broken Down</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Current Hours</label>
+          <input type="number" id="add-hours" placeholder="e.g. 1200">
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Fuel Level (%)</label>
+          <input type="number" id="add-fuel" placeholder="e.g. 80" min="0" max="100">
+        </div>
+        <div class="field">
+          <label>Primary Operator</label>
+          <select id="add-operator">
+            <option value="None">None (Unassigned)</option>
+            <option value="John Smith">John Smith</option>
+            <option value="Alex Parker">Alex Parker</option>
+            <option value="Sarah Mitchell">Sarah Mitchell</option>
+            <option value="James Russel">James Russel</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Location / Storage Paddock</label>
+        <input type="text" id="add-loc" placeholder="e.g. Block A, Main Shed…">
+      </div>
+      <button class="btn-primary" onclick="addMachinery()">Save Machinery →</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+const CATS = {
+  tractor:{
+    label:'Tractor',
+    bg:'#fff5e6',
+    color:'#ea580c',
+    tagClass:'tag-tractor',
+    icon:'<circle cx="6" cy="17" r="4.5" fill="#ea580c" opacity=".1"/><circle cx="18" cy="18" r="2.5" fill="#ea580c" opacity=".1"/><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="4.5"/><circle cx="18" cy="18" r="2.5"/><path d="M10.5 17H16v1h2v-3.5h-4v-4.5l-3.5 1v6z"/><path d="M7 12.5V8.5h4.5l2 2v2"/><line x1="13.5" y1="7.5" x2="13.5" y2="10"/></svg>'
+  },
+  harvester:{
+    label:'Harvester',
+    bg:'#fef3e2',
+    color:'#d97706',
+    tagClass:'tag-harvester',
+    icon:'<rect x="3" y="10" width="18" height="9" rx="2" fill="#d97706" opacity=".1"/><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="4.5"/><circle cx="15" cy="17" r="4.5"/><rect x="3" y="10" width="18" height="5" rx="1"/><path d="M21 12.5h-6M10 7.5l5 2.5"/></svg>'
+  },
+  spray:{
+    label:'Spray Rig',
+    bg:'#e6f9f9',
+    color:'#0d9488',
+    tagClass:'tag-spray',
+    icon:'<path d="M2 12h20M12 4v16" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="3" fill="#0d9488" opacity=".1"/><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12h20M6 12v4M18 12v4M12 2v7M10 5h4"/></svg>'
+  },
+  implement:{
+    label:'Implement',
+    bg:'#e8f3ff',
+    color:'#2d5bd4',
+    tagClass:'tag-implement',
+    icon:'<path d="M3 6h18M6 6v12M18 6v12M12 6v12" stroke="#2d5bd4" stroke-width="1.8" fill="none"/><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2d5bd4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M6 6v13a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6M10 6v14M14 6v14"/></svg>'
+  }
+};
+
+let machinery = [
+  {id:'M001',name:'John Deere 8370R',cat:'tractor',hours:1420,fuel:68,status:'active',operator:'John Smith',loc:'Block A',nextService:1500},
+  {id:'M002',name:'Case IH Magnum 340',cat:'tractor',hours:2150,fuel:45,status:'active',operator:'Alex Parker',loc:'Block C',nextService:2200},
+  {id:'M003',name:'Claas Lexion 8700',cat:'harvester',hours:840,fuel:82,status:'service',operator:'None',loc:'Shed 2',nextService:850},
+  {id:'M004',name:'New Holland CR9.90',cat:'harvester',hours:1120,fuel:52,status:'active',operator:'Sarah Mitchell',loc:'Block B',nextService:1200},
+  {id:'M005',name:'Goldacres Super Cruiser',cat:'spray',hours:1980,fuel:30,status:'active',operator:'John Smith',loc:'Block D',nextService:2000},
+  {id:'M006',name:'Croplands RoGator 1300',cat:'spray',hours:2450,fuel:15,status:'service',operator:'None',loc:'Shed 1',nextService:2500},
+  {id:'M007',name:'Seed Hawk 84 Speed Drill',cat:'implement',hours:320,fuel:100,status:'active',operator:'James Russel',loc:'Block A',nextService:500}
+];
+
+let currentTab = 'all';
+let selectedCat = 'tractor';
+let expandedId = null;
+
+function setTab(el, tab) {
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentTab = tab;
+  const labels = {all:'All Machinery',tractor:'Tractors',harvester:'Harvesters',spray:'Spray Rigs',implement:'Implements'};
+  document.getElementById('sec-label').textContent = labels[tab]||'All Machinery';
+  renderList();
+}
+
+function filterMachinery(q) {
+  renderList(q.toLowerCase());
+}
+
+function statusClass(s) {
+  if (s==='active') return 'status-active';
+  if (s==='service') return 'status-service';
+  return 'status-down';
+}
+
+// Map custom status classes for details view
+function detailStatusClass(s) {
+  if (s==='active') return 'active';
+  if (s==='service') return 'service';
+  return 'down';
+}
+
+function statusText(s) {
+  if (s==='active') return 'Active';
+  if (s==='service') return 'In Service';
+  return 'Down';
+}
+
+function fuelClass(f) {
+  if (f <= 15) return 'empty';
+  if (f <= 40) return 'low';
+  return '';
+}
+
+function renderList(q='') {
+  const list = document.getElementById('mach-list');
+  const filtered = machinery.filter(m=>{
+    const matchTab = currentTab==='all' || m.cat===currentTab;
+    const matchQ = !q || m.name.toLowerCase().includes(q) || m.loc.toLowerCase().includes(q) || m.operator.toLowerCase().includes(q);
+    return matchTab && matchQ;
+  });
+  
+  document.getElementById('st-total').textContent = filtered.length;
+  document.getElementById('st-active').textContent = filtered.filter(x=>x.status==='active').length;
+  document.getElementById('st-service').textContent = filtered.filter(x=>x.status==='service'||x.status==='down').length;
+
+  list.innerHTML = filtered.map(m=>{
+    const cat = CATS[m.cat]||CATS.tractor;
+    const isOpen = expandedId===m.id;
+    return `
+    <div class="mach-card" id="card-${m.id}">
+      <div class="mach-summary" onclick="toggleExpand('${m.id}')">
+        <div class="mach-icon" style="background:${cat.bg}">
+          ${cat.icon}
+        </div>
+        <div class="mach-info">
+          <div class="mach-name">${m.name}</div>
+          <div class="mach-meta">Loc: ${m.loc} • Op: ${m.operator}</div>
+          <div class="mach-tags">
+            <span class="mach-tag ${cat.tagClass}">${cat.label}</span>
+          </div>
+        </div>
+        <div class="mach-right">
+          <div class="mach-hours">${m.hours} hrs</div>
+          <div class="mach-hours-lbl">Total Run</div>
+          <div class="mach-status ${statusClass(m.status)}">${statusText(m.status)}</div>
+        </div>
+        <div class="chev ${isOpen?'open':''}" style="margin-left: 8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+      </div>
+      
+      <div class="mach-detail ${isOpen?'show':''}">
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-val ${detailStatusClass(m.status)}">${statusText(m.status)}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Paddock / Location</span>
+            <span class="detail-val">${m.loc}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Current Hours</span>
+            <span class="detail-val">${m.hours} hrs</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Next Service</span>
+            <span class="detail-val">At ${m.nextService} hrs (in ${m.nextService - m.hours} hrs)</span>
+          </div>
+          <div class="detail-item" style="grid-column: span 2;">
+            <span class="detail-label">Fuel Level (${m.fuel}%)</span>
+            <div class="fuel-bar-wrap">
+              <div class="fuel-bar">
+                <div class="fuel-bar-fill ${fuelClass(m.fuel)}" style="width:${m.fuel}%"></div>
+              </div>
+              <span class="detail-val" style="font-weight: 700;">${m.fuel}%</span>
+            </div>
+          </div>
+          <div class="detail-item" style="grid-column: span 2;">
+            <span class="detail-label">Primary Assigned Operator</span>
+            <span class="detail-val">${m.operator}</span>
+          </div>
+        </div>
+        
+        <div class="detail-actions">
+          <button class="det-btn" onclick="logService('${m.id}')">Log Service</button>
+          <button class="det-btn" onclick="assignOperator('${m.id}')">Assign Op</button>
+          <button class="det-btn primary" onclick="changeStatus('${m.id}')">Change Status</button>
+        </div>
+      </div>
+    </div>
+    `;
+  }).join('');
+}
+
+function toggleExpand(id) {
+  expandedId = expandedId===id ? null : id;
+  renderList(document.querySelector('.search-input').value.toLowerCase());
+}
+
+function openAddSheet() {
+  document.getElementById('addBackdrop').classList.add('show');
+  requestAnimationFrame(()=>document.getElementById('addSheet').classList.add('open'));
+}
+
+function closeSheet(bId, sId) {
+  document.getElementById(sId).classList.remove('open');
+  setTimeout(()=>document.getElementById(bId).classList.remove('show'), 300);
+}
+
+function selectCat(el, cat) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function addMachinery() {
+  const name = document.getElementById('add-name').value.trim();
+  const status = document.getElementById('add-status').value;
+  const hours = parseInt(document.getElementById('add-hours').value)||0;
+  const fuel = parseInt(document.getElementById('add-fuel').value)||0;
+  const operator = document.getElementById('add-operator').value;
+  const loc = document.getElementById('add-loc').value.trim()||'Main Shed';
+  
+  if (!name) { showToast('Enter machine model / name'); return; }
+  const id = 'M'+String(machinery.length+1).padStart(3,'0');
+  const nextService = Math.ceil((hours + 100) / 250) * 250; // round up to next 250 hr interval
+  machinery.push({id, name, cat:selectedCat, hours, fuel, status, operator, loc, nextService});
+  
+  closeSheet('addBackdrop','addSheet');
+  renderList();
+  showToast(name+' added to machinery catalog');
+  
+  // clear form
+  document.getElementById('add-name').value='';
+  document.getElementById('add-hours').value='';
+  document.getElementById('add-fuel').value='';
+  document.getElementById('add-loc').value='';
+}
+
+function logService(id) {
+  const m = machinery.find(x=>x.id===id);
+  m.hours = m.nextService; // log service resets it
+  m.nextService += 250;
+  renderList();
+  showToast('Service logged for ' + m.name);
+}
+
+function assignOperator(id) {
+  const m = machinery.find(x=>x.id===id);
+  const ops = ['John Smith', 'Alex Parker', 'Sarah Mitchell', 'James Russel', 'None'];
+  const curIdx = ops.indexOf(m.operator);
+  const nextOp = ops[(curIdx + 1) % ops.length];
+  m.operator = nextOp;
+  renderList();
+  showToast(m.name + ' assigned to ' + nextOp);
+}
+
+function changeStatus(id) {
+  const m = machinery.find(x=>x.id===id);
+  const statuses = ['active', 'service', 'down'];
+  const curIdx = statuses.indexOf(m.status);
+  const nextStatus = statuses[(curIdx + 1) % statuses.length];
+  m.status = nextStatus;
+  renderList();
+  showToast(m.name + ' status changed to ' + statusText(nextStatus));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+// Scale
+function resize(){
+  const s=Math.min((innerWidth-24)/390,(innerHeight-24)/844,1);
+  document.documentElement.style.setProperty('--app-scale',s);
+}
+window.addEventListener('resize',resize); resize();
+
+renderList();
+</script>
+</body>
+</html>

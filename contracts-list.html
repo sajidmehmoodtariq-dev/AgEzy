@@ -3,173 +3,728 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Stock On Hand</title>
+  <title>AgEzy – Contracts</title>
   <style>
-    :root{
-      --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
-      --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
-      --text:#1a2a3a;--muted:#8898aa;--border:#eaeef2;--bg:#f4f6f4;--card:#fff;
+    :root {
+      --green-dark: #1a3d28;
+      --green-mid: #1b7239;
+      --green-accent: #00ab4f;
+      --blue: #1e70e3;
+      --orange: #f58220;
+      --green: #00ab4f;
+      --red: #d63031;
+      --text: #1a2a3a;
+      --muted: #8898aa;
+      --border: #eaeef2;
+      --bg: #f4f6f4;
+      --card: #fff;
     }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    html,body{width:100%;height:100%;background:#e0e0e0;font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden;}
-    .viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;}
-    .screen{width:390px;height:844px;transform:scale(var(--app-scale,1));transform-origin:center;background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.22);display:flex;flex-direction:column;position:relative;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .screen {
+      width: 390px;
+      height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,.22);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
 
-    .header{flex:0 0 auto;background:var(--green-dark);padding:14px 16px 12px;display:flex;align-items:center;gap:10px;}
-    .h-title{flex:1;font-size:20px;font-weight:800;color:#fff;letter-spacing:-.03em;}
+    /* HEADER */
+    .header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      padding: 14px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .h-back {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    .h-title {
+      flex: 1;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .h-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      border: none;
+    }
 
-    /* SUMMARY CARDS */
-    .dashboard-top{background:var(--green-dark);padding:10px 16px 20px;}
-    .main-metric{background:rgba(255,255,255,.1);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px;}
-    .main-metric-lbl{font-size:12px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-    .main-metric-val{font-size:36px;font-weight:900;color:#fff;line-height:1;}
+    /* SEARCH BAR */
+    .search-container {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      padding: 0 16px 14px;
+    }
+    .search-inner {
+      background: #fff;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      height: 40px;
+    }
+    .search-icon {
+      color: var(--muted);
+      margin-right: 8px;
+      display: flex;
+      align-items: center;
+    }
+    .search-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+    }
+    .search-input::placeholder {
+      color: #b0bbc0;
+    }
+
+    /* FILTER TABS */
+    .filter-tabs {
+      flex: 0 0 auto;
+      background: var(--bg);
+      display: flex;
+      padding: 12px 16px;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .filter-tabs::-webkit-scrollbar { display: none; }
     
-    .stats-row{display:flex;gap:12px;}
-    .stat-box{flex:1;background:rgba(255,255,255,.1);border-radius:12px;padding:14px;text-align:center;}
-    .stat-box-lbl{font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.05em;}
-    .stat-box-val{font-size:20px;font-weight:800;color:#fff;margin-top:4px;}
+    .ftab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .ftab.active {
+      color: #fff;
+      background: var(--green-dark);
+      border-color: var(--green-dark);
+    }
+    .ftab:active { transform: scale(0.96); }
 
     /* BODY */
-    .body{flex:1;overflow-y:auto;padding:16px 14px 4px;scrollbar-width:none;}
-    .body::-webkit-scrollbar{display:none;}
+    .body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 16px 80px;
+      scrollbar-width: none;
+    }
+    .body::-webkit-scrollbar { display: none; }
 
-    .section-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:12px;}
+    /* CONTRACT CARD */
+    .con-card {
+      background: var(--card);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+      position: relative;
+      overflow: hidden;
+      border: 1.5px solid transparent;
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .con-card:active { transform: scale(0.985); }
+    .con-bar {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+    }
+    .con-bar.scheduled { background: var(--blue); }
+    .con-bar.in-progress { background: var(--orange); }
+    .con-bar.completed { background: var(--green); }
+    .con-bar.cancelled { background: var(--muted); }
 
-    /* FLOW BUTTON */
-    .flow-btn{background:var(--card);border-radius:16px;padding:18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.04);margin-bottom:20px;border:2px solid transparent;transition:all .15s;}
-    .flow-btn:active{transform:scale(.98);border-color:var(--green-mid);}
-    .flow-info{flex:1;}
-    .flow-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px;}
-    .flow-sub{font-size:13px;color:var(--muted);font-weight:500;}
-    .flow-icon{width:40px;height:40px;border-radius:12px;background:#e4f8ee;display:flex;align-items:center;justify-content:center;color:var(--green-mid);}
+    .con-inner {
+      padding: 14px 14px 14px 18px;
+    }
+    .con-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
+    .con-status-id {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .con-status-badge {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .con-status-badge.scheduled { color: var(--blue); }
+    .con-status-badge.in-progress { color: var(--orange); }
+    .con-status-badge.completed { color: var(--green); }
+    .con-status-badge.cancelled { color: var(--muted); }
+    
+    .con-id {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+    .con-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: right;
+    }
+    .con-date {
+      display: flex;
+      flex-direction: column;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .con-date span:first-child {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .con-check-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-    /* RECENT MOVEMENTS */
-    .mov-list{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.03);}
-    .mov-item{display:flex;align-items:center;padding:14px;border-bottom:1px solid var(--border);}
-    .mov-item:last-child{border-bottom:none;}
-    .mov-ic{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-right:12px;font-weight:800;font-size:10px;}
-    .mov-ic.in{background:#e4f8ee;color:var(--green-mid);}
-    .mov-ic.out{background:#fdeef0;color:var(--red);}
-    .mov-details{flex:1;}
-    .mov-name{font-size:14px;font-weight:700;color:var(--text);}
-    .mov-date{font-size:12px;color:var(--muted);margin-top:2px;}
-    .mov-amt{font-size:15px;font-weight:800;text-align:right;}
-    .mov-amt.in{color:var(--green-mid);}
-    .mov-amt.out{color:var(--text);}
+    .con-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 2px;
+      letter-spacing: -0.01em;
+    }
+    .con-customer {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    /* PILLS ROW */
+    .con-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .con-pill {
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      border-radius: 8px;
+      padding: 5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .con-pill.due-date {
+      background: #fef2f2;
+      border-color: #fee2e2;
+      color: #ef4444;
+    }
+    .con-pill svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+
+    /* FOOTER */
+    .con-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .con-operator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .op-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      color: #475569;
+    }
+    .op-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .con-loc-badge {
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    /* FAB */
+    .fab {
+      position: absolute;
+      bottom: 84px;
+      right: 18px;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: var(--green-mid);
+      box-shadow: 0 6px 18px rgba(27,114,57,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #fff;
+      font-size: 26px;
+      border: none;
+      z-index: 10;
+      transition: transform .15s;
+    }
+    .fab:active { transform: scale(.92); }
+
+    /* EMPTY STATE */
+    .empty {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px;
+      gap: 12px;
+      text-align: center;
+    }
+    .empty.show { display: flex; }
+    .empty-title { font-size: 15px; font-weight: 700; color: var(--text); }
+    .empty-sub { font-size: 13px; color: var(--muted); }
 
     /* BOTTOM NAV */
-    .bottom-nav{flex:0 0 auto;height:70px;background:#fff;border-top:1px solid #e8ede8;display:flex;align-items:center;padding:0 10px;}
-    .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:4px;}
-    .nav-ic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
-    .nav-ic.active{background:var(--green-dark);}
-    .nav-lbl{font-size:10px;font-weight:600;color:var(--muted);}
-    .nav-lbl.active{color:var(--green-dark);}
+    .bottom-nav {
+      flex: 0 0 auto;
+      height: 70px;
+      background: #fff;
+      border-top: 1px solid #e8ede8;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-ic {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-ic.active { background: var(--green-dark); }
+    .nav-lbl { font-size: 10px; font-weight: 600; color: var(--muted); }
+    .nav-lbl.active { color: var(--green-dark); }
 
-    @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+    @media(max-width:767px) {
+      .viewport { padding: 0; }
+      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+    }
   </style>
 </head>
 <body>
 <div class="viewport"><main class="screen">
 
+  <!-- HEADER -->
   <header class="header">
-    <div class="h-title">Stock On Hand</div>
+    <button class="h-back" onclick="window.location.href='dashboard.html'" title="Back">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </button>
+    <div class="h-title">Contracts</div>
+    <button class="h-btn" title="Fullscreen" style="width:30px; height:30px; background:transparent;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
   </header>
 
-  <div class="dashboard-top">
-    <div class="main-metric">
-      <div class="main-metric-lbl">Total Estimated Value</div>
-      <div class="main-metric-val">$148,500</div>
-    </div>
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-box-lbl">Stock IN (30d)</div>
-        <div class="stat-box-val" style="color:#6dffaa">+420t</div>
+  <!-- SEARCH CONTAINER -->
+  <div class="search-container">
+    <div class="search-inner">
+      <div class="search-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
       </div>
-      <div class="stat-box">
-        <div class="stat-box-lbl">Stock OUT (30d)</div>
-        <div class="stat-box-val" style="color:#ffb3b3">-180t</div>
-      </div>
+      <input class="search-input" id="searchInput" type="text" placeholder="Search contracts..." oninput="render()" />
     </div>
   </div>
 
-  <div class="body">
-    <!-- View Inventory Flow Button -->
-    <div class="flow-btn" onclick="window.location.href='commodity-catalog.html'">
-      <div class="flow-info">
-        <div class="flow-title">Inventory &amp; Records</div>
-        <div class="flow-sub">View detailed stock in/out records</div>
-      </div>
-      <div class="flow-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-    </div>
+  <!-- FILTER TABS -->
+  <div class="filter-tabs">
+    <div class="ftab active" data-f="all">All</div>
+    <div class="ftab" data-f="scheduled">Scheduled</div>
+    <div class="ftab" data-f="in-progress">In Progress</div>
+    <div class="ftab" data-f="completed">Completed</div>
+    <div class="ftab" data-f="cancelled">Cancelled</div>
+  </div>
 
-    <div class="section-title">Recent Stock Movements</div>
-    <div class="mov-list">
-      <div class="mov-item">
-        <div class="mov-ic in">IN</div>
-        <div class="mov-details">
-          <div class="mov-name">Wheat (APW1)</div>
-          <div class="mov-date">Today · 09:30 AM</div>
-        </div>
-        <div class="mov-amt in">+45 t</div>
+  <!-- CONTRACT LIST -->
+  <div class="body" id="contractList">
+    <!-- Empty state -->
+    <div class="empty" id="emptyState">
+      <div style="width:52px;height:52px;background:#eef2ee;border-radius:50%;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
       </div>
-      <div class="mov-item">
-        <div class="mov-ic out">OUT</div>
-        <div class="mov-details">
-          <div class="mov-name">Round Bale Hay</div>
-          <div class="mov-date">Yesterday · 14:15 PM</div>
-        </div>
-        <div class="mov-amt out">-120 bales</div>
-      </div>
-      <div class="mov-item">
-        <div class="mov-ic in">IN</div>
-        <div class="mov-details">
-          <div class="mov-name">Canola</div>
-          <div class="mov-date">Oct 20 · 11:00 AM</div>
-        </div>
-        <div class="mov-amt in">+82 t</div>
-      </div>
-      <div class="mov-item">
-        <div class="mov-ic out">OUT</div>
-        <div class="mov-details">
-          <div class="mov-name">Diesel</div>
-          <div class="mov-date">Oct 18 · 07:00 AM</div>
-        </div>
-        <div class="mov-amt out">-2,500 L</div>
-      </div>
+      <div class="empty-title">No contracts found</div>
+      <div class="empty-sub">Try a different filter or create a new contract</div>
     </div>
   </div>
+
+  <!-- FAB -->
+  <button class="fab" onclick="window.location.href='create-contract.html'">+</button>
 
   <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <div class="nav-item" onclick="window.location.href='dashboard.html'">
-      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="nav-lbl">Home</div>
-    </div>
-    <div class="nav-item" onclick="window.location.href='jobs-hub.html'">
-      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" stroke="#8898aa" stroke-width="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/><path d="M12 12v4M10 14h4" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-      <div class="nav-lbl">Contracting</div>
-    </div>
-    <div class="nav-item">
-      <div class="nav-ic active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div>
-      <div class="nav-lbl active">Stock On Hand</div>
-    </div>
-    <div class="nav-item" onclick="window.location.href='timesheets-list.html'">
-      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8898aa" stroke-width="2"/><path d="M12 7v5l3 2" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div class="nav-lbl">Timesheets</div>
-    </div>
-    <div class="nav-item" onclick="window.location.href='settings.html'">
-      <div class="nav-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#8898aa" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/></svg></div>
-      <div class="nav-lbl">Settings</div>
-    </div>
-  </nav>
+                      <style id="unified-nav-style">
+      #unified-nav.bottom-nav {
+        flex: 0 0 auto;
+        height: 70px;
+        background: #fff;
+        border-top: 1px solid #e8ede8;
+        display: flex; align-items: center; justify-content: space-around;
+        padding: 0 10px; gap: 5px;
+        margin-top: auto; z-index: 100;
+        position: relative;
+      }
+      #unified-nav .nav-item {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 4px;
+        cursor: pointer; padding: 6px 4px; border: none; background: transparent; text-decoration: none;
+      }
+      #unified-nav .nav-icon {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%;
+      }
+      #unified-nav .nav-icon.active { background: var(--green-dark, #1b7239); }
+      #unified-nav .nav-icon img, #unified-nav .nav-icon svg { width: 22px; height: 22px; opacity: 0.8; }
+      #unified-nav .nav-icon.active img { filter: brightness(0) invert(1) !important; opacity: 1; }
+      #unified-nav .nav-icon.active svg { stroke: #fff !important; opacity: 1; }
+      #unified-nav .nav-label { font-size: 9px; font-weight: 600; color: var(--muted, #8898aa); text-align: center; line-height: 1.1; white-space: nowrap; margin: 0; }
+      #unified-nav .nav-item.active .nav-label { color: var(--green-dark, #1b7239); }
+    </style>
+    <nav id="unified-nav" class="bottom-nav">
+      <!-- Home -->
+      <div class="nav-item " onclick="window.location.href='dashboard.html'">
+        <div class="nav-icon "><img src="images/nav-home.png" alt="Home" /></div>
+        <div class="nav-label">Home</div>
+      </div>
+      <!-- Contracting -->
+      <div class="nav-item active" onclick="window.location.href='jobs-hub.html'">
+        <div class="nav-icon active"><img src="images/nav-contract-work.png" alt="Contracting" /></div>
+        <div class="nav-label">Contracting</div>
+      </div>
+      <!-- Inventory -->
+      <div class="nav-item " onclick="window.location.href='commodity-catalog.html'">
+        <div class="nav-icon ">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <div class="nav-label">Inventory</div>
+      </div>
+      <!-- Timesheets -->
+      <div class="nav-item " onclick="window.location.href='timesheets-list.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="nav-label">Timesheets</div>
+      </div>
+      <!-- Map -->
+      <div class="nav-item " onclick="window.location.href='farm-map.html'">
+        <div class="nav-icon "><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></div>
+        <div class="nav-label">Map</div>
+      </div>
+    </nav>
 
 </main></div>
+
 <script>
-  const baseW=390,baseH=844,pad=32;
-  const scale=()=>{const s=Math.min((innerWidth-pad)/baseW,(innerHeight-pad)/baseH,1);document.documentElement.style.setProperty('--app-scale',s.toFixed(4));};
-  scale();addEventListener('resize',scale);
+  // App scaling logic
+  const baseW = 390, baseH = 844, pad = 32;
+  const scale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  scale();
+  window.addEventListener('resize', scale);
+
+  // Default mock contracts
+  const defaultContracts = [
+    {
+      id: 'WHT-001',
+      commodity: 'Wheat',
+      title: 'Wheat Contract',
+      grade: 'APW',
+      customer: 'GrainCorp Dalby',
+      quantity: 150,
+      unit: 'tonnes',
+      price: 385,
+      deliveryDate: '2026-11-28',
+      status: 'scheduled',
+      operator: 'John C.',
+      operatorInitials: 'JC',
+      operatorBg: '#10b981',
+      dateLabel: 'Oct 24',
+      timeLabel: '07:30 AM',
+      dueDateLabel: 'Due Nov 28',
+      location: 'Bay 3B'
+    },
+    {
+      id: 'BAR-002',
+      commodity: 'Barley',
+      title: 'Barley Contract',
+      grade: 'Feed',
+      customer: 'CBH Grain',
+      quantity: 200,
+      unit: 'tonnes',
+      price: 340,
+      deliveryDate: '2026-12-15',
+      status: 'in-progress',
+      operator: 'Sarah M.',
+      operatorInitials: 'SM',
+      operatorBg: '#1b7239',
+      dateLabel: 'Oct 24',
+      timeLabel: '08:00 AM',
+      dueDateLabel: 'Due Dec 15',
+      location: 'The South'
+    },
+    {
+      id: 'OAT-003',
+      commodity: 'Oaten Hay',
+      title: 'Oaten Hay Contract',
+      grade: 'Premium',
+      customer: 'Hay Traders Co',
+      quantity: 80,
+      unit: 'tonnes',
+      price: 290,
+      deliveryDate: '2027-01-05',
+      status: 'scheduled',
+      operator: 'Mites F.',
+      operatorInitials: 'MF',
+      operatorBg: '#3b82f6',
+      dateLabel: 'Oct 24',
+      timeLabel: '09:30 AM',
+      dueDateLabel: 'Due Jan 5',
+      location: 'License'
+    },
+    {
+      id: 'CAN-004',
+      commodity: 'Canola',
+      title: 'Canola Contract',
+      grade: 'GM-Free',
+      customer: 'Oilseeds Direct',
+      quantity: 120,
+      unit: 'tonnes',
+      price: 660,
+      deliveryDate: '2027-01-18',
+      status: 'completed',
+      operator: 'James R.',
+      operatorInitials: 'JR',
+      operatorBg: '#eab308',
+      dateLabel: 'Oct 23',
+      timeLabel: '05:10 AM',
+      dueDateLabel: 'Due Jan 18',
+      location: 'Spring'
+    }
+  ];
+
+  // Initialize localStorage if not present
+  if (!localStorage.getItem('contracts')) {
+    localStorage.setItem('contracts', JSON.stringify(defaultContracts));
+  }
+
+  let activeFilter = 'all';
+
+  function getContracts() {
+    try {
+      return JSON.parse(localStorage.getItem('contracts')) || defaultContracts;
+    } catch(e) {
+      return defaultContracts;
+    }
+  }
+
+  function render() {
+    const list = document.getElementById('contractList');
+    // Remove existing cards
+    list.querySelectorAll('.con-card').forEach(el => el.remove());
+    
+    const empty = document.getElementById('emptyState');
+    const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+    const allContracts = getContracts();
+
+    let filtered = allContracts.filter(c => {
+      if (activeFilter !== 'all' && c.status !== activeFilter) return false;
+      if (q) {
+        const matchesSearch = 
+          c.title.toLowerCase().includes(q) || 
+          c.customer.toLowerCase().includes(q) || 
+          c.id.toLowerCase().includes(q) || 
+          c.grade.toLowerCase().includes(q) ||
+          c.location.toLowerCase().includes(q);
+        if (!matchesSearch) return false;
+      }
+      return true;
+    });
+
+    if (!filtered.length) {
+      empty.classList.add('show');
+      return;
+    }
+    empty.classList.remove('show');
+
+    filtered.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'con-card';
+      
+      // Determine status label styling
+      const statusLabels = {
+        'scheduled': 'Scheduled',
+        'in-progress': 'In Progress',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+      };
+
+      // Format commodity icons, etc.
+      // Emojis match mockup look
+      const wheatIcon = `<span style="font-size:12px; filter: grayscale(0.2);">🌾</span>`;
+      const packageIcon = `<span style="font-size:12px;">📦</span>`;
+      const moneyIcon = `<span style="font-size:12px;">💰</span>`;
+      const calendarIcon = `<span style="font-size:12px;">📅</span>`;
+
+      card.innerHTML = `
+        <div class="con-bar ${c.status}"></div>
+        <div class="con-inner">
+          <div class="con-header-row">
+            <div class="con-status-id">
+              <span class="con-status-badge ${c.status}">${statusLabels[c.status]}</span>
+              <span class="con-id">${c.id}</span>
+            </div>
+            <div class="con-header-right">
+              <div class="con-date">
+                <span>${c.dateLabel || 'Oct 24'}</span>
+                <span>${c.timeLabel || '12:00 PM'}</span>
+              </div>
+              <div class="con-check-circle"></div>
+            </div>
+          </div>
+          <div class="con-title">${c.title}</div>
+          <div class="con-customer">${c.customer}</div>
+          
+          <div class="con-pills-row">
+            <div class="con-pill">${wheatIcon} ${c.grade}</div>
+            <div class="con-pill">${packageIcon} ${c.quantity} t</div>
+            <div class="con-pill">${moneyIcon} $${c.price}/t</div>
+            <div class="con-pill due-date">${calendarIcon} ${c.dueDateLabel || ('Due ' + c.deliveryDate)}</div>
+          </div>
+
+          <div class="con-footer">
+            <div class="con-operator">
+              <div class="op-avatar" style="background: ${c.operatorBg || '#475569'}; color: #fff;">${c.operatorInitials || 'JC'}</div>
+              <span class="op-name">${c.operator || 'Operator'}</span>
+            </div>
+            <span class="con-loc-badge">${c.location}</span>
+          </div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        sessionStorage.setItem('contractId', c.id);
+        window.location.href = `create-contract.html?edit=${c.id}`;
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  // Filter tabs setup
+  document.querySelectorAll('.ftab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      activeFilter = tab.dataset.f;
+      render();
+    });
+  });
+
+  // Initial render
+  render();
 </script>
 </body>
 </html>

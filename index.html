@@ -50,13 +50,13 @@
 		/* ─── SPLASH ─── */
 		.splash {
 			position: absolute; inset: 0;
-			background: #00A34A;
+			background: #fff;
 			display: flex; align-items: center; justify-content: center;
 			transition: opacity 280ms ease, visibility 280ms ease;
 			z-index: 10;
 		}
 		.splash.is-hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-		.splash-logo { width: 170px; height: auto; display: block; user-select: none; }
+		.splash-logo { width: 200px; height: auto; display: block; user-select: none; }
 
 		/* ─── ONBOARDING WRAPPER ─── */
 		.onboarding {
@@ -285,38 +285,37 @@
 				<div class="ob-slides-track" id="slidesTrack">
 
 					<!-- ── SLIDE 1: Welcome ── -->
-					<div class="ob-slide" style="position:relative;">
-						<div class="ob-hero" style="position:absolute; inset:0; margin:0; border-radius:0; height:100%; width:100%; z-index:1;">
+					<div class="ob-slide" style="position: relative;">
+						<div class="ob-hero" style="position: absolute; inset: 0; margin: 0; height: 100%; border-radius: 0;">
 							<!-- Farm field SVG -->
-							<svg viewBox="0 0 346 270" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%">
+							<svg viewBox="0 0 346 270" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%">
 								<defs>
 									<linearGradient id="s1sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c8e8f8"/><stop offset="100%" stop-color="#dff0e8"/></linearGradient>
 									<linearGradient id="s1field" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a9a30"/><stop offset="100%" stop-color="#2a6a18"/></linearGradient>
 								</defs>
-								<rect width="346" height="270" fill="url(#s1sky)"/>
+								<rect width="100%" height="270" fill="url(#s1sky)"/>
 								<ellipse cx="60"  cy="105" rx="38" ry="22" fill="#3a7a20" opacity=".6"/>
 								<ellipse cx="100" cy="101" rx="30" ry="18" fill="#4a8a28" opacity=".7"/>
 								<ellipse cx="260" cy="103" rx="42" ry="24" fill="#3a7a20" opacity=".6"/>
 								<ellipse cx="300" cy="99"  rx="28" ry="16" fill="#4a8a28" opacity=".7"/>
-								<rect x="0" y="112" width="346" height="158" fill="url(#s1field)"/>
-								<path d="M173 112 L0 270"   stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L40 270"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L80 270"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L120 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L160 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L200 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L240 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L280 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L320 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
-								<path d="M173 112 L346 270" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<rect x="0" y="112" width="100%" height="100%" fill="url(#s1field)"/>
+								<path d="M173 112 L0 500"   stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L40 500"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L80 500"  stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L120 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L160 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L200 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L240 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L280 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L320 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
+								<path d="M173 112 L346 500" stroke="#2a5a14" stroke-width="2" opacity=".5"/>
 							</svg>
 							<!-- Tablet overlay -->
-							<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+							<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center; margin-top:-60px;">
 								<div style="width:200px;background:#111;border-radius:14px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,.45)">
 									<div style="background:#fff;border-radius:10px;overflow:hidden">
 										<div style="background:#1a3d28;padding:7px 10px;display:flex;align-items:center;gap:6px">
-											<img src="images/logo.png" alt="" style="width:18px;height:18px;object-fit:contain;filter:brightness(0) invert(1)" onerror="this.style.display='none'"/>
-											<span style="color:#fff;font-size:9px;font-weight:700">AgEzy</span>
+											<img src="images/logo.png" alt="" style="height:18px;width:auto;object-fit:contain;filter:brightness(0) invert(1);" onerror="this.style.display='none'"/>
 											<span style="flex:1"></span>
 											<div style="width:14px;height:14px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center">
 												<svg width="8" height="8" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="#fff" stroke-width="2.5"/><path d="M13.73 21a2 2 0 01-3.46 0" stroke="#fff" stroke-width="2.5"/></svg>
@@ -353,10 +352,13 @@
 									</div>
 								</div>
 							</div>
+							
+							<!-- Dark overlay for contrast -->
+							<div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%);"></div>
 						</div>
-						<div class="ob-content" style="position:relative; z-index:2; justify-content:flex-end; padding-bottom:100px;">
-							<h1 class="ob-title" style="color:#fff; font-size:34px; text-shadow:0 2px 10px rgba(0,0,0,0.5);">Welcome to <span style="color:#fff;">AgEzy</span></h1>
-							<p class="ob-subtitle" style="color:#fff; font-size:17px; font-weight:500; text-shadow:0 1px 6px rgba(0,0,0,0.5);">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
+						<div class="ob-content" style="position: relative; z-index: 1; padding-top: 240px; justify-content: flex-end; padding-bottom: 30px;">
+							<h1 class="ob-title" style="color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Welcome to <span class="brand-green" style="color:#00ab4f; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">AgEzy</span></h1>
+							<p class="ob-subtitle" style="color: #fff; font-size: 18px; font-weight: 500; text-shadow: 0 2px 10px rgba(0,0,0,0.6); margin-top: 10px;">Farm Intelligence, Simplified. A comprehensive farm management and stock tracking application.</p>
 						</div>
 					</div>
 
@@ -374,10 +376,10 @@
 								<!-- Phone mockup -->
 								<rect x="93" y="18" width="160" height="234" rx="20" fill="#1a3d28"/>
 								<rect x="99" y="26" width="148" height="218" rx="14" fill="#f4f6f4"/>
-								<!-- Contracting hub header -->
+								<!-- Jobs hub header -->
 								<rect x="99" y="26" width="148" height="38" rx="14" fill="#1a3d28"/>
 								<rect x="99" y="50" width="148" height="14" fill="#1a3d28"/>
-								<text x="173" y="49" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Contracting Hub</text>
+								<text x="173" y="49" text-anchor="middle" fill="#fff" font-size="9" font-weight="700">Contracting</text>
 								<!-- Job cards -->
 								<rect x="107" y="72" width="132" height="30" rx="6" fill="#fff"/>
 								<rect x="107" y="72" width="4"   height="30" rx="2" fill="#00ab4f"/>

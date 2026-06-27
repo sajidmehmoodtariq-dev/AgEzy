@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Load Out</title>
+  <style>
+    :root {
+      --green: #1e5bb0;
+      --green-dark: #0f3c8a;
+      --green-mid: #1e5bb0;
+      --green-btn: #1e5bb0;
+      --text: #1a2a3a;
+      --muted: #8898aa;
+      --border: #dde8e0;
+      --bg: #f4f6f4;
+      --card: #fff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #e0e0e0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    .viewport {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+    }
+
+    .screen {
+      position: relative;
+      width: 390px; height: 844px;
+      transform: scale(var(--app-scale, 1));
+      transform-origin: center center;
+      background: var(--bg);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+    }
+
+    /* ─── PANEL SYSTEM ─── */
+    .panel {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 340ms cubic-bezier(.4,0,.2,1);
+    }
+    .panel.active    { transform: translateX(0); }
+    .panel.exit-left { transform: translateX(-100%); }
+
+    /* ─── SHARED HEADER ─── */
+    .top-header {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      height: 56px;
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+    }
+    .th-back { cursor: pointer; }
+    .th-title {
+      flex: 1; font-size: 16px; font-weight: 700;
+      color: #fff; letter-spacing: -0.02em;
+    }
+    .th-icon { color: rgba(255,255,255,0.7); cursor: pointer; }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-bar-wrap {
+      flex: 0 0 auto;
+      background: var(--green-dark);
+      padding: 0 16px 12px;
+    }
+    .pb-label {
+      font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.55);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px;
+    }
+    .pb-track {
+      width: 100%; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,0.2);
+    }
+    .pb-fill {
+      height: 100%; border-radius: 3px; background: #fff;
+      transition: width 0.4s ease;
+    }
+
+    /* ─── SCROLLABLE BODY ─── */
+    .scroll-body {
+      flex: 1 1 auto; overflow-y: auto; overflow-x: hidden;
+      padding: 14px 14px 0;
+      scrollbar-width: none;
+    }
+    .scroll-body::-webkit-scrollbar { display: none; }
+
+    /* ─── SECTION LABEL ─── */
+    .section-lbl {
+      font-size: 10px; font-weight: 800; color: var(--muted);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      margin: 14px 0 8px;
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--card); border-radius: 14px;
+      padding: 14px; margin-bottom: 12px;
+    }
+
+    /* ─── INFO ROW (two col) ─── */
+    .info-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .info-cell { display: flex; flex-direction: column; gap: 3px; }
+    .info-key { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .info-val { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .info-sub { font-size: 11px; color: var(--muted); font-weight: 500; }
+
+    /* ─── SELECT ─── */
+    .select-wrap {
+      background: var(--card); border-radius: 14px;
+      padding: 14px; margin-bottom: 12px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .select-lbl { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .select-field {
+      width: 100%; height: 42px;
+      border: 1.5px solid var(--border); border-radius: 22px;
+      padding: 0 14px;
+      font-family: inherit; font-size: 14px; font-weight: 600;
+      color: var(--text); background: var(--bg);
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+    }
+
+    /* ─── STORAGE LOCATION ─── */
+    .storage-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 12px;
+    }
+    .storage-cell { display: flex; flex-direction: column; gap: 4px; }
+    .storage-key { font-size: 11px; color: var(--muted); font-weight: 600; }
+    .storage-val { font-size: 14px; font-weight: 700; color: var(--text); }
+    .bay-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      border: 1.8px solid var(--green-mid); border-radius: 20px;
+      padding: 5px 12px; width: fit-content; cursor: pointer;
+    }
+    .bay-text { font-size: 14px; font-weight: 700; color: var(--green-mid); }
+
+    /* ─── SHED PHOTO ─── */
+    .shed-photo {
+      border-radius: 12px; overflow: hidden;
+      position: relative; height: 130px;
+      background: #1a2a1a;
+    }
+    .shed-photo svg { width: 100%; height: 100%; }
+    .shed-caption {
+      position: absolute; bottom: 6px; left: 8px;
+      font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 500;
+    }
+
+    /* ─── NEXT BUTTON ─── */
+    .bottom-btn-wrap { padding: 14px 14px 14px; flex: 0 0 auto; }
+    .green-btn {
+      width: 100%; height: 52px;
+      border: none; border-radius: 26px;
+      background: var(--green-mid);
+      color: #fff; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(27,114,57,0.30);
+      transition: opacity 0.15s;
+    }
+    .green-btn:active { opacity: 0.85; }
+    .green-btn.outline {
+      background: transparent;
+      border: 2px solid var(--green-mid);
+      color: var(--green-mid);
+      box-shadow: none;
+    }
+
+    /* ════════════════════════════════
+       SCREEN 2: VERIFICATION
+    ════════════════════════════════ */
+    #s2 { background: var(--bg); }
+
+    .verif-card {
+      background: var(--card); border-radius: 14px;
+      padding: 14px; margin-bottom: 12px;
+    }
+    .verif-card-title {
+      font-size: 14px; font-weight: 800; color: var(--text);
+      margin-bottom: 3px;
+    }
+    .verif-card-sub {
+      font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 12px;
+    }
+
+    /* no photo placeholder */
+    .no-photo {
+      background: #f0f4f0; border-radius: 12px;
+      height: 110px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px; margin-bottom: 10px;
+    }
+    .no-photo-text { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .no-photo-sub  { font-size: 10px; color: #b0bbc0; font-weight: 400; }
+
+    .capture-btn {
+      width: 100%; height: 42px;
+      border: none; border-radius: 22px;
+      background: var(--green-mid);
+      color: #fff; font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      cursor: pointer;
+    }
+    .capture-btn:active { opacity: 0.85; }
+
+    /* add photo dashed */
+    .add-photo-btn {
+      width: 100%; height: 50px;
+      border: 2px dashed #c8d8c0; border-radius: 12px;
+      background: transparent;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      font-size: 14px; font-weight: 700; color: var(--green-mid);
+      cursor: pointer;
+    }
+    .add-photo-btn:active { background: #f0f8f0; }
+
+    /* checkbox row */
+    .confirm-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .confirm-checkbox {
+      width: 20px; height: 20px; flex: 0 0 20px;
+      border: 2px solid var(--green-mid); border-radius: 5px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+      transition: background 0.15s;
+    }
+    .confirm-checkbox.checked { background: var(--green-mid); }
+    .confirm-text {
+      font-size: 12px; color: var(--text); font-weight: 500; line-height: 1.5;
+    }
+
+    /* ════════════════════════════════
+       SCREEN 3: SUCCESS
+    ════════════════════════════════ */
+    #s3 {
+      background: var(--green-dark);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 32px 28px;
+    }
+
+    .success-ring {
+      width: 100px; height: 100px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+    }
+    .success-ring-inner {
+      width: 74px; height: 74px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .success-title {
+      font-size: 28px; font-weight: 900; color: #fff;
+      letter-spacing: -0.03em; margin-bottom: 8px; text-align: center;
+    }
+    .success-sub {
+      font-size: 14px; color: rgba(255,255,255,0.7);
+      font-weight: 500; margin-bottom: 24px; text-align: center;
+    }
+
+    .success-detail-card {
+      width: 100%;
+      background: rgba(255,255,255,0.12); border-radius: 16px;
+      padding: 14px 16px; margin-bottom: 24px;
+    }
+    .sdrow {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sdrow:last-child { border-bottom: none; }
+    .sdrk { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; }
+    .sdrv { font-size: 13px; color: #fff; font-weight: 700; }
+    .badge-out {
+      background: var(--red, #d63031); color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 10px; border-radius: 6px;
+    }
+
+    .success-btns-v { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+    .sbtn {
+      width: 100%; height: 50px; border-radius: 25px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+    }
+    .sbtn-solid {
+      background: rgba(255,255,255,0.18);
+      border: 2px solid rgba(255,255,255,0.4);
+      color: #fff;
+    }
+    .sbtn-outline {
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.5);
+      color: #fff;
+    }
+
+    .form-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+    .form-lbl { font-size:12px; font-weight:600; color:var(--text); width:40%; }
+    .form-input { flex:1; height:40px; border:1.5px solid var(--border); border-radius:10px; padding:0 12px; font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); font-weight:600; outline:none; }
+    .form-select { flex:1; height:40px; border:1.5px solid var(--border); border-radius:10px; padding:0 12px; font-size:14px; font-family:inherit; color:var(--text); background:var(--bg); font-weight:600; outline:none; appearance:none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9l6 6 6-6' stroke='%238898aa' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-position:right 12px center; background-repeat:no-repeat; }
+    .form-textarea { width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; font-family:inherit; font-weight:500; color:var(--text); background:var(--bg); resize:none; margin-top:6px; outline:none; }
+
+    .pagination-wrap { display:flex; justify-content:center; gap:6px; margin-top:12px; margin-bottom:4px; }
+    .pag-circle { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; background:var(--green-mid); }
+    .pag-circle.disabled { background:#e0e8e0; color:#b0c0b0; }
+    .pag-circle.blue { background:#1e5bb0; }
+    .pag-circle.check { color:var(--green-mid); background:#fff; border:1px solid var(--green-mid); font-size:12px; }
+
+    @media (max-width: 767px) {
+      .viewport { padding: 0; }
+      .screen { transform: none !important; width: 100%; height: 100%; border-radius: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="viewport">
+  <main class="screen">
+
+    <!-- ═══════════════════════════════════
+         SCREEN 1 — RECORD LOAD OUT
+    ═══════════════════════════════════ -->
+    <div class="panel active" id="s1">
+
+      <div class="top-header">
+        <div class="th-back" onclick="window.location.href='dashboard.html'">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M19 12H5M11 6l-6 6 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="th-title">Record Stock Out / Sale / Own Use</div>
+        <div style="width:22px"></div>
+      </div>
+
+      <div class="progress-bar-wrap" style="padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.2);">
+        <div class="pb-label" style="margin-bottom:0;">STEP 8 OF 10 &mdash; CUSTOMER COLLECTS</div>
+      </div>
+      <div class="scroll-body">
+        
+        <div style="background:#e5f0fa; color:#0f3c8a; border-radius:12px; padding:12px 14px; font-size:12px; font-weight:600; margin-bottom:16px;">
+          This record has been created by a Manager.<br>Please complete the remaining steps.
+        </div>
+
+        <div class="section-lbl">SUMMARY</div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="form-row"><div class="form-lbl">Movement Number</div><div style="font-size:13px;font-weight:700;">MOV-2025-001</div></div>
+          <div class="form-row"><div class="form-lbl">Movement Type</div><div style="font-size:13px;font-weight:700;">Sale</div></div>
+          <div class="form-row"><div class="form-lbl">Customer</div><div style="font-size:13px;font-weight:700;">ABC Feeds Pty Ltd</div></div>
+          <div class="form-row"><div class="form-lbl">Product</div><div style="font-size:13px;font-weight:700;">Hay</div></div>
+          <div class="form-row"><div class="form-lbl">Quantity</div><div style="font-size:13px;font-weight:700;">6.00 tonnes</div></div>
+          <div class="form-row"><div class="form-lbl">Storage Location</div><div style="font-size:13px;font-weight:700;">Shed 04 / Bay B-120</div></div>
+          <div class="form-row"><div class="form-lbl">Invoice Number</div><div style="font-size:13px;font-weight:700;">INV-2025-001</div></div>
+          <div class="form-row"><div class="form-lbl">Invoice Total</div><div style="font-size:13px;font-weight:700;">$1,320.00</div></div>
+          <div class="form-row"><div class="form-lbl">Payment Status</div><div style="font-size:13px;font-weight:700;">Paid</div></div>
+          <div class="form-row"><div class="form-lbl">Created By</div><div style="font-size:13px;font-weight:700;">John Doe</div></div>
+          <div class="form-row" style="margin-bottom:0;"><div class="form-lbl">Created On</div><div style="font-size:13px;font-weight:700;">18/05/2025 2:30 PM</div></div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+          <div class="pag-circle blue" style="width:24px;height:24px;font-size:12px;">8</div>
+          <div style="font-size:14px; font-weight:800; color:var(--green-dark);">CUSTOMER COLLECTS</div>
+        </div>
+
+        <div class="card" style="box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+          <div class="form-row"><div class="form-lbl">Customer Name</div><input class="form-input" value="ABC Feeds Pty Ltd" style="text-align:left;"></div>
+          <div class="form-row"><div class="form-lbl">Driver / Contact</div><input class="form-input" value="Mark Smith" style="text-align:left;"></div>
+          <div class="form-row"><div class="form-lbl">Vehicle / Trailer</div><input class="form-input" value="ABC-123" style="text-align:left;"></div>
+          <div class="form-row" style="margin-bottom:0;"><div class="form-lbl">Arrival Time</div><input type="text" class="form-input" value="18/05/2025 3:15 PM" style="text-align:left;"></div>
+        </div>
+
+        <div style="height:12px"></div>
+      </div>
+
+      <div class="bottom-btn-wrap">
+        <button class="green-btn" id="nextBtn1">
+          <span id="nextBtnText">Next: Confirm Load Out &rarr;</span>
+        </button>
+        <div class="pagination-wrap">
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle blue">8</div>
+          <div class="pag-circle disabled">9</div>
+          <div class="pag-circle disabled">10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         SCREEN 2 — LOAD OUT VERIFICATION
+    ═══════════════════════════════════ -->
+    <div class="panel" id="s2">
+
+      <div class="top-header">
+        <div class="th-back" id="backToS1">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M19 12H5M11 6l-6 6 6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="th-title">Record Stock Out / Sale / Own Use</div>
+        <div style="width:22px"></div>
+      </div>
+
+      <div class="progress-bar-wrap" style="padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.2);">
+        <div class="pb-label" style="margin-bottom:0;">STEP 9 OF 10 &mdash; CONFIRM LOAD OUT</div>
+      </div>
+
+      <div class="scroll-body">
+
+        <!-- Truck Loaded Photo -->
+        <div class="verif-card">
+          <div class="verif-card-title">Truck Loaded Photo</div>
+          <div class="verif-card-sub">Include Registration Number</div>
+          <div class="no-photo" id="truckPhotoPlaceholder">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#c0cac0" stroke-width="1.6" stroke-linejoin="round"/>
+              <line x1="3" y1="3" x2="21" y2="21" stroke="#c0cac0" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            <div class="no-photo-text">No photo captured</div>
+            <div class="no-photo-sub">Tap button below to open camera</div>
+          </div>
+            <button class="capture-btn" style="margin-bottom:16px;" onclick="simulateCapture('truck')">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+                <circle cx="12" cy="13" r="4" stroke="#fff" stroke-width="1.8"/>
+              </svg>
+              Capture Photo
+            </button>
+          
+          <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+            <div class="select-lbl" style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;">Truck Registration Number</div>
+            <input type="text" placeholder="Enter Registration..." style="width:100%;height:44px;border:1.5px solid var(--border);border-radius:12px;padding:0 14px;font-size:14px;font-family:inherit;font-weight:600;color:var(--text);margin-bottom:16px;background:var(--bg);box-shadow:inset 0 1px 3px rgba(0,0,0,0.02);" />
+
+            <div class="select-lbl" style="margin-bottom:6px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;">Operator Signature (Optional)</div>
+            <div style="width:100%;height:100px;border:2px dashed var(--border);border-radius:12px;background:#fafafa;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;">
+              Tap to Sign
+            </div>
+          </div>
+        </div>
+
+        <!-- Shed BEFORE -->
+        <div class="verif-card">
+          <div class="verif-card-title">Shed: BEFORE Movement</div>
+          <div id="beforePlaceholder">
+            <button class="add-photo-btn" onclick="simulateCapture('before')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
+                <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Add Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- Shed AFTER -->
+        <div class="verif-card">
+          <div class="verif-card-title">Shed: AFTER Movement</div>
+          <div id="afterPlaceholder">
+            <button class="add-photo-btn" onclick="simulateCapture('after')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
+                <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Add Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm checkbox -->
+        <div class="confirm-row" style="margin-bottom:0">
+          <div class="confirm-checkbox" id="confirmBox" onclick="toggleConfirm()">
+            <svg class="check-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:none">
+              <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="confirm-text">
+            I confirm the load satisfies the contract specifications and all safety protocols were followed.
+          </div>
+        </div>
+
+        <div style="height:4px"></div>
+      </div>
+
+      <div class="bottom-btn-wrap">
+        <button class="green-btn" id="completeBtn">
+          Complete Stock Out
+        </button>
+        <div class="pagination-wrap">
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle check">✓</div>
+          <div class="pag-circle blue">9</div>
+          <div class="pag-circle disabled">10</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         SCREEN 3 — SUCCESS
+    ═══════════════════════════════════ -->
+    <div class="panel" id="s3" style="background:var(--green-dark);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 28px">
+
+      <div class="success-ring">
+        <div class="success-ring-inner">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+            <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="success-title">Stock Out Complete!</div>
+      <div class="success-sub">Movement MOV-2025-001 recorded</div>
+
+      <div class="success-detail-card">
+        <div class="sdrow">
+          <div class="sdrk">Action</div>
+          <div class="sdrv"><span class="badge-out">OUT</span></div>
+        </div>
+        <div class="sdrow">
+          <div class="sdrk">Location</div>
+          <div class="sdrv">Shed 04 — Bay 8-120</div>
+        </div>
+        <div class="sdrow">
+          <div class="sdrk">Options</div>
+          <div class="sdrv">Sale</div>
+        </div>
+        <div class="sdrow">
+          <div class="sdrk">Operator</div>
+          <div class="sdrv">John Doe</div>
+        </div>
+        <div class="sdrow">
+          <div class="sdrk">Status</div>
+          <div class="sdrv" style="color:#6dffaa">Synced ✓</div>
+        </div>
+      </div>
+
+      <div class="success-btns-v">
+        <button class="sbtn sbtn-solid" onclick="window.location.href='dashboard.html'" style="background:#1e5bb0; border-color:#1e5bb0;">Back to Dashboard</button>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // ── Scale ──
+  const baseW = 390, baseH = 844, pad = 32;
+  const updateScale = () => {
+    const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
+    document.documentElement.style.setProperty('--app-scale', s.toFixed(4));
+  };
+  updateScale();
+  window.addEventListener('resize', updateScale);
+
+  // ── Panel transitions ──
+  function goTo(from, to) {
+    document.getElementById(from).classList.add('exit-left');
+    document.getElementById(from).classList.remove('active');
+    document.getElementById(to).classList.add('active');
+    document.getElementById(to).classList.remove('exit-left');
+  }
+
+  function goBack(from, to) {
+    const fEl = document.getElementById(from);
+    const tEl = document.getElementById(to);
+    fEl.classList.remove('active');
+    fEl.style.transform = 'translateX(100%)';
+    setTimeout(() => { fEl.style.transform = ''; }, 340);
+    tEl.classList.remove('exit-left');
+    tEl.classList.add('active');
+  }
+
+  document.getElementById('nextBtn1').addEventListener('click', () => goTo('s1', 's2'));
+  document.getElementById('backToS1').addEventListener('click', () => goBack('s2', 's1'));
+
+  function onMovementTypeChange() {
+    const val = document.getElementById('movementTypeSelect').value;
+    document.getElementById('formSale').style.display = val === 'sale' ? 'block' : 'none';
+    document.getElementById('formOwnUse').style.display = val === 'own_use' ? 'block' : 'none';
+    document.getElementById('formOther').style.display = val === 'other' ? 'block' : 'none';
+    
+    const btnText = document.getElementById('nextBtnText');
+    if(val === 'sale') btnText.textContent = 'Save + Generate Invoice';
+    else if(val === 'own_use' || val === 'other') btnText.textContent = 'Save';
+    else btnText.textContent = 'Next: Details \u2192';
+  }
+  document.getElementById('completeBtn').addEventListener('click', () => goTo('s2', 's3'));
+
+  function resetFlow() {
+    const s3 = document.getElementById('s3');
+    const s1 = document.getElementById('s1');
+    s3.classList.remove('active');
+    s3.style.transform = 'translateX(100%)';
+    setTimeout(() => { s3.style.transform = ''; }, 340);
+    s1.classList.remove('exit-left');
+    s1.classList.add('active');
+    // reset verification state
+    resetCapture('truck');
+    resetCapture('before');
+    resetCapture('after');
+    confirmed = false;
+    document.getElementById('confirmBox').classList.remove('checked');
+    document.querySelector('.check-icon').style.display = 'none';
+  }
+
+  // ── Simulate photo capture ──
+  const photoColors = {
+    truck:  { bg: '#e8c040', label: 'Truck Photo ✓' },
+    before: { bg: '#8aad6a', label: 'Before Photo ✓' },
+    after:  { bg: '#6a9aad', label: 'After Photo ✓' }
+  };
+
+  const placeholderIds = {
+    truck:  'truckPhotoPlaceholder',
+    before: 'beforePlaceholder',
+    after:  'afterPlaceholder'
+  };
+
+  function simulateCapture(type) {
+    const el = document.getElementById(placeholderIds[type]);
+    const { bg, label } = photoColors[type];
+    el.innerHTML = `
+      <div style="height:80px;background:${bg};border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="font-size:12px;color:#1b7239;font-weight:700;text-align:center;margin-bottom:8px">${label}</div>
+      <button onclick="resetCapture('${type}')" style="width:100%;padding:7px;border:1.5px solid #dde8d8;border-radius:10px;background:#f8faf8;font-size:12px;color:#8898aa;font-weight:600;cursor:pointer">
+        Retake Photo
+      </button>
+    `;
+  }
+
+  function resetCapture(type) {
+    const el = document.getElementById(placeholderIds[type]);
+    if (type === 'truck') {
+      el.innerHTML = `
+        <div class="no-photo" id="truckPhotoPlaceholder">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#c0cac0" stroke-width="1.6" stroke-linejoin="round"/>
+            <line x1="3" y1="3" x2="21" y2="21" stroke="#c0cac0" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <div class="no-photo-text">No photo captured</div>
+          <div class="no-photo-sub">Tap button below to open camera</div>
+        </div>
+        <button class="capture-btn" onclick="simulateCapture('truck')">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+            <circle cx="12" cy="13" r="4" stroke="#fff" stroke-width="1.8"/>
+          </svg>
+          Capture Photo
+        </button>
+      `;
+    } else {
+      el.innerHTML = `
+        <button class="add-photo-btn" onclick="simulateCapture('${type}')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#1b7239" stroke-width="1.8"/>
+            <path d="M12 8v8M8 12h8" stroke="#1b7239" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Add Photo
+        </button>
+      `;
+    }
+  }
+
+  // ── Confirm checkbox ──
+  let confirmed = false;
+  function toggleConfirm() {
+    confirmed = !confirmed;
+    const box = document.getElementById('confirmBox');
+    const icon = box.querySelector('.check-icon');
+    box.classList.toggle('checked', confirmed);
+    icon.style.display = confirmed ? 'block' : 'none';
+  }
+</script>
+</body>
+</html>

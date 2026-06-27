@@ -9,11 +9,16 @@
       --green: #00ab4f;
       --green-dark: #1a3d28;
       --green-mid: #1b7239;
-      --blue: #18a7e3;
-      --blue-btn: #1391cf;
+      --green-light: #edf7f0;
+      --green-border: #bce3c4;
+      --orange: #f58220;
+      --yellow-bg: #fffbe6;
+      --yellow-border: #ffe58f;
       --text: #1a2a3a;
       --muted: #8898aa;
+      --border: #dde8e0;
       --bg: #f4f6f4;
+      --card: #fff;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,7 +26,7 @@
     html, body {
       width: 100%; height: 100%;
       background: #e0e0e0;
-      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       overflow: hidden;
     }
 
@@ -36,343 +41,550 @@
       width: 390px; height: 844px;
       transform: scale(var(--app-scale, 1));
       transform-origin: center center;
-      background: #fff;
+      background: var(--bg);
       border-radius: 26px;
       overflow: hidden;
       box-shadow: 0 28px 80px rgba(0,0,0,0.22);
+      display: flex;
+      flex-direction: column;
     }
 
-    /* ─── PANEL SYSTEM ─── */
-    .panel {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      transform: translateX(100%);
-      transition: transform 340ms cubic-bezier(.4,0,.2,1);
-      will-change: transform;
+    /* TOP HEADER BAR */
+    .hdr {
+      flex: 0 0 auto;
+      background: #fff;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #eaeaea;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10;
     }
-    .panel.active    { transform: translateX(0); }
-    .panel.exit-left { transform: translateX(-100%); }
-
-    /* ══════════════════════════════════
-       SCREEN 1 — QUANTITY ENTRY
-    ══════════════════════════════════ */
-    #s1 { background: #fff; }
-
-    /* top number display */
-    .qty-display {
-      background: #f7f9f7;
-      padding: 28px 24px 20px;
-      display: flex; align-items: baseline; justify-content: center; gap: 8px;
+    .hdr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .qty-number {
-      font-size: 64px; font-weight: 900; color: var(--text);
-      letter-spacing: -0.04em; line-height: 1;
-    }
-    .qty-unit {
-      font-size: 18px; font-weight: 500; color: var(--muted);
-    }
-
-    /* quick-add row */
-    .quick-add {
-      background: #f7f9f7;
-      padding: 0 16px 18px;
-      display: flex; gap: 8px; justify-content: center;
-    }
-    .quick-btn {
-      flex: 1;
-      padding: 7px 0;
-      border: none; border-radius: 20px;
-      background: #d6f0e2; color: #1b7239;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      transition: background 0.1s;
-    }
-    .quick-btn:active { background: #b8e6ce; }
-
-    /* numpad */
-    .numpad {
-      flex: 1;
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      padding: 8px 12px;
-      gap: 4px;
-    }
-    .num-key {
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; font-weight: 500; color: var(--text);
-      cursor: pointer; border-radius: 14px;
-      user-select: none; transition: background 0.1s;
-    }
-    .num-key:active { background: #f0f4f0; }
-    .num-key.del { font-size: 20px; }
-
-    /* next step */
-    .next-btn-wrap { padding: 0 16px 14px; }
-    .next-btn {
-      width: 100%; height: 52px;
-      border: none; border-radius: 26px;
-      background: linear-gradient(180deg, var(--blue) 0%, var(--blue-btn) 100%);
-      color: #fff; font-size: 17px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+    .hdr-back {
+      background: transparent;
+      border: none;
       cursor: pointer;
-      box-shadow: 0 8px 20px rgba(24,167,227,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--green-mid);
+      padding: 4px;
+    }
+    .hdr-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .hdr-toggle {
+      display: flex;
+      background: #e8ece8;
+      border-radius: 20px;
+      padding: 3px;
+    }
+    .toggle-pill {
+      border: none;
+      background: transparent;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-pill.active {
+      background: var(--green-dark);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
-    /* load details mini panel */
-    .load-details-mini {
-      border-top: 1px solid #eef2ee;
-      padding: 12px 16px 0;
+    /* STEPPER BARS */
+    .stepper-bars {
+      display: flex;
+      gap: 6px;
+      width: 100%;
     }
-    .ldm-header {
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 6px;
+    .step-bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: #e0e6e0;
+      transition: all 0.3s ease;
     }
-    .ldm-back { color: var(--muted); cursor: pointer; }
-    .ldm-title { font-size: 15px; font-weight: 700; color: var(--text); }
-    .ldm-breadcrumb {
-      font-size: 12px; color: var(--green-mid); font-weight: 600;
-      margin-bottom: 10px;
+    .step-bar.completed {
+      background: var(--green-mid);
     }
-    .commodity-chips {
-      display: flex; gap: 8px; margin-bottom: 10px;
+    .step-bar.active {
+      background: var(--orange);
     }
-    .chip {
-      display: flex; align-items: center; gap: 5px;
-      padding: 6px 14px; border-radius: 20px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      border: 1.5px solid transparent;
+
+    .step-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* STEP BODY CONTAINER */
+    .body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      scrollbar-width: none;
+      position: relative;
+    }
+    .body::-webkit-scrollbar { display: none; }
+
+    .step-panel {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.25s ease;
+    }
+    .step-panel.active {
+      display: flex;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: -6px;
+    }
+
+    /* STEP 1: PROPERTY & LOCATION */
+    .prop-card {
+      background: var(--green-light);
+      border: 1.5px solid var(--green-mid);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .prop-icon { font-size: 24px; }
+    .prop-name { font-size: 15px; font-weight: 800; color: var(--green-dark); }
+    .prop-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+
+    .select-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 4px 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .custom-select {
+      width: 100%;
+      height: 44px;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .loc-summary-badge {
+      background: #eaf5ec;
+      border: 1.5px solid var(--green-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .loc-sum-top { font-size: 13px; font-weight: 700; color: var(--green-mid); }
+    .loc-sum-val { font-size: 14px; font-weight: 800; color: var(--text); }
+
+    /* STEP 2: COMMODITY & VARIETY */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .cat-btn {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn.active {
+      background: var(--green-light);
+      border-color: var(--green-mid);
+      box-shadow: 0 4px 12px rgba(27,114,57,0.1);
+    }
+    .cat-icon { font-size: 26px; }
+    .cat-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .cat-btn.active .cat-name { color: var(--green-dark); }
+
+    .variety-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .var-pill {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
       transition: all 0.15s;
     }
-    .chip.active { background: var(--green-mid); color: #fff; }
-    .chip.inactive { background: #f0f4f0; color: var(--muted); border-color: #e0e6e0; }
-    .chip svg { flex: none; }
-
-    /* bottom nav (screens 1) */
-    .bottom-nav {
-      height: 68px; background: #fff;
-      border-top: 1px solid #eaeaea;
-      display: flex; align-items: center;
-      padding: 0 8px;
+    .var-pill.active {
+      background: var(--green-mid);
+      border-color: var(--green-mid);
+      color: #fff;
     }
-    .nav-item {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 3px;
-      cursor: pointer; padding: 6px;
-    }
-    .nav-icon-wrap {
-      width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .nav-icon-wrap.active { background: var(--green-mid); }
-    .nav-lbl { font-size: 10px; font-weight: 600; color: var(--muted); }
-    .nav-lbl.active { color: var(--green-mid); }
 
-    /* ══════════════════════════════════
-       SCREEN 2 — REVIEW & SUBMIT
-    ══════════════════════════════════ */
-    #s2 { background: var(--bg); }
+    .com-summary-card {
+      background: var(--green-light);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
 
-    .review-header {
+    .truck-card {
       background: #fff;
-      height: 56px;
-      display: flex; align-items: center;
-      padding: 0 16px; gap: 12px;
-      border-bottom: 1px solid #eef2ee;
-      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 6px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .review-back { cursor: pointer; color: var(--text); }
-    .review-title { flex: 1; font-size: 17px; font-weight: 700; color: var(--text); text-align: center; }
+    .truck-input {
+      width: 100%;
+      height: 40px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      outline: none;
+    }
+    .truck-input::placeholder { color: var(--muted); font-weight: 500; }
+    .input-divider { height: 1px; background: #f0f4f0; width: 100%; }
 
-    .progress-dots {
-      display: flex; gap: 6px; align-items: center;
+    /* STEP 3: QUANTITY KEYPAD */
+    .large-qty-display {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px 16px;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #eaeaea;
     }
-    .dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #d0d8d0;
+    .lqd-num {
+      font-size: 56px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1;
     }
-    .dot.active { background: var(--green); width: 10px; height: 10px; }
+    .lqd-unit {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: lowercase;
+    }
 
-    .review-body {
-      flex: 1; overflow-y: auto; padding: 14px 14px 0;
-      scrollbar-width: none;
+    .quick-add-row {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
     }
-    .review-body::-webkit-scrollbar { display: none; }
+    .quick-pill {
+      flex: 1;
+      background: #fff;
+      border: 1.5px solid var(--green-border);
+      border-radius: 18px;
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--green-mid);
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .quick-pill:active { background: var(--green-light); }
 
-    .review-card {
-      background: #fff; border-radius: 16px;
-      padding: 16px; margin-bottom: 12px;
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
-    .review-card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
+    .kp-key {
+      height: 52px;
+      background: #fff;
+      border: 1px solid #eaeaea;
+      border-radius: 14px;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      user-select: none;
     }
-    .review-card-title { font-size: 15px; font-weight: 700; color: var(--text); }
-    .edit-icon { cursor: pointer; color: var(--muted); }
+    .kp-key:active { background: #f0f4f0; }
+    .kp-key.active-key { border: 2px solid var(--text); }
+    .kp-del { font-size: 20px; }
 
-    .detail-row {
-      display: flex; align-items: center;
-      padding: 9px 0;
+    .sec-inputs-row {
+      display: flex;
+      gap: 12px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px;
+      border: 1px solid #eaeaea;
+    }
+    .sec-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sec-lbl { font-size: 10px; font-weight: 700; color: var(--muted); }
+    .sec-inp {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+      outline: none;
+    }
+    .text-center { text-align: center; }
+    .sec-sub { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+    /* STEP 4: PHOTOS */
+    .photos-inst {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    .photos-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .photo-card {
+      background: #f4f3ed;
+      border: 2px dashed #d8d6cc;
+      border-radius: 16px;
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .photo-card.attached {
+      background: var(--green-light);
+      border: 2px solid var(--green-mid);
+    }
+    .photo-cam-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .photo-card-info { flex: 1; }
+    .photo-card-title { font-size: 15px; font-weight: 800; color: var(--text); }
+    .photo-card-sub { font-size: 12px; color: var(--muted); font-weight: 500; margin-top: 2px; }
+    .photo-check {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #d8d6cc;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800;
+    }
+    .photo-card.attached .photo-check {
+      background: var(--green-mid);
+    }
+
+    /* STEP 5: REVIEW */
+    .review-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px 8px;
+      border: 1px solid #eaeaea;
+      text-align: center;
+    }
+    .rev-stat-num { font-size: 24px; font-weight: 900; color: var(--text); }
+    .rev-stat-unit { font-size: 10px; font-weight: 700; color: var(--muted); margin-top: 2px; text-transform: uppercase; }
+
+    .review-details-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 16px;
+      border: 1px solid #eaeaea;
+      display: flex;
+      flex-direction: column;
+    }
+    .rev-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
       border-bottom: 1px solid #f0f4f0;
     }
-    .detail-row:last-child { border-bottom: none; }
-    .detail-key {
-      width: 88px; flex: 0 0 auto;
-      font-size: 13px; color: var(--muted); font-weight: 500;
-    }
-    .detail-val {
-      font-size: 14px; color: var(--text); font-weight: 600;
-    }
-    .badge-in {
-      background: var(--green); color: #fff;
-      font-size: 12px; font-weight: 700;
+    .rev-row:last-child { border-bottom: none; }
+    .rev-key { font-size: 13px; color: var(--muted); font-weight: 600; }
+    .rev-val { font-size: 14px; color: var(--text); font-weight: 800; text-align: right; }
+    .rev-badge-in {
+      background: var(--green-mid); color: #fff;
+      font-size: 11px; font-weight: 800;
       padding: 3px 10px; border-radius: 6px;
+      text-transform: uppercase;
     }
 
-    .operator-row {
-      display: flex; align-items: center; gap: 10px;
-      margin-top: 12px; padding-top: 12px;
-      border-top: 1px solid #f0f4f0;
+    .offline-sync-notice {
+      background: var(--yellow-bg);
+      border: 1px solid var(--yellow-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-    .operator-avatar {
-      width: 36px; height: 36px; border-radius: 50%;
-      overflow: hidden; background: #e0e8e0;
-      flex: 0 0 auto;
-    }
-    .operator-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .operator-info { display: flex; flex-direction: column; }
-    .operator-label { font-size: 11px; color: var(--muted); font-weight: 500; }
-    .operator-name  { font-size: 14px; color: var(--text); font-weight: 700; }
+    .notice-dot { color: #f5a623; font-size: 16px; line-height: 1; }
+    .notice-txt { font-size: 12px; font-weight: 700; color: #b07d20; }
 
-    /* photos */
-    .photos-section { margin-bottom: 12px; }
-    .photos-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 10px; }
-    .photos-row { display: flex; gap: 8px; }
-    .photo-thumb {
-      width: 80px; height: 72px; border-radius: 12px;
-      overflow: hidden; background: #e0e8e0; flex: 0 0 auto;
+    /* SUCCESS SCREEN */
+    .success-screen {
+      background: var(--green-mid);
+      height: 100%;
+      padding: 32px 24px;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
     }
-    .photo-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-add {
-      width: 80px; height: 72px; border-radius: 12px;
-      border: 2px dashed #d0d8d0;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-    }
-
-    .offline-warn {
-      display: flex; align-items: center; gap: 8px;
-      padding: 10px 14px;
-      background: #fffbf0; border-radius: 10px;
-      margin-bottom: 14px;
-    }
-    .offline-dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a623; flex: 0 0 auto; }
-    .offline-text { font-size: 12px; color: #b07d20; font-weight: 600; }
-
-    .submit-wrap { padding: 0 0 14px; }
-    .submit-btn {
-      width: 100%; height: 52px;
-      border: none; border-radius: 26px;
-      background: linear-gradient(180deg, var(--blue) 0%, var(--blue-btn) 100%);
-      color: #fff; font-size: 17px; font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 8px 20px rgba(24,167,227,0.28);
-    }
-
-    /* bottom nav s2 */
-    .bottom-nav-2 {
-      height: 68px; background: #fff;
-      border-top: 1px solid #eaeaea;
-      display: flex; align-items: center;
-      padding: 0 8px; flex: 0 0 auto;
-    }
-
-    /* ══════════════════════════════════
-       SCREEN 3 — SUCCESS
-    ══════════════════════════════════ */
-    #s3 {
-      background: var(--green);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 32px 28px;
-    }
-
-    .success-check {
-      width: 96px; height: 96px; border-radius: 50%;
+    .succ-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
       background: rgba(255,255,255,0.22);
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 28px;
+      font-size: 38px; font-weight: 900; color: #fff;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
-    .success-check-inner {
-      width: 72px; height: 72px; border-radius: 50%;
-      background: rgba(255,255,255,0.30);
-      display: flex; align-items: center; justify-content: center;
-    }
+    .succ-title { font-size: 30px; font-weight: 900; text-align: center; letter-spacing: -0.03em; }
+    .succ-subtitle { font-size: 14px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; margin-top: 6px; margin-bottom: 28px; }
 
-    .success-title {
-      font-size: 30px; font-weight: 900; color: #fff;
-      letter-spacing: -0.03em; margin-bottom: 18px; text-align: center;
-    }
-
-    .success-pill {
-      background: rgba(0,0,0,0.20);
-      border-radius: 24px; padding: 10px 22px;
-      color: #fff; font-size: 15px; font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .success-tags {
-      display: flex; gap: 8px; margin-bottom: 36px;
-    }
-    .success-tag {
-      background: rgba(0,0,0,0.18); border-radius: 20px;
-      padding: 5px 16px; color: #fff;
-      font-size: 13px; font-weight: 600;
-    }
-
-    .upload-box {
-      width: 100%; background: rgba(0,0,0,0.15);
-      border-radius: 14px; padding: 14px 16px;
+    .succ-details-box {
+      width: 100%;
+      background: rgba(0,0,0,0.18);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
       margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
     }
-    .upload-row {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    .succ-det-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px;
     }
-    .upload-text { flex: 1; font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 600; }
-    .upload-pct  { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 700; }
-    .progress-track {
+    .succ-det-row span { color: rgba(255,255,255,0.75); font-weight: 500; }
+    .succ-det-row strong { color: #fff; font-weight: 800; }
+
+    .succ-upload-wrap {
+      width: 100%;
+      margin-bottom: 32px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .succ-upload-bar {
       width: 100%; height: 6px; border-radius: 3px;
-      background: rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.25); overflow: hidden;
     }
-    .progress-fill {
-      height: 100%; border-radius: 3px;
-      background: #fff; width: 45%;
-      animation: fillProgress 2s ease forwards;
+    .succ-upload-fill {
+      height: 100%; background: #fff; width: 0%;
+      transition: width 2s cubic-bezier(0.1, 0.8, 0.3, 1);
     }
-    @keyframes fillProgress {
-      from { width: 0%; }
-      to   { width: 45%; }
+    .succ-upload-txt { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.9); text-align: center; }
+
+    .succ-actions {
+      width: 100%;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .succ-btn-another {
+      width: 100%; height: 50px; border-radius: 25px;
+      background: rgba(0,0,0,0.22); border: 1.5px solid rgba(255,255,255,0.4);
+      color: #fff; font-size: 16px; font-weight: 800; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .succ-btn-another:active { background: rgba(0,0,0,0.35); }
+    .succ-btn-dash {
+      width: 100%; height: 50px; border-radius: 25px;
+      background: #fff; border: none;
+      color: var(--green-mid); font-size: 16px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
     }
 
-    .success-btns { width: 100%; display: flex; flex-direction: column; gap: 10px; }
-
-    .btn-record {
-      width: 100%; height: 50px;
-      border-radius: 25px;
-      border: 2px solid rgba(255,255,255,0.5);
-      background: rgba(0,0,0,0.20);
-      color: #fff; font-size: 16px; font-weight: 700;
-      cursor: pointer;
+    /* FOOTER BUTTON */
+    .step-footer {
+      flex: 0 0 auto;
+      background: rgba(244, 246, 244, 0.95);
+      backdrop-filter: blur(8px);
+      padding: 12px 16px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      z-index: 10;
     }
-    .btn-dashboard {
-      width: 100%; height: 50px;
-      border-radius: 25px;
-      border: 2px solid rgba(255,255,255,0.6);
-      background: transparent;
-      color: #fff; font-size: 16px; font-weight: 700;
-      cursor: pointer;
+    .footer-next-btn {
+      width: 100%; height: 52px;
+      border-radius: 16px;
+      background: var(--green-mid);
+      color: #fff; font-size: 16px; font-weight: 800;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 20px rgba(27,114,57,0.25);
+      transition: all 0.2s;
     }
+    .footer-next-btn:active { transform: scale(0.98); background: var(--green-dark); }
 
     @media (max-width: 767px) {
       .viewport { padding: 0; }
-      .screen { width: 390px; height: 844px; border-radius: 0; box-shadow: none; }
+      .screen { width: 100vw; height: 100vh; border-radius: 0; box-shadow: none; }
     }
   </style>
 </head>
@@ -380,342 +592,279 @@
 <div class="viewport">
   <main class="screen">
 
-    <!-- ═══════════════ SCREEN 1: QUANTITY ═══════════════ -->
-    <div class="panel active" id="s1">
-
-      <!-- Number display -->
-      <div class="qty-display">
-        <div class="qty-number" id="qtyDisplay">240</div>
-        <div class="qty-unit">bales</div>
-      </div>
-
-      <!-- Quick add -->
-      <div class="quick-add">
-        <button class="quick-btn" data-add="10">+10</button>
-        <button class="quick-btn" data-add="20">+20</button>
-        <button class="quick-btn" data-add="50">+50</button>
-        <button class="quick-btn" data-add="100">+100</button>
-        <button class="quick-btn" data-add="200">+200</button>
-      </div>
-
-      <!-- Numpad -->
-      <div class="numpad">
-        <div class="num-key" data-key="1">1</div>
-        <div class="num-key" data-key="2">2</div>
-        <div class="num-key" data-key="3">3</div>
-        <div class="num-key" data-key="4">4</div>
-        <div class="num-key" data-key="5">5</div>
-        <div class="num-key" data-key="6">6</div>
-        <div class="num-key" data-key="7">7</div>
-        <div class="num-key" data-key="8">8</div>
-        <div class="num-key" data-key="9">9</div>
-        <div class="num-key" data-key=".">.</div>
-        <div class="num-key" data-key="0">0</div>
-        <div class="num-key del" data-key="del">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M20 7H9l-6 5 6 5h11a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Z" stroke="#666" stroke-width="1.8" stroke-linejoin="round"/>
-            <path d="M12 10l4 4M16 10l-4 4" stroke="#666" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Next Step -->
-      <div class="next-btn-wrap">
-        <button class="next-btn" id="nextBtn">
-          Next Step
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <!-- HEADER BAR -->
+    <header class="hdr" id="mainHeader">
+      <div class="hdr-row">
+        <button class="hdr-back" id="backBtn" onclick="handleBack()" title="Back">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
         </button>
+        <div class="hdr-title" id="hdrTitle">Location</div>
+        <div class="hdr-toggle">
+          <button class="toggle-pill active" onclick="window.location.href='stock-in.html'">IN</button>
+          <button class="toggle-pill" onclick="window.location.href='load-out.html'">OUT</button>
+        </div>
+      </div>
+      <div class="stepper-bars">
+        <div class="step-bar active" id="bar1"></div>
+        <div class="step-bar" id="bar2"></div>
+        <div class="step-bar" id="bar3"></div>
+        <div class="step-bar" id="bar4"></div>
+        <div class="step-bar" id="bar5"></div>
+      </div>
+      <div class="step-subtitle" id="stepSubtitle">STEP 1 OF 5 — LOCATION</div>
+    </header>
+
+    <!-- STEP BODY -->
+    <div class="body">
+
+      <!-- STEP 1: LOCATION -->
+      <div class="step-panel active" id="step1">
+        <div class="card-label">PROPERTY</div>
+        <div class="prop-card" onclick="alert('Green Valley Farm is currently your active property.')">
+          <div class="prop-icon">🏡</div>
+          <div class="prop-info">
+            <div class="prop-name">Green Valley Farm</div>
+            <div class="prop-sub">Tap to change property</div>
+          </div>
+        </div>
+
+        <div class="card-label">SHED</div>
+        <div class="select-card">
+          <select class="custom-select" id="shedSelect" onchange="updateLocationSummary()">
+            <option value="Hay Shed North (4 bays)" selected>Hay Shed North (4 bays)</option>
+            <option value="Hay Shed South (2 bays)">Hay Shed South (2 bays)</option>
+            <option value="Grain Store A (3 bays)">Grain Store A (3 bays)</option>
+            <option value="Main Silo Hub">Main Silo Hub</option>
+          </select>
+        </div>
+
+        <div class="card-label">BAY / BIN</div>
+        <div class="select-card">
+          <select class="custom-select" id="baySelect" onchange="updateLocationSummary()">
+            <option value="Bay 1">Bay 1</option>
+            <option value="Bay 2">Bay 2</option>
+            <option value="Bay 3" selected>Bay 3</option>
+            <option value="Bay 4">Bay 4</option>
+            <option value="Bin A">Bin A</option>
+          </select>
+        </div>
+
+        <div class="loc-summary-badge">
+          <div class="loc-sum-top">✓ Selected location</div>
+          <div class="loc-sum-val" id="locSummaryText">Green Valley Farm › Hay Shed North › Bay 3</div>
+        </div>
       </div>
 
-      <!-- Load Details mini -->
-      <div class="load-details-mini">
-        <div class="ldm-header">
-          <span class="ldm-back" onclick="window.location.href='dashboard.html'">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="ldm-title">Load Details</span>
+      <!-- STEP 2: COMMODITY -->
+      <div class="step-panel" id="step2">
+        <div class="card-label">COMMODITY & VARIETY</div>
+        <div class="cat-grid">
+          <button class="cat-btn active" data-cat="Hay" onclick="selectCategory('Hay', this)">
+            <div class="cat-icon">🌾</div>
+            <div class="cat-name">Hay</div>
+          </button>
+          <button class="cat-btn" data-cat="Grain" onclick="selectCategory('Grain', this)">
+            <div class="cat-icon">🌽</div>
+            <div class="cat-name">Grain</div>
+          </button>
+          <button class="cat-btn" data-cat="Water" onclick="selectCategory('Water', this)">
+            <div class="cat-icon">💧</div>
+            <div class="cat-name">Water</div>
+          </button>
         </div>
-        <div class="ldm-breadcrumb">Green Valley Farm &rsaquo; Hay Shed North &rsaquo; Bay 3</div>
-        <div class="commodity-chips">
-          <div class="chip active" data-chip="hay">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2C6 8 4 14 12 22c8-8 6-14 0-20Z" fill="currentColor" opacity=".6"/>
-              <path d="M12 8v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Hay
+
+        <div class="card-label" id="varietyLabel">HAY VARIETY</div>
+        <div class="variety-pills" id="varietyPills">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="com-summary-card">
+          <span id="comSummaryText">🌾 Hay — Oaten</span>
+        </div>
+
+        <div class="card-label">CARRIER / TRUCK</div>
+        <div class="truck-card">
+          <input type="text" class="truck-input" id="truckRego" placeholder="Truck rego (e.g. 1AB 2CD)" />
+          <div class="input-divider"></div>
+          <input type="text" class="truck-input" id="carrierName" placeholder="Carrier name (optional)" />
+        </div>
+      </div>
+
+      <!-- STEP 3: QUANTITY -->
+      <div class="step-panel" id="step3">
+        <div class="large-qty-display">
+          <span class="lqd-num" id="lqdNum">2</span>
+          <span class="lqd-unit" id="lqdUnit">bales</span>
+        </div>
+
+        <div class="quick-add-row">
+          <button class="quick-pill" onclick="addQty(10)">+10</button>
+          <button class="quick-pill" onclick="addQty(20)">+20</button>
+          <button class="quick-pill" onclick="addQty(50)">+50</button>
+          <button class="quick-pill" onclick="addQty(100)">+100</button>
+          <button class="quick-pill" onclick="addQty(200)">+200</button>
+        </div>
+
+        <div class="keypad-grid">
+          <button class="kp-key" onclick="kpPress('1')">1</button>
+          <button class="kp-key active-key" onclick="kpPress('2')">2</button>
+          <button class="kp-key" onclick="kpPress('3')">3</button>
+          <button class="kp-key" onclick="kpPress('4')">4</button>
+          <button class="kp-key" onclick="kpPress('5')">5</button>
+          <button class="kp-key" onclick="kpPress('6')">6</button>
+          <button class="kp-key" onclick="kpPress('7')">7</button>
+          <button class="kp-key" onclick="kpPress('8')">8</button>
+          <button class="kp-key" onclick="kpPress('9')">9</button>
+          <button class="kp-key" onclick="kpPress('.')">.</button>
+          <button class="kp-key" onclick="kpPress('0')">0</button>
+          <button class="kp-key kp-del" onclick="kpPress('del')">⌫</button>
+        </div>
+
+        <div class="sec-inputs-row">
+          <div class="sec-col">
+            <label class="sec-lbl">GROSS (KG)</label>
+            <input type="number" class="sec-inp" id="grossKg" value="0" oninput="updateEstWeight()" />
+            <span class="sec-sub" id="estWeightSub">Est. ~640 kg</span>
           </div>
-          <div class="chip inactive" data-chip="grain">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"/>
-              <path d="M8 14c0 3.3 1.8 6 4 6s4-2.7 4-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            Grain
-          </div>
-          <div class="chip inactive" data-chip="water">
-            <img src="images/icon-water-drop.png" width="14" height="14" alt="" style="opacity:.5" />
-            Water
+          <div class="sec-col">
+            <label class="sec-lbl">MOISTURE %</label>
+            <input type="text" class="sec-inp text-center" id="moisturePct" placeholder="—" />
+            <span class="sec-sub">&nbsp;</span>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Nav -->
-      <div class="bottom-nav">
-        <div class="nav-item" onclick="window.location.href='dashboard.html'">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+      <!-- STEP 4: PHOTOS -->
+      <div class="step-panel" id="step4">
+        <p class="photos-inst">Optionally attach photos. Photos sync when you're back online.</p>
+        <div class="photos-grid">
+          <div class="photo-card attached" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Load on truck</div>
+              <div class="photo-card-sub">Before unloading</div>
+            </div>
+            <div class="photo-check">✓</div>
           </div>
-          <span class="nav-lbl">Home</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#fff" stroke-width="2"/>
-              <path d="M3 10h18" stroke="#fff" stroke-width="1.5"/>
-              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-              <path d="M12 13v4M10 15h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
+          <div class="photo-card" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Bale stack</div>
+              <div class="photo-card-sub">After placement</div>
+            </div>
+            <div class="photo-check">✓</div>
           </div>
-          <span class="nav-lbl active">Stock</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M9 11l3 3L22 4" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+          <div class="photo-card" onclick="togglePhoto(this)">
+            <div class="photo-cam-icon">📷</div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">Delivery docket</div>
+              <div class="photo-card-sub">Optional</div>
+            </div>
+            <div class="photo-check">✓</div>
           </div>
-          <span class="nav-lbl">Tasks</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="nav-lbl">Menu</span>
         </div>
       </div>
+
+      <!-- STEP 5: REVIEW -->
+      <div class="step-panel" id="step5">
+        <div class="review-stats-row">
+          <div>
+            <div class="rev-stat-num" id="revStatNum">2</div>
+            <div class="rev-stat-unit" id="revStatUnit">BALES</div>
+          </div>
+          <div>
+            <div class="rev-stat-num" id="revStatGross">—</div>
+            <div class="rev-stat-unit">GROSS WT</div>
+          </div>
+          <div>
+            <div class="rev-stat-num" id="revStatMoisture">—</div>
+            <div class="rev-stat-unit">MOISTURE</div>
+          </div>
+        </div>
+
+        <div class="review-details-card">
+          <div class="rev-row">
+            <span class="rev-key">Action</span>
+            <span class="rev-badge-in">IN</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Location</span>
+            <span class="rev-val" id="revLocation">Hay Shed North › Bay 3</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Commodity</span>
+            <span class="rev-val" id="revCommodity">🌾 Hay — Oaten</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Truck</span>
+            <span class="rev-val" id="revTruck">—</span>
+          </div>
+          <div class="rev-row">
+            <span class="rev-key">Carrier</span>
+            <span class="rev-val" id="revCarrier">—</span>
+          </div>
+        </div>
+
+        <div class="offline-sync-notice">
+          <span class="notice-dot">●</span>
+          <span class="notice-txt">2 unsynced records — will upload when back online</span>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="step-panel success-screen" id="stepSuccess">
+        <div style="width: 100%; max-width: 340px; margin: auto;">
+          <div class="succ-circle">✓</div>
+          <h1 class="succ-title">Load Recorded</h1>
+          <div class="succ-subtitle" id="succSub">IN 2 bales → Hay Shed North › Bay 3</div>
+
+          <div class="succ-details-box">
+            <div class="succ-det-row">
+              <span>Commodity</span>
+              <strong id="succCommodity">Hay — Oaten</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Gross weight</span>
+              <strong id="succGross">Not weighed</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Moisture</span>
+              <strong id="succMoisture">Not recorded</strong>
+            </div>
+            <div class="succ-det-row">
+              <span>Truck</span>
+              <strong id="succTruck">—</strong>
+            </div>
+          </div>
+
+          <div class="succ-upload-wrap">
+            <div class="succ-upload-bar">
+              <div class="succ-upload-fill" id="succUploadFill"></div>
+            </div>
+            <div class="succ-upload-txt" id="succUploadTxt">Uploading photos... 0%</div>
+          </div>
+
+          <div class="succ-actions">
+            <button class="succ-btn-another" onclick="resetWizard()">Record another load</button>
+            <button class="succ-btn-dash" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- ═══════════════ SCREEN 2: REVIEW & SUBMIT ═══════════════ -->
-    <div class="panel" id="s2">
-
-      <!-- Header -->
-      <div class="review-header">
-        <div class="review-back" id="backToS1">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M19 12H5M11 6l-6 6 6 6" stroke="#1a2a3a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <div class="review-title">Review &amp; Submit</div>
-        <div class="progress-dots">
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot active"></div>
-        </div>
-      </div>
-
-      <!-- Scrollable body -->
-      <div class="review-body">
-
-        <!-- Load Details card -->
-        <div class="review-card">
-          <div class="review-card-header">
-            <div class="review-card-title">Load Details</div>
-            <div class="edit-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5Z" stroke="#8898aa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          </div>
-
-          <div class="detail-row">
-            <div class="detail-key">Action</div>
-            <div class="detail-val"><span class="badge-in">IN</span></div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-key">Location</div>
-            <div class="detail-val">Bay 3</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-key">Commodity</div>
-            <div class="detail-val">Hay</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-key">Variety</div>
-            <div class="detail-val">Oaten</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-key">Quantity</div>
-            <div class="detail-val" id="reviewQty">240 bales</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-key">Contract</div>
-            <div class="detail-val">CTR-2025-041</div>
-          </div>
-
-          <!-- Operator -->
-          <div class="operator-row">
-            <div class="operator-avatar">
-              <img src="images/avatar.png" alt="John Doe" onerror="this.style.display='none'" />
-            </div>
-            <div class="operator-info">
-              <div class="operator-label">Operator</div>
-              <div class="operator-name">John Doe</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Attached Photos -->
-        <div class="review-card photos-section">
-          <div class="photos-title">Attached Photos</div>
-          <div class="photos-row">
-            <div class="photo-thumb">
-              <svg width="80" height="72" viewBox="0 0 80 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="80" height="72" fill="#c8d8b8"/>
-                <ellipse cx="40" cy="44" rx="28" ry="10" fill="#8aad6a"/>
-                <ellipse cx="25" cy="40" rx="12" ry="8" fill="#c8a050"/>
-                <ellipse cx="55" cy="42" rx="10" ry="7" fill="#c8a050"/>
-                <rect x="20" y="28" width="40" height="16" rx="4" fill="#d4b060"/>
-                <text x="40" y="60" text-anchor="middle" fill="#fff" font-size="8" font-weight="600" font-family="sans-serif">Hay Bales</text>
-              </svg>
-            </div>
-            <div class="photo-thumb">
-              <svg width="80" height="72" viewBox="0 0 80 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="80" height="72" fill="#b8d0e8"/>
-                <rect x="0" y="40" width="80" height="32" fill="#6a8a6a"/>
-                <rect x="10" y="30" width="60" height="22" rx="4" fill="#e8c040"/>
-                <rect x="10" y="30" width="60" height="10" rx="4" fill="#c8a030"/>
-                <circle cx="20" cy="54" r="8" fill="#333"/>
-                <circle cx="60" cy="54" r="8" fill="#333"/>
-                <circle cx="20" cy="54" r="4" fill="#666"/>
-                <circle cx="60" cy="54" r="4" fill="#666"/>
-                <text x="40" y="26" text-anchor="middle" fill="#333" font-size="8" font-weight="600" font-family="sans-serif">Truck</text>
-              </svg>
-            </div>
-            <div class="photo-add">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" stroke="#c0c8c0" stroke-width="1.8"/>
-                <circle cx="12" cy="13" r="4" stroke="#c0c8c0" stroke-width="1.8"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Offline warning -->
-        <div class="offline-warn">
-          <div class="offline-dot"></div>
-          <div class="offline-text">Will sync when connected</div>
-        </div>
-
-        <!-- Submit -->
-        <div class="submit-wrap">
-          <button class="submit-btn" id="submitBtn">Submit Load</button>
-        </div>
-
-      </div>
-
-      <!-- Bottom Nav Screen 2 -->
-      <div class="bottom-nav-2">
-        <div class="nav-item" onclick="window.location.href='dashboard.html'">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M3 12L12 4l9 8" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M5 10v9a1 1 0 0 0 1 1h4v-5h4v5h4a1 1 0 0 0 1-1v-9" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span class="nav-lbl">Home</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap active">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
-              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="nav-lbl active">Records</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="7" width="18" height="13" rx="2" stroke="#8898aa" stroke-width="2"/>
-              <path d="M3 10h18" stroke="#8898aa" stroke-width="1.5"/>
-              <path d="M8 7V5a4 4 0 0 1 8 0v2" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="nav-lbl">Stock</span>
-        </div>
-        <div class="nav-item">
-          <div class="nav-icon-wrap">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path d="M4 6h16M4 12h16M4 18h16" stroke="#8898aa" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="nav-lbl">More</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════ SCREEN 3: SUCCESS ═══════════════ -->
-    <div class="panel" id="s3">
-      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:32px 28px;">
-
-        <!-- Checkmark -->
-        <div class="success-check">
-          <div class="success-check-inner">
-            <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
-              <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-
-        <div class="success-title">Load Recorded!</div>
-
-        <div class="success-pill" id="successPill">240 bales IN — Bay 3</div>
-
-        <div class="success-tags">
-          <div class="success-tag">Hay</div>
-          <div class="success-tag">Oaten</div>
-        </div>
-
-        <!-- Upload progress -->
-        <div class="upload-box">
-          <div class="upload-row">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Z" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
-              <path d="M8 17l4-4 4 4M12 13V7" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div class="upload-text">Uploading photo...</div>
-            <div class="upload-pct" id="uploadPct">45%</div>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-        </div>
-
-        <!-- Action buttons -->
-        <div class="success-btns">
-          <button class="btn-record" onclick="resetToS1()">Record Another</button>
-          <button class="btn-dashboard" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-        </div>
-
-      </div>
-    </div>
+    <!-- WIZARD FOOTER -->
+    <footer class="step-footer" id="mainFooter">
+      <button class="footer-next-btn" id="footerNextBtn" onclick="handleNext()">
+        Next — Commodity →
+      </button>
+    </footer>
 
   </main>
 </div>
 
 <script>
-  // ── Scale ──
+  // Scale
   const baseW = 390, baseH = 844, pad = 32;
   const updateScale = () => {
     const s = Math.min((window.innerWidth - pad) / baseW, (window.innerHeight - pad) / baseH, 1);
@@ -724,118 +873,274 @@
   updateScale();
   window.addEventListener('resize', updateScale);
 
-  // ── Quantity logic ──
-  let qtyStr = '240';
+  // State
+  let currentStep = 1;
+  let selectedCategory = 'Hay';
+  let selectedVariety = 'Oaten';
+  let catIcon = '🌾';
+  let qtyStr = '2';
 
-  const qtyDisplay = document.getElementById('qtyDisplay');
-  const reviewQty  = document.getElementById('reviewQty');
-  const successPill = document.getElementById('successPill');
+  const varietiesMap = {
+    Hay: ['Oaten', 'Wheaten', 'Rhodes', 'Lucerne', 'Pasture Mix'],
+    Grain: ['Wheat', 'Barley', 'Canola', 'Sorghum'],
+    Water: ['Bore Water', 'River Water', 'Dam Water']
+  };
 
-  function updateDisplays() {
-    qtyDisplay.textContent = qtyStr || '0';
-    reviewQty.textContent  = (qtyStr || '0') + ' bales';
-    successPill.textContent = (qtyStr || '0') + ' bales IN — Bay 3';
+  const iconsMap = {
+    Hay: '🌾',
+    Grain: '🌽',
+    Water: '💧'
+  };
+
+  const unitsMap = {
+    Hay: 'bales',
+    Grain: 't',
+    Water: 'L'
+  };
+
+  // Step 1 Location
+  function updateLocationSummary() {
+    const shed = document.getElementById('shedSelect').value || 'Shed';
+    const bay = document.getElementById('baySelect').value || 'Bin';
+    const cleanShed = shed.split(' (')[0];
+    document.getElementById('locSummaryText').textContent = `Green Valley Farm › ${cleanShed} › ${bay}`;
   }
-  updateDisplays();
 
-  // Numpad
-  document.querySelectorAll('.num-key').forEach(k => {
-    k.addEventListener('click', () => {
-      const key = k.dataset.key;
-      if (key === 'del') {
-        qtyStr = qtyStr.slice(0, -1);
-      } else if (key === '.') {
-        if (!qtyStr.includes('.')) qtyStr += '.';
-      } else {
-        if (qtyStr === '0') qtyStr = key;
-        else qtyStr += key;
-      }
-      updateDisplays();
+  // Step 2 Commodity
+  function renderVarietyPills() {
+    const container = document.getElementById('varietyPills');
+    container.innerHTML = '';
+    const list = varietiesMap[selectedCategory] || [];
+    list.forEach((v, idx) => {
+      const pill = document.createElement('button');
+      pill.className = `var-pill ${v === selectedVariety ? 'active' : ''}`;
+      pill.textContent = v;
+      pill.onclick = () => {
+        selectedVariety = v;
+        renderVarietyPills();
+        updateComSummary();
+      };
+      container.appendChild(pill);
     });
-  });
-
-  // Quick add
-  document.querySelectorAll('.quick-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      const n = parseFloat(qtyStr || '0') + parseInt(b.dataset.add);
-      qtyStr = String(n);
-      updateDisplays();
-    });
-  });
-
-  // Commodity chips
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip').forEach(c => {
-        c.classList.remove('active');
-        c.classList.add('inactive');
-        const img = c.querySelector('img');
-        if (img) img.style.opacity = '0.5';
-      });
-      chip.classList.add('active');
-      chip.classList.remove('inactive');
-      const img = chip.querySelector('img');
-      if (img) img.style.opacity = '1';
-    });
-  });
-
-  // ── Panel transitions ──
-  function goTo(from, to) {
-    const fEl = document.getElementById(from);
-    const tEl = document.getElementById(to);
-    fEl.classList.add('exit-left');
-    fEl.classList.remove('active');
-    tEl.classList.add('active');
-    tEl.classList.remove('exit-left');
   }
 
-  function goBack(from, to) {
-    const fEl = document.getElementById(from);
-    const tEl = document.getElementById(to);
-    fEl.classList.remove('active');
-    fEl.classList.remove('exit-left');
-    // slide back from left
-    fEl.style.transform = 'translateX(100%)';
-    setTimeout(() => fEl.style.transform = '', 340);
-    tEl.classList.remove('exit-left');
-    tEl.classList.add('active');
+  function selectCategory(cat, btnEl) {
+    selectedCategory = cat;
+    catIcon = iconsMap[cat] || '🌾';
+    selectedVariety = varietiesMap[cat][0];
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    document.getElementById('varietyLabel').textContent = `${cat.toUpperCase()} VARIETY`;
+    renderVarietyPills();
+    updateComSummary();
+    updateQtyUnit();
   }
 
-  document.getElementById('nextBtn').addEventListener('click', () => goTo('s1', 's2'));
-  document.getElementById('backToS1').addEventListener('click', () => {
-    const s1 = document.getElementById('s1');
-    const s2 = document.getElementById('s2');
-    s2.classList.remove('active');
-    s1.classList.remove('exit-left');
-    s1.classList.add('active');
-    s2.style.transform = 'translateX(100%)';
-    setTimeout(() => { s2.style.transform = ''; }, 340);
-  });
-
-  document.getElementById('submitBtn').addEventListener('click', () => goTo('s2', 's3'));
-
-  function resetToS1() {
-    const s1 = document.getElementById('s1');
-    const s3 = document.getElementById('s3');
-    s3.classList.remove('active');
-    s1.classList.remove('exit-left');
-    s1.classList.add('active');
-    s3.style.transform = 'translateX(100%)';
-    setTimeout(() => { s3.style.transform = ''; }, 340);
-    qtyStr = '0';
-    updateDisplays();
+  function updateComSummary() {
+    document.getElementById('comSummaryText').textContent = `${catIcon} ${selectedCategory} — ${selectedVariety}`;
   }
 
-  // Animate upload progress on s3 entry
-  const observer = new MutationObserver(() => {
-    const s3 = document.getElementById('s3');
-    if (s3.classList.contains('active')) {
-      document.getElementById('progressFill').style.animation = 'none';
-      void document.getElementById('progressFill').offsetWidth;
-      document.getElementById('progressFill').style.animation = 'fillProgress 2s ease forwards';
+  // Step 3 Quantity
+  function updateQtyUnit() {
+    const u = unitsMap[selectedCategory] || 'units';
+    document.getElementById('lqdUnit').textContent = u;
+    updateEstWeight();
+  }
+
+  function updateEstWeight() {
+    document.getElementById('lqdNum').textContent = qtyStr || '0';
+    const n = parseFloat(qtyStr || '0');
+    const sub = document.getElementById('estWeightSub');
+    if (selectedCategory === 'Hay') {
+      sub.textContent = `Est. ~${Math.round(n * 320)} kg`;
+    } else if (selectedCategory === 'Grain') {
+      sub.textContent = `Standard bulk density`;
+    } else {
+      sub.textContent = `~${n} kg total`;
     }
-  });
-  observer.observe(document.getElementById('s3'), { attributes: true, attributeFilter: ['class'] });
+  }
+
+  function addQty(amt) {
+    const curr = parseFloat(qtyStr || '0');
+    qtyStr = String(curr + amt);
+    updateEstWeight();
+  }
+
+  function kpPress(val) {
+    if (val === 'del') {
+      qtyStr = qtyStr.slice(0, -1);
+      if (!qtyStr) qtyStr = '0';
+    } else if (val === '.') {
+      if (!qtyStr.includes('.')) qtyStr += '.';
+    } else {
+      if (qtyStr === '0') qtyStr = val;
+      else qtyStr += val;
+    }
+    updateEstWeight();
+  }
+
+  // Step 4 Photos
+  function togglePhoto(cardEl) {
+    cardEl.classList.toggle('attached');
+  }
+
+  // Navigation
+  const stepTitles = ['', 'Location', 'Commodity', 'Quantity', 'Photos', 'Review'];
+  const stepSubtitles = ['', 'STEP 1 OF 5 — LOCATION', 'STEP 2 OF 5 — COMMODITY', 'STEP 3 OF 5 — QUANTITY', 'STEP 4 OF 5 — PHOTOS', 'STEP 5 OF 5 — REVIEW'];
+
+  function goToStep(idx) {
+    currentStep = idx;
+
+    // Handle Success Screen
+    if (idx === 6) {
+      document.getElementById('mainHeader').style.display = 'none';
+      document.getElementById('mainFooter').style.display = 'none';
+      document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('stepSuccess').classList.add('active');
+      triggerUploadAnim();
+      return;
+    }
+
+    document.getElementById('mainHeader').style.display = 'flex';
+    document.getElementById('mainFooter').style.display = 'flex';
+
+    // Update Header
+    document.getElementById('hdrTitle').textContent = stepTitles[idx];
+    document.getElementById('stepSubtitle').textContent = stepSubtitles[idx];
+
+    // Stepper bars
+    for (let i = 1; i <= 5; i++) {
+      const bar = document.getElementById(`bar${i}`);
+      bar.className = 'step-bar';
+      if (i < idx) bar.classList.add('completed');
+      else if (i === idx) bar.classList.add('active');
+    }
+
+    // Panels
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`step${idx}`).classList.add('active');
+
+    // Footer button text
+    const btn = document.getElementById('footerNextBtn');
+    if (idx === 1) btn.textContent = 'Next — Commodity →';
+    else if (idx === 2) btn.textContent = 'Next — Quantity →';
+    else if (idx === 3) btn.textContent = 'Next — Photos →';
+    else if (idx === 4) btn.textContent = 'Next — Review →';
+    else if (idx === 5) {
+      btn.textContent = 'Submit Load ✓';
+      populateReview();
+    }
+  }
+
+  function handleNext() {
+    if (currentStep === 5) {
+      // Submit
+      submitStockInRecord();
+      goToStep(6);
+      return;
+    }
+    goToStep(currentStep + 1);
+  }
+
+  function handleBack() {
+    if (currentStep === 1) {
+      window.location.href = 'dashboard.html';
+      return;
+    }
+    goToStep(currentStep - 1);
+  }
+
+  function populateReview() {
+    const u = unitsMap[selectedCategory] || '';
+    document.getElementById('revStatNum').textContent = qtyStr || '0';
+    document.getElementById('revStatUnit').textContent = u.toUpperCase();
+
+    const gross = document.getElementById('grossKg').value;
+    document.getElementById('revStatGross').textContent = gross && gross != '0' ? gross : '—';
+
+    const moist = document.getElementById('moisturePct').value;
+    document.getElementById('revStatMoisture').textContent = moist && moist.trim() ? moist : '—';
+
+    const shed = document.getElementById('shedSelect').value.split(' (')[0];
+    const bay = document.getElementById('baySelect').value;
+    document.getElementById('revLocation').textContent = `${shed} › ${bay}`;
+
+    document.getElementById('revCommodity').textContent = `${catIcon} ${selectedCategory} — ${selectedVariety}`;
+
+    const truck = document.getElementById('truckRego').value;
+    document.getElementById('revTruck').textContent = truck ? truck : '—';
+
+    const carrier = document.getElementById('carrierName').value;
+    document.getElementById('revCarrier').textContent = carrier ? carrier : '—';
+  }
+
+  function submitStockInRecord() {
+    const u = unitsMap[selectedCategory] || '';
+    const shed = document.getElementById('shedSelect').value.split(' (')[0];
+    const bay = document.getElementById('baySelect').value;
+    const truck = document.getElementById('truckRego').value || '—';
+    const gross = document.getElementById('grossKg').value;
+    const moist = document.getElementById('moisturePct').value;
+
+    const record = {
+      id: 'SIN-' + Math.floor(1000 + Math.random() * 9000),
+      action: 'IN',
+      category: selectedCategory,
+      variety: selectedVariety,
+      commodity: `${selectedCategory} - ${selectedVariety}`,
+      quantity: parseFloat(qtyStr || '0'),
+      unit: u,
+      location: `${shed} › ${bay}`,
+      truck: truck,
+      grossKg: gross && gross != '0' ? gross : null,
+      moisturePct: moist && moist.trim() ? moist : null,
+      date: new Date().toISOString()
+    };
+
+    let history = JSON.parse(localStorage.getItem('stock_in_history') || '[]');
+    history.unshift(record);
+    localStorage.setItem('stock_in_history', JSON.stringify(history));
+
+    // Populate Success Screen
+    document.getElementById('succSub').textContent = `IN ${qtyStr} ${u} → ${shed} › ${bay}`;
+    document.getElementById('succCommodity').textContent = `${selectedCategory} — ${selectedVariety}`;
+    document.getElementById('succGross').textContent = gross && gross != '0' ? gross + ' kg' : 'Not weighed';
+    document.getElementById('succMoisture').textContent = moist && moist.trim() ? moist + (moist.includes('%') ? '' : '%') : 'Not recorded';
+    document.getElementById('succTruck').textContent = truck;
+  }
+
+  function triggerUploadAnim() {
+    const fill = document.getElementById('succUploadFill');
+    const txt = document.getElementById('succUploadTxt');
+    fill.style.width = '0%';
+    txt.textContent = 'Uploading photos... 0%';
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 5;
+      if (progress <= 100) {
+        fill.style.width = progress + '%';
+        txt.textContent = `Uploading photos... ${progress}%`;
+      } else {
+        clearInterval(interval);
+        txt.textContent = 'Photos uploaded ✓';
+      }
+    }, 80);
+  }
+
+  function resetWizard() {
+    qtyStr = '2';
+    document.getElementById('grossKg').value = '0';
+    document.getElementById('moisturePct').value = '';
+    document.getElementById('truckRego').value = '';
+    document.getElementById('carrierName').value = '';
+    goToStep(1);
+  }
+
+  // Init
+  renderVarietyPills();
+  updateLocationSummary();
+  updateEstWeight();
 </script>
 </body>
 </html>

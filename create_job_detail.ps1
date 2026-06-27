@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>AgEzy – Job Detail</title>
-  <style>
+$commonStyles = @"
     :root{
       --green-dark:#1a3d28;--green-mid:#1b7239;--green:#00ab4f;
       --orange:#f5a623;--red:#d63031;--blue:#2d5bd4;
@@ -76,7 +70,7 @@
     .btn-primary.completed { background: var(--green-mid); }
     
     /* BOTTOM SHEET OVERLAY */
-    .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;}
+    .backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none;align-items:flex-end;}
     .backdrop.show{display:flex;}
     .sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-height:92%;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
     .backdrop.show .sheet{transform:translateY(0);}
@@ -106,6 +100,17 @@
     .nav-lbl.active { color:var(--green-dark); }
 
     @media(max-width:767px){.viewport{padding:0}.screen{width:390px;height:844px;border-radius:0;box-shadow:none}}
+"@
+
+$jobDetailHtml = @"
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AgEzy – Job Detail</title>
+  <style>
+$commonStyles
   </style>
 </head>
 <body>
@@ -171,7 +176,7 @@
       <div class="card">
         <div class="card-title">Estimated Contract Value</div>
         <div class="val-row">
-          <div class="val-amount">,250.00</div>
+          <div class="val-amount">$1,250.00</div>
           <div style="font-size:12px; color:var(--muted); font-weight:600;">Subject to final</div>
         </div>
       </div>
@@ -260,7 +265,7 @@
   </div>
 
           <!-- BOTTOM NAV (Solid Bar Style) -->
-                                            <style id="unified-nav-style">
+            <style id="unified-nav-style">
       #unified-nav.bottom-nav {
         flex: 0 0 auto;
         height: 70px;
@@ -299,15 +304,10 @@
         <div class="nav-icon active"><img src="images/nav-contract-work.png" alt="Contracting" /></div>
         <div class="nav-label">Contracting</div>
       </div>
-      <!-- Inventory -->
-      <div class="nav-item " onclick="window.location.href='commodity-catalog.html'">
-        <div class="nav-icon ">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8898aa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
-        </div>
-        <div class="nav-label">Inventory</div>
+      <!-- Stock On Hand -->
+      <div class="nav-item " onclick="window.location.href='contracts-list.html'">
+        <div class="nav-icon "><img src="images/nav-contracts.png" alt="Stock On Hand" style="filter:invert(30%) sepia(0%) saturate(0%) brightness(60%); width:auto; object-fit:contain;" /></div>
+        <div class="nav-label">Stock On Hand</div>
       </div>
       <!-- Timesheets -->
       <div class="nav-item " onclick="window.location.href='timesheets-list.html'">
@@ -385,3 +385,7 @@
 
 </script>
 </body></html>
+"@
+
+Set-Content -Path "job-detail.html" -Value $jobDetailHtml -NoNewline
+Write-Host "Re-created job-detail.html"
